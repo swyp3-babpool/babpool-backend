@@ -100,10 +100,12 @@ jobs:
             tags: ${{ secrets.DOCKERHUB_USERNAME }}/babpool-server-image:latest
             no-cache: true
 
-      - name: Create docker-compose.yml from secrets to Project
+      - name: Create docker-compose.yml from secrets
         run: |
           touch ./docker-compose.yaml
           echo -e "${{secrets.DOCKER_COMPOSE}}" | base64 --decode > ./docker-compose.yaml
+      - name: Upload docker-compose.yaml to Repo
+        uses: actions/upload-artifact@v3
         with:
           name: docker-compose.yaml
           path: ./docker-compose.yaml
