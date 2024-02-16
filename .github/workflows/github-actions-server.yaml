@@ -1,0 +1,141 @@
+name: Spring Boot Gradle CICD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/github-actions-server.yaml'
+
+permissions:
+    contents: write
+
+jobs:
+  springboot-build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Create application.yml
+        uses: actions/checkout@v3
+        run: |
+          touch ./src/main/resources/application.yml
+          echo -e "${{secrets.APPLICATION}}" | base64 --decode > ./src/main/resources/application.yml
+        with:
+            name: application.yml
+            path: ./src/main/resources/application.yml
+            retention-days: 1
+
+        - name: Create application.yml, *.sql and log4jdbc.lof4j2.properties for test
+          run: |
+            mkdir -p ./src/test/resources/data
+            touch ./src/test/resources/application.yml
+            echo -e "${{secrets.APPLICATION_TEST}}" | base64 --decode > ./src/test/resources/application.yml
+            touch ./src/test/resources/data.sql
+            echo -e "${{secrets.DATA_SQL}}" | base64 --decode > ./src/test/resources/data.sql
+            touch ./src/test/resources/schema.sql
+            echo -e "${{secrets.SCHEMA_SQL}}" | base64 --decode > ./src/test/resources/schema.sql
+            touch ./src/test/resources/log4jdbc.log4j2.properties
+            echo -e "${{secrets.LOG4JDBC}}" | base64 --decode > ./src/test/resources/log4jdbc.log4j2.properties
+
+        - name: Upload application.yml for test
+          uses: actions/upload-artifact@v3
+          with:
+            name: application.yml
+            path: ./src/test/resources/application.yml
+            retention-days: 1
+
+        - name: Upload data.sql for test
+            uses: actions/upload-artifact@v3
+            with:
+                name: data.sql
+                path: ./src/test/resources/data.sql
+                retention-days: 1
+
+        - name: Upload schema.sql for test
+            uses: actions/upload-artifact@v3
+            with:
+                name: schema.sql
+                path: ./src/test/resources/schema.sql
+                retention-days: 1
+
+        - name: Upload log4jdbc.log4j2.properties for test
+            uses: actions/upload-artifact@v3
+            with:
+                name: log4jdbc.log4j2.properties
+                path: ./src/test/resources/log4jdbc.log4j2.properties
+                retention-days: 1
+
+        - name: Setup Gradle
+          uses: gradle/gradle-build-action@v2
+
+        - name: Grant execute permission for gradlew
+          run: chmod +x ./gradlew
+
+        - name: Execute Gradle build
+          run: ./gradlew clean build
+
+        - name: Login to DockerHub
+          uses: docker/login-action@v2
+          with:
+            username: ${{ secrets.DOCKERHUB_USERNAME }}
+            password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+        - name: Build Babpool Server Image And Push to hub
+          uses: docker/build-push-action@v4
+            with:
+                context: .
+                push: true
+                tags: ${{ secrets.DOCKERHUB_USERNAME }}/babpool-server-image:latest
+                no-cache: true
+
+        - name: Create docker-compose.yml from secrets to Project
+          run: |
+            touch ./docker-compose.yaml
+            echo -e "${{secrets.DOCKER_COMPOSE}}" | base64 --decode > ./docker-compose.yaml
+          with:
+            name: docker-compose.yaml
+            path: ./docker-compose.yaml
+            retention-days: 1
+
+        - name: Copy docker-compose.yml to VM
+          uses: appleboy/scp-action@v0.1.4
+          with:
+            host: ${{ secrets.VM_HOST_IP }}
+            username: ${{ secrets.VM_USERNAME }}
+            key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+            source: "docker-compose.yaml"
+            target: "/home/ubuntu"
+
+        - name: executing remote ssh commands using password
+          uses: appleboy/ssh-action@v1.0.0
+          with:
+            host: ${{ secrets.VM_HOST_IP }}
+            username: ${{ secrets.VM_USERNAME }}
+            key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+            script: |
+              if [ "$(docker ps -q --filter name=server)" ]; then
+                sudo docker rm -f $(docker ps -q --filter name=server)
+                sudo docker rmi $(docker images -q --filter reference=babpool-server-image)
+              fi
+              sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/babpool/babpool-server-image
+              sudo docker compose -f /home/ubuntu/docker-compose.yaml up -d server
+              docker image prune -a -f
+
+        - name: Send Github Actions Result to Slack
+          uses: 8398a7/action-slack@v3
+          with:
+            status: ${{ job.status }}
+            author_name: Github Action Test
+            fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+          env:
+            SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          if: always()
