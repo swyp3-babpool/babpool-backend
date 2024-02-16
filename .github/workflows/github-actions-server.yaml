@@ -49,10 +49,10 @@ jobs:
           touch ./src/test/resources/log4jdbc.log4j2.properties
           echo -e "${{secrets.LOG4JDBC}}" | base64 --decode > ./src/test/resources/log4jdbc.log4j2.properties
 
-      - name: Upload application.yml for test
+      - name: Upload application-test.yml for test
         uses: actions/upload-artifact@v3
         with:
-          name: application.yml
+          name: application-test.yml
           path: ./src/test/resources/application-test.yml
           retention-days: 1
 
