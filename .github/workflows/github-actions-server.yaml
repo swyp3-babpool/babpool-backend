@@ -54,25 +54,25 @@ jobs:
           retention-days: 1
 
       - name: Upload data.sql for test
-          uses: actions/upload-artifact@v3
-          with:
-              name: data.sql
-              path: ./src/test/resources/data.sql
-              retention-days: 1
+        uses: actions/upload-artifact@v3
+        with:
+            name: data.sql
+            path: ./src/test/resources/data.sql
+            retention-days: 1
 
       - name: Upload schema.sql for test
-          uses: actions/upload-artifact@v3
-          with:
-              name: schema.sql
-              path: ./src/test/resources/schema.sql
-              retention-days: 1
+        uses: actions/upload-artifact@v3
+        with:
+            name: schema.sql
+            path: ./src/test/resources/schema.sql
+            retention-days: 1
 
       - name: Upload log4jdbc.log4j2.properties for test
-          uses: actions/upload-artifact@v3
-          with:
-              name: log4jdbc.log4j2.properties
-              path: ./src/test/resources/log4jdbc.log4j2.properties
-              retention-days: 1
+        uses: actions/upload-artifact@v3
+        with:
+            name: log4jdbc.log4j2.properties
+            path: ./src/test/resources/log4jdbc.log4j2.properties
+            retention-days: 1
 
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
@@ -91,11 +91,11 @@ jobs:
 
       - name: Build Babpool Server Image And Push to hub
         uses: docker/build-push-action@v4
-          with:
-              context: .
-              push: true
-              tags: ${{ secrets.DOCKERHUB_USERNAME }}/babpool-server-image:latest
-              no-cache: true
+        with:
+            context: .
+            push: true
+            tags: ${{ secrets.DOCKERHUB_USERNAME }}/babpool-server-image:latest
+            no-cache: true
 
       - name: Create docker-compose.yml from secrets to Project
         run: |
