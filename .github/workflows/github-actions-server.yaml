@@ -24,11 +24,14 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Create application.yml
+      - name: Checkout the repo
         uses: actions/checkout@v3
+
+      - name: Create application.yml
         run: |
           touch ./src/main/resources/application.yml
           echo -e "${{secrets.APPLICATION}}" | base64 --decode > ./src/main/resources/application.yml
+      - uses: actions/upload-artifact@v3
         with:
             name: application.yml
             path: ./src/main/resources/application.yml
