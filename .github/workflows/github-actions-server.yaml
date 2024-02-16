@@ -126,7 +126,7 @@ jobs:
                 sudo docker rm -f $(docker ps -q --filter name=server)
                 sudo docker rmi $(docker images -q --filter reference=babpool-server-image)
               fi
-              sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/babpool/babpool-server-image
+              sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/babpool-server-image
               sudo docker compose -f /home/ubuntu/docker-compose.yaml up -d server
               docker image prune -a -f
 
