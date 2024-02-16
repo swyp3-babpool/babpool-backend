@@ -42,10 +42,10 @@ jobs:
           mkdir -p ./src/test/resources/data
           touch ./src/test/resources/application-test.yml
           echo -e "${{secrets.APPLICATION_TEST}}" | base64 --decode > ./src/test/resources/application-test.yml
-          touch ./src/test/resources/data.sql
-          echo -e "${{secrets.DATA_SQL}}" | base64 --decode > ./src/test/resources/data.sql
-          touch ./src/test/resources/schema.sql
-          echo -e "${{secrets.SCHEMA_SQL}}" | base64 --decode > ./src/test/resources/schema.sql
+          touch ./src/test/resources/data/data.sql
+          echo -e "${{secrets.DATA_SQL}}" | base64 --decode > ./src/test/resources/data/data.sql
+          touch ./src/test/resources/data/schema.sql
+          echo -e "${{secrets.SCHEMA_SQL}}" | base64 --decode > ./src/test/resources/data/schema.sql
           touch ./src/test/resources/log4jdbc.log4j2.properties
           echo -e "${{secrets.LOG4JDBC}}" | base64 --decode > ./src/test/resources/log4jdbc.log4j2.properties
 
@@ -84,7 +84,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Execute Gradle build
-        run: ./gradlew clean build
+        run: ./gradlew clean build -i
 
       - name: Login to DockerHub
         uses: docker/login-action@v2
