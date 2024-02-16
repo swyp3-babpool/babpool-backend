@@ -28,6 +28,7 @@ out/
 *.yml
 *.sql
 *.properties
+!**/src/main/**/resources/log4jdbc.log4j2.properties
 
 ### NetBeans ###
 /nbproject/private/
