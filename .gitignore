@@ -30,6 +30,7 @@ out/
 *.properties
 !**/src/main/**/resources/log4jdbc.log4j2.properties
 docker-compose.yaml
+nginx/app.conf
 
 ### NetBeans ###
 /nbproject/private/

@@ -110,7 +110,6 @@ jobs:
           name: docker-compose.yaml
           path: ./docker-compose.yaml
           retention-days: 1
-
       - name: Copy docker-compose.yml to VM
         uses: appleboy/scp-action@v0.1.4
         with:
@@ -119,6 +118,25 @@ jobs:
           key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
           source: "docker-compose.yaml"
           target: "/home/ubuntu"
+
+      - name: Create app.conf from secrets
+        run: |
+          touch ./app.conf
+          echo -e "${{secrets.NGINX_APP_CONF}}" | base64 --decode > ./app.conf
+      - name: Upload app.conf to Repo
+        uses: actions/upload-artifact@v3
+        with:
+          name: app.conf
+          path: ./app.conf
+          retention-days: 1
+      - name: Copy app.conf to VM
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.VM_HOST_IP }}
+          username: ${{ secrets.VM_USERNAME }}
+          key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+          source: "app.conf"
+          target: "/home/ubuntu/data/nginx/conf"
 
       - name: executing remote ssh commands using password
         uses: appleboy/ssh-action@v1.0.0
@@ -132,7 +150,7 @@ jobs:
               sudo docker rmi $(docker images -q --filter reference=babpool-server-image)
             fi
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/babpool-server-image
-            sudo docker compose -f /home/ubuntu/docker-compose.yaml up -d server
+            sudo docker compose -f /home/ubuntu/docker-compose.yaml up -d
             docker image prune -a -f
 
       - name: Send Github Actions Result to Slack
