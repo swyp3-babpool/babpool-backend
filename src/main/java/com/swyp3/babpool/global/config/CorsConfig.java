@@ -6,20 +6,23 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.util.Arrays;
+
 @Slf4j
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
 
-    // TODO : @Value 어노테이션, Caused by: java.lang.IllegalArgumentException: Could not resolve placeholder 'property.url.clientUrl' in value "${property.url.clientUrl}" 에러 발생
-//    @Value("${property.url.clientUrl}")
-//    private String[] clientUrl;
+    private String[] clientUrl;
+    public CorsConfig( @Value("${property.url.clientUrl}") String[] clientUrl) {
+        this.clientUrl = clientUrl;
+    }
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
+        log.info("current clientUrl: {}", Arrays.toString(clientUrl));
         registry
             .addMapping("/**")
-//            .allowedOrigins(clientUrl)
-            .allowedOrigins("http://localhost:5173", "https://bab-pool.com", "https://www.bab-pool.com")
+            .allowedOrigins(clientUrl)
             .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
             .allowedHeaders("*")
             .allowCredentials(true);
