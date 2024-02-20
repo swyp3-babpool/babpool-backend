@@ -29,20 +29,21 @@ public class ApiResponseWithCookie<T> {
     }
 
     @Builder
-    public static <T> ApiResponseWithCookie<T> ofMultipleCookies(HttpStatus status, String message, T data, Map<String, String> cookiesKeyValue, String clientDomain) {
+    public static <T> ApiResponseWithCookie<T> ofMultipleCookies(HttpStatus status, String message, T data, Map<String, String> cookiesKeyValue, String clientDomain, Integer times) {
         List<ResponseCookie> cookies = cookiesKeyValue.entrySet().stream()
-                .map(entry -> createCookie(entry.getKey(), entry.getValue(), clientDomain, 24))
+                .map(entry -> createCookie(entry.getKey(), entry.getValue(), clientDomain, times))
                 .toList();
         return new ApiResponseWithCookie<>(status, message, data, cookies);
     }
 
+    @Builder
     public static <T> ApiResponseWithCookie<T> of(HttpStatus status, String message, T data, String cookieKey, String cookieValue, String clientDomain, Integer times) {
         return new ApiResponseWithCookie<>(status, message, data, List.of(createCookie(cookieKey, cookieValue, clientDomain, times)));
     }
 
     @Builder
-    public static <T> ApiResponseWithCookie<T> ofRefreshToken(HttpStatus status, String message, T data, String refreshToken, String clientDomain) {
-        List<ResponseCookie> cookies = List.of(createCookie("refreshToken", refreshToken, clientDomain, 24*3));
+    public static <T> ApiResponseWithCookie<T> ofRefreshToken(HttpStatus status, String message, T data, String refreshToken, String clientDomain, Integer times) {
+        List<ResponseCookie> cookies = List.of(createCookie("refreshToken", refreshToken, clientDomain, times));
         return new ApiResponseWithCookie<>(status, message, data, cookies);
     }
 
