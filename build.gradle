@@ -35,7 +35,7 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-impl:0.11.2'
     implementation 'io.jsonwebtoken:jjwt-jackson:0.11.2'
 
-    implementation platform("org.springframework.cloud:spring-cloud-dependencies:2022.0.3")
+    implementation platform("org.springframework.cloud:spring-cloud-dependencies:2023.0.0")
     implementation "org.springframework.cloud:spring-cloud-starter-openfeign"
 
     implementation 'com.google.code.gson:gson'
@@ -50,6 +50,9 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.3'
     testImplementation 'com.h2database:h2'
+
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
 
 }
 
