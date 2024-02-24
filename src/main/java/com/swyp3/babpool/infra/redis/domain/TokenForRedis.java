@@ -15,9 +15,9 @@ import java.util.concurrent.TimeUnit;
 public class TokenForRedis {
 
     @Id
-    String userUUID;
-
     String refreshToken;
+
+    String userUUID;
 
     @TimeToLive(unit = TimeUnit.DAYS)
     Integer refreshExpire;
