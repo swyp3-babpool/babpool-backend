@@ -1,6 +1,6 @@
 package com.swyp3.babpool.infra.auth.kakao;
 
-import com.swyp3.babpool.infra.auth.JwtParser;
+import com.swyp3.babpool.infra.auth.AuthJwtParser;
 import com.swyp3.babpool.infra.auth.PublicKeyGenerator;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,7 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class KakaoMemberProvider {
-    private final JwtParser jwtParser;
+    private final AuthJwtParser authJwtParser;
     private final PublicKeyGenerator publicKeyGenerator;
     private final KakaoClient kakaoClient;
     @Value("${property.oauth.kakao.iss}")
@@ -22,11 +22,11 @@ public class KakaoMemberProvider {
     private String clientId;
 
     public KakaoPlatformMemberResponse getKakaoPlatformMember(String identityToken){
-        Map<String, String> headers = jwtParser.parseHeaders(identityToken);
+        Map<String, String> headers = authJwtParser.parseHeaders(identityToken);
         KakaoPublicKeys kakaoPublicKeys = kakaoClient.getKakaoOIDCOpenKeys();
         PublicKey publicKey = publicKeyGenerator.generateKakaoPublicKey(headers, kakaoPublicKeys);
 
-        Claims claims = jwtParser.parsePublicKeyAndGetClaims(identityToken, publicKey);
+        Claims claims = authJwtParser.parsePublicKeyAndGetClaims(identityToken, publicKey);
         validateClaims(claims);
 
         return new KakaoPlatformMemberResponse(claims.getSubject(),claims.get("email",String.class));

@@ -3,17 +3,15 @@ package com.swyp3.babpool.infra.auth;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
-import lombok.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.UnsupportedEncodingException;
 import java.security.PublicKey;
 import io.jsonwebtoken.security.SignatureException;
 import java.util.Base64;
 import java.util.Map;
 
 @Component
-public class JwtParser {
+public class AuthJwtParser {
     private static final String IDENTITY_TOKEN_SPLITER = "\\.";
     private static final int HEADER_INDEX = 0;
 
