@@ -7,5 +7,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public class KakaoPlatformMemberResponse {
     private String platformId;
+    private String nickname;
+    private String profile_image;
     private String email;
+
 }

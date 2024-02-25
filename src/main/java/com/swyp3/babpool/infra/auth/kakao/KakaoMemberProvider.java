@@ -29,7 +29,7 @@ public class KakaoMemberProvider {
         Claims claims = authJwtParser.parsePublicKeyAndGetClaims(identityToken, publicKey);
         validateClaims(claims);
 
-        return new KakaoPlatformMemberResponse(claims.getSubject(),claims.get("email",String.class));
+        return new KakaoPlatformMemberResponse(claims.getSubject(),claims.get("nickname",String.class),claims.get("picture",String.class),claims.get("email",String.class));
     }
 
     private void validateClaims(Claims claims) {
