@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @JsonDeserialize(using = PlatformDeserializer.class)
-public enum Platform {
+public enum AuthPlatform {
     KAKAO,
     GOOGLE
 }
