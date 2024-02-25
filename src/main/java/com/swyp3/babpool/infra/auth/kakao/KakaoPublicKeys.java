@@ -13,7 +13,7 @@ public class KakaoPublicKeys {
 
     public BabpoolPublicKey getMatchesKey(String kid) {
         return this.keys.stream()
-                .filter(o -> o.getKid().equals(kid))
+                .filter(key -> key.getKid().equals(kid))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Kakao JWT 값의 kid 정보가 올바르지 않습니다."));
     }
