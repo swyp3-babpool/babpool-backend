@@ -25,20 +25,21 @@ class TokenRedisRepositoryTest {
     @Test
     void save() {
         // given
-        TokenForRedis tokenForRedis = TokenForRedis.builder()
+        String refreshToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMTIzNDU2Nzg5Iiwicm9sZXMiOiJST0xFX1VTRVIiLCJpYXQiOjE1MTYyMzkwMjJ9.tac5NQLH2MmB-CmUvYllf2ftt2VnxTGRPxd2fHDopyY";
+        TokenForRedis target = TokenForRedis.builder()
                 .userUUID("0123456789")
-                .refreshToken("token-token")
+                .refreshToken(refreshToken)
                 .refreshExpire(10)
                 .build();
         // when
-        TokenForRedis savedToken = tokenRedisRepository.save(tokenForRedis);
+        TokenForRedis savedToken = tokenRedisRepository.save(target);
 
         // then
-        tokenRedisRepository.findById("0123456789")
+        tokenRedisRepository.findById(refreshToken)
                 .ifPresent(token -> {
-                    assertThat(token.getUserUUID()).isEqualTo(savedToken.getUserUUID());
-                    assertThat(token.getRefreshToken()).isEqualTo(savedToken.getRefreshToken());
-                    assertThat(token.getRefreshExpire()).isEqualTo(savedToken.getRefreshExpire()-1);
+                    assertThat(target.getUserUUID()).isEqualTo(savedToken.getUserUUID());
+                    assertThat(target.getRefreshToken()).isEqualTo(savedToken.getRefreshToken());
+                    assertThat(target.getRefreshExpire()).isEqualTo(savedToken.getRefreshExpire());
                 });
     }
 }
