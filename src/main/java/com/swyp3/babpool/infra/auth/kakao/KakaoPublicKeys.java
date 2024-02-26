@@ -12,6 +12,7 @@ public class KakaoPublicKeys {
     private List<BabpoolPublicKey> keys;
 
     public BabpoolPublicKey getMatchesKey(String kid) {
+        //TODO: OAuthException 커스텀 에러 필요
         return this.keys.stream()
                 .filter(key -> key.getKid().equals(kid))
                 .findFirst()
