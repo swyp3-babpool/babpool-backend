@@ -8,7 +8,7 @@
         <result property="userUuid" column="user_uuid"/>
     </resultMap>
 
-    <select id="findByUserUuId" parameterType="Long" resultMap="userUuid">
+    <select id="findByUserUuId" resultMap="userUuid">
         SELECT * FROM t_user_uuid where user_uuid = #{userUuid}
     </select>
 

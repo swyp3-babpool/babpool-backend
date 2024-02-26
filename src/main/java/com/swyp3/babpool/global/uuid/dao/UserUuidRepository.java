@@ -8,5 +8,5 @@ import java.util.Optional;
 @Mapper
 public interface UserUuidRepository {
 
-    Optional<UserUuid> findByUserUuId(String uuid);
+    Optional<UserUuid> findByUserUuId(String userUuid);
 }
