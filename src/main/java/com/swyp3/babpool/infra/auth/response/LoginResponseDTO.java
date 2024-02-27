@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class LoginResponseDTO {
-    private Long userId;
+    private String userUuid;
     private String accessToken;
     private Boolean isRegistered;
 }
