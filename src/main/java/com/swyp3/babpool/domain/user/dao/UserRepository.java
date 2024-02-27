@@ -1,7 +1,17 @@
 package com.swyp3.babpool.domain.user.dao;
 
+import com.swyp3.babpool.domain.user.domain.User;
+import com.swyp3.babpool.infra.auth.AuthPlatform;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 @Mapper
 public interface UserRepository {
+    void save(User user);
+
+    Long findUserIdByPlatformAndPlatformId(@Param("platformName") AuthPlatform authPlatform,@Param("platformId") String platformId);
+
+    User findById(Long userId);
 }
