@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.swyp3.babpool.domain.user.dao.UserRepository">
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="userId">
+        insert into t_user_account(user_email,user_status,user_role,user_grade,user_nick_name,user_create_date,user_modify_date)
+        values ( #{userEmail},#{userStatus},#{userRole},#{userGrade},#{userNickName},#{userCreateDate},#{userModifyDate} )
+    </insert>
+
+    <select id="findById" resultType="com.swyp3.babpool.domain.user.domain.User">
+        select user_id,user_email,user_status,user_role,user_grade,user_nick_name,user_create_date,user_modify_date
+        from t_user_account
+        where user_id = #{userId}
+    </select>
+
+    <select id="findUserIdByPlatformAndPlatformId" resultType="Long">
+        select u.user_id
+        from t_user_account u
+        join t_oauth o on u.user_id = o.user_id
+        where o.oauth_platform_name = #{platformName} and o.oauth_platform_id = #{platformId}
+    </select>
+
+</mapper>
