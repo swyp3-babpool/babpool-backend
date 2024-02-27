@@ -24,6 +24,7 @@ public class AuthService {
     private final AuthRepository authRepository;
 
     public LoginResponseDTO kakaoLogin(LoginRequestDTO loginRequest) {
+        //TODO: 들어온 값들 중 NULL 있는지 예외 처리 필요
         AuthMemberResponse kakaoPlatformMember = kakaoMemberProvider.getKakaoPlatformMember(loginRequest.getIdToken());
         return generateLoginResponse(AuthPlatform.KAKAO,kakaoPlatformMember);
     }
@@ -59,14 +60,21 @@ public class AuthService {
     }
 
     private LoginResponseDTO getLoginResponse(User createUser, boolean isRegistered) {
+        //TODO : 현도님 코드 적용 필요
         String accessToken = "accessToken"; //현도님 코드 사용
         String refreshToken = "refreshToken"; //현도님 코드 사용
+        String userUuid = "userUuid"; //후에 현도님 코드 적용 필요
 
-        return new LoginResponseDTO(createUser.getUserId(), accessToken,isRegistered);
+        return new LoginResponseDTO(userUuid, accessToken,isRegistered);
     }
 
     private User createUser(AuthPlatform authPlatform, AuthMemberResponse authMemberResponse) {
-        User user = User.createUser(authMemberResponse);
+
+        User user = User.builder()
+                .email(authMemberResponse.getEmail())
+                .nickName(authMemberResponse.getNickname())
+                .build();
+
         userRepository.save(user);
 
         Long savedId = user.getUserId();
