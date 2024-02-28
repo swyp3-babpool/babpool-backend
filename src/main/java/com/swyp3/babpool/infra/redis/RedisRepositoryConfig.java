@@ -27,8 +27,11 @@ public class RedisRepositoryConfig {
     @Value("${spring.data.redis.port}")
     private int redisPort;
 
-    @Value(value = "${spring.data.redis.password}")
-    private String redisPassword;
+    /**
+     * @deprecated Redis password not necessary. AWS ElastiCache for Redis support through EC2 connection only.
+     */
+//    @Value(value = "${spring.data.redis.password}")
+//    private String redisPassword;
 
     private final Environment environment;
 
@@ -38,11 +41,11 @@ public class RedisRepositoryConfig {
         redisStandaloneConfiguration.setHostName(redisHost);
         redisStandaloneConfiguration.setPort(redisPort);
         // set redis password when active profile is production
-        Arrays.stream(environment.getActiveProfiles()).forEach(profile -> {
-            if (profile.equals("production")) {
-                redisStandaloneConfiguration.setPassword(redisPassword);
-            }
-        });
+//        Arrays.stream(environment.getActiveProfiles()).forEach(profile -> {
+//            if (profile.equals("production")) {
+//                redisStandaloneConfiguration.setPassword(redisPassword);
+//            }
+//        });
         return new LettuceConnectionFactory(redisStandaloneConfiguration);
     }
 
