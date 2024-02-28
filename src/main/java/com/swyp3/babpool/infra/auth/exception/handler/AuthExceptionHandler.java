@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class AuthExceptionHandler {
     @ExceptionHandler
     protected ApiErrorResponse handleAuthException(AuthException exception){
-        log.error("JwtException getJwtExceptionErrorCode() >> "+exception.getAuthExceptionErrorCode());
-        log.error("JwtException getMessage() >> "+exception.getMessage());
+        log.error("AuthException getAuthExceptionErrorCode() >> "+exception.getAuthExceptionErrorCode());
+        log.error("AuthException getMessage() >> "+exception.getMessage());
         return ApiErrorResponse.of(exception.getAuthExceptionErrorCode());
     }
 }
