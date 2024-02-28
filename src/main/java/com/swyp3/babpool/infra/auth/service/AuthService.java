@@ -27,7 +27,6 @@ public class AuthService {
     private final JwtService jwtService;
 
     public LoginResponseDTO kakaoLogin(LoginRequestDTO loginRequest) {
-        //TODO: 들어온 값들 중 NULL 있는지 예외 처리 필요
         AuthMemberResponse kakaoPlatformMember = kakaoMemberProvider.getKakaoPlatformMember(loginRequest.getIdToken());
         return generateLoginResponse(AuthPlatform.KAKAO,kakaoPlatformMember);
     }

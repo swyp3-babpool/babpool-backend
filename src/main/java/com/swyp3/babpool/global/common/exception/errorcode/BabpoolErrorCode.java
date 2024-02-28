@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 public enum BabpoolErrorCode implements CustomErrorCode{
 
     BABPOOL_ERROR_CODE(HttpStatus.INTERNAL_SERVER_ERROR, "Babpool Error Code"),
+    INVALID_REQUEST(HttpStatus.BAD_REQUEST, "올바르지 않은 요청 내용입니다."),
     ;
 
     private final HttpStatus httpStatus;
@@ -17,11 +18,11 @@ public enum BabpoolErrorCode implements CustomErrorCode{
 
     @Override
     public HttpStatus getHttpStatus() {
-        return null;
+        return httpStatus;
     }
 
     @Override
     public String getMessage() {
-        return null;
+        return message;
     }
 }

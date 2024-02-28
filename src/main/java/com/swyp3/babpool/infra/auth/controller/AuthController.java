@@ -21,7 +21,6 @@ public class AuthController {
 
     @PostMapping("/sign/in")
     public ApiResponse<LoginResponseDTO> login(@RequestBody @Valid LoginRequestDTO loginRequest){
-        //TODO: @NotNull에 걸렸을 때 커스텀 에러 필요
         LoginResponseDTO response = authService.kakaoLogin(loginRequest);
         return ApiResponse.ok(response);
     }

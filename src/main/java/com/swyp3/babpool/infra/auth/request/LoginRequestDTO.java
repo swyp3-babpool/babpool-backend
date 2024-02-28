@@ -6,8 +6,8 @@ import lombok.Getter;
 
 @Getter
 public class LoginRequestDTO {
-    @NotNull
+    @NotNull(message = "요청 정보가 유효하지 않습니다.")
     private AuthPlatform authPlatform;
-    @NotNull
+    @NotNull(message = "요청 정보가 유효하지 않습니다.")
     private String idToken;
 }
