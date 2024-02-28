@@ -2,6 +2,8 @@ package com.swyp3.babpool.infra.auth;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.swyp3.babpool.infra.auth.exception.AuthException;
+import com.swyp3.babpool.infra.auth.exception.errorcode.AuthExceptionErrorCode;
 import io.jsonwebtoken.*;
 import org.springframework.stereotype.Component;
 
@@ -23,8 +25,7 @@ public class AuthJwtParser {
             String decodedHeader = new String(Base64.getDecoder().decode(encodedHeader));
             return objectMapper.readValue(decodedHeader, Map.class);
         } catch(JsonProcessingException | ArrayIndexOutOfBoundsException e) {
-            //TODO: OAuthException 커스텀 에러 필요
-            throw new IllegalStateException("JWTParser의 parseHeaders 오류");
+            throw new AuthException(AuthExceptionErrorCode.AUTH_UNSUPPORTED_ID_TOKEN_TYPE);
         }
     }
 
@@ -35,11 +36,9 @@ public class AuthJwtParser {
                     .parseClaimsJws(idToken)
                     .getBody();
         }catch(ExpiredJwtException e){
-            //TODO: OAuthException 커스텀 에러 필요
-            throw new IllegalStateException("JwtParser 중 오류: 만료된 JWT 토큰입니다.");
+            throw new AuthException(AuthExceptionErrorCode.AUTH_TOKEN_EXPIRED);
         }catch (UnsupportedJwtException | MalformedJwtException | SignatureException | IllegalArgumentException e){
-            //TODO: OAuthException 커스텀 에러 필요
-            throw new IllegalStateException("JwtParser 중 오류: 올바르지 않은 토큰입니다.");
+            throw new AuthException(AuthExceptionErrorCode.AUTH_MALFORMED_TOKEN);
         }
     }
 }

@@ -2,6 +2,8 @@ package com.swyp3.babpool.infra.auth.service;
 
 import com.swyp3.babpool.domain.user.dao.UserRepository;
 import com.swyp3.babpool.domain.user.domain.User;
+import com.swyp3.babpool.global.util.jwt.JwtTokenizer;
+import com.swyp3.babpool.global.util.jwt.application.JwtService;
 import com.swyp3.babpool.infra.auth.AuthPlatform;
 import com.swyp3.babpool.infra.auth.domain.Auth;
 import com.swyp3.babpool.infra.auth.kakao.KakaoMemberProvider;
@@ -22,6 +24,7 @@ public class AuthService {
     private final KakaoMemberProvider kakaoMemberProvider;
     private final UserRepository userRepository;
     private final AuthRepository authRepository;
+    private final JwtService jwtService;
 
     public LoginResponseDTO kakaoLogin(LoginRequestDTO loginRequest) {
         //TODO: 들어온 값들 중 NULL 있는지 예외 처리 필요
@@ -61,7 +64,9 @@ public class AuthService {
 
     private LoginResponseDTO getLoginResponse(User createUser, boolean isRegistered) {
         //TODO : 현도님 코드 적용 필요
-        String accessToken = "accessToken"; //현도님 코드 사용
+        String accessToken = "accessToken";
+        //String accessToken = jwtTokenizer.createAccessToken();//현도님 코드 사용
+
         String refreshToken = "refreshToken"; //현도님 코드 사용
         String userUuid = "userUuid"; //후에 현도님 코드 적용 필요
 

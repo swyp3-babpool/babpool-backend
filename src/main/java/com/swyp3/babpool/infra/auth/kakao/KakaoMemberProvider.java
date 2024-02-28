@@ -2,6 +2,8 @@ package com.swyp3.babpool.infra.auth.kakao;
 
 import com.swyp3.babpool.infra.auth.AuthJwtParser;
 import com.swyp3.babpool.infra.auth.PublicKeyGenerator;
+import com.swyp3.babpool.infra.auth.exception.AuthException;
+import com.swyp3.babpool.infra.auth.exception.errorcode.AuthExceptionErrorCode;
 import com.swyp3.babpool.infra.auth.response.AuthMemberResponse;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
@@ -35,8 +37,7 @@ public class KakaoMemberProvider {
 
     private void validateClaims(Claims claims) {
         if(!claims.getIssuer().contains(iss)&&claims.getAudience().equals(clientId)){
-            //TODO: OAuthException 커스텀 에러 필요
-            throw new IllegalStateException("KakaoMemberProvider : OAuth JWT 토큰의 Claim 값이 올바르지 않습니다.");
+            throw new AuthException(AuthExceptionErrorCode.AUTH_JWT_ERROR);
         }
     }
 

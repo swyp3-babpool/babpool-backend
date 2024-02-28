@@ -1,5 +1,7 @@
 package com.swyp3.babpool.infra.auth;
 
+import com.swyp3.babpool.infra.auth.exception.AuthException;
+import com.swyp3.babpool.infra.auth.exception.errorcode.AuthExceptionErrorCode;
 import com.swyp3.babpool.infra.auth.kakao.KakaoPublicKeys;
 import org.springframework.stereotype.Component;
 
@@ -36,8 +38,7 @@ public class PublicKeyGenerator {
             KeyFactory keyFactory = KeyFactory.getInstance(publicKey.getKty());
             return keyFactory.generatePublic(publicKeySpec);
         }catch(NoSuchAlgorithmException | InvalidKeySpecException exception){
-            //TODO: OAuthException 커스텀 에러 필요
-            throw new IllegalStateException("OAuth 로그인 중 public key 생성에 문제가 발생했습니다.");
+            throw new AuthException(AuthExceptionErrorCode.AUTH_PUBLIC_KEY_ERROR);
         }
     }
 }
