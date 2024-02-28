@@ -8,12 +8,12 @@ import lombok.ToString;
 @Getter
 public class UserUuid {
 
-    private Long UserId;
-    private String UserUuid;
+    private Long userId;
+    private byte[] userUuid;
 
     @Builder
-    public UserUuid(Long UserId, String UserUuid) {
-        this.UserId = UserId;
-        this.UserUuid = UserUuid;
+    public UserUuid(Long userId, byte[] userUuid) {
+        this.userId = userId;
+        this.userUuid = userUuid;
     }
 }
