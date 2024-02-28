@@ -8,5 +8,7 @@ import java.util.Optional;
 @Mapper
 public interface UserUuidRepository {
 
-    Optional<UserUuid> findByUserUuId(String userUuid);
+    Optional<UserUuid> findByUserUuIdBytes(byte[] userUuid);
+
+    void save(UserUuid userUuid);
 }

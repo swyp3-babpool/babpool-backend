@@ -8,9 +8,16 @@
         <result property="userUuid" column="user_uuid"/>
     </resultMap>
 
-    <select id="findByUserUuId" resultMap="userUuid">
-        SELECT * FROM t_user_uuid where user_uuid = #{userUuid}
+    <select id="findByUserUuIdBytes" resultMap="userUuid">
+        SELECT user_id, user_uuid FROM t_user_uuid where user_uuid = #{userUuid}
     </select>
 
+<!--    <insert id="save" parameterType="com.swyp3.babpool.global.uuid.domain.UserUuid">-->
+<!--        INSERT INTO t_user_uuid (user_id, user_uuid) VALUES (#{userId}, UUID_TO_BIN(#{userUuid}))-->
+<!--    </insert>-->
+
+    <insert id="save" parameterType="com.swyp3.babpool.global.uuid.domain.UserUuid">
+        INSERT INTO t_user_uuid (user_id, user_uuid) VALUES (#{userId}, #{userUuid})
+    </insert>
 
 </mapper>
