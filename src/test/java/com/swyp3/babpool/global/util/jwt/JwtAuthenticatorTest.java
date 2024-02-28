@@ -2,6 +2,7 @@ package com.swyp3.babpool.global.util.jwt;
 
 import com.swyp3.babpool.global.uuid.dao.UserUuidRepository;
 import com.swyp3.babpool.global.uuid.exception.UuidException;
+import com.swyp3.babpool.global.uuid.util.UuidResolver;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
@@ -29,13 +30,15 @@ class JwtAuthenticatorTest {
 
     private JwtAuthenticator jwtAuthenticator;
     private JwtTokenizer jwtTokenizer;
+    private UuidResolver uuidResolver;
     @Autowired
     UserUuidRepository userUuidRepository;
 
     @BeforeEach
     void setUp() {
         jwtTokenizer = new JwtTokenizer("12345678901234567890123456789012", "12345678901234567890123456789012");
-        jwtAuthenticator = new JwtAuthenticator(jwtTokenizer, userUuidRepository);
+        uuidResolver = new UuidResolver();
+        jwtAuthenticator = new JwtAuthenticator(jwtTokenizer, uuidResolver, userUuidRepository);
     }
 
     @DisplayName("토큰을 파싱해 클레임을 반환한다. 올바른 토큰인 경우")

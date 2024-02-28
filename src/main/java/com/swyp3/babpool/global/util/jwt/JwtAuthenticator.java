@@ -1,4 +1,4 @@
-package com.swyp3.babpool.global.util.jwt.application;
+package com.swyp3.babpool.global.util.jwt;
 
 import com.swyp3.babpool.global.uuid.dao.UserUuidRepository;
 import com.swyp3.babpool.global.uuid.exception.UuidErrorCode;
