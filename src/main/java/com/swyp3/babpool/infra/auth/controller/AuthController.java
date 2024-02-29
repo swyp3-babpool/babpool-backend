@@ -1,8 +1,10 @@
 package com.swyp3.babpool.infra.auth.controller;
 
 import com.swyp3.babpool.global.common.response.ApiResponse;
+import com.swyp3.babpool.global.common.response.ApiResponseWithCookie;
 import com.swyp3.babpool.infra.auth.request.LoginRequestDTO;
 import com.swyp3.babpool.infra.auth.response.LoginResponseDTO;
+import com.swyp3.babpool.infra.auth.response.LoginResponseWithRefreshToken;
 import com.swyp3.babpool.infra.auth.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +23,8 @@ public class AuthController {
 
     @PostMapping("/sign/in")
     public ApiResponse<LoginResponseDTO> login(@RequestBody @Valid LoginRequestDTO loginRequest){
-        LoginResponseDTO response = authService.kakaoLogin(loginRequest);
-        return ApiResponse.ok(response);
+        LoginResponseWithRefreshToken loginResponseWithRefreshToken = authService.kakaoLogin(loginRequest);
+        return ApiResponseWithCookie.ofRefreshToken(loginResponseWithRefreshToken.getLoginResponseDTO(),
+                loginResponseWithRefreshToken.getRefreshToken());
     }
 }
