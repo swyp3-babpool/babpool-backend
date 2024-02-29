@@ -57,14 +57,20 @@ public class AuthService {
         User createUser = createUser(authPlatform, authMemberResponse);
         log.info("회원가입 성공! 추가적인 정보 입력이 필요합니다.");
 
-        return getLoginResponse(createUser,false);
+        return getRedirectToSignUpResponse(createUser);
+    }
+
+    private LoginResponseWithRefreshToken getRedirectToSignUpResponse(User user) {
+        //회원가입이 되어있지 않으면 JWT 토큰을 반환없이 응답
+        LoginResponseDTO loginResponseDTO = new LoginResponseDTO("none", "none", false);
+        return new LoginResponseWithRefreshToken(loginResponseDTO,"none");
     }
 
     private LoginResponseWithRefreshToken login(User findUser) {
         //회원가입은 되어있는데, 추가적인 정보 입력을 하지 않은 경우
         if(findUser.getUserGrade().equals("none")) {
             log.info("회원가입은 되어 있으나, 추가적인 정보 입력이 필요합니다.");
-            return getLoginResponse(findUser,false);
+            return getRedirectToSignUpResponse(findUser);
         }
         log.info("로그인에 성공하였습니다.");
         return getLoginResponse(findUser,true);
