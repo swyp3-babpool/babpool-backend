@@ -3,7 +3,6 @@ package com.swyp3.babpool.infra.auth.service;
 import com.swyp3.babpool.domain.user.dao.UserRepository;
 import com.swyp3.babpool.domain.user.domain.User;
 import com.swyp3.babpool.domain.user.domain.UserRole;
-import com.swyp3.babpool.global.util.jwt.JwtTokenizer;
 import com.swyp3.babpool.global.util.jwt.application.JwtService;
 import com.swyp3.babpool.global.util.jwt.application.response.JwtPairDto;
 import com.swyp3.babpool.global.uuid.application.UuidService;
@@ -43,48 +42,39 @@ public class AuthService {
     private LoginResponseWithRefreshToken generateLoginResponse(AuthPlatform authPlatform, AuthMemberResponse authMemberResponse) {
         Long findUserId = userRepository.findUserIdByPlatformAndPlatformId(authPlatform, authMemberResponse.getPlatformId());
 
-        //회원가입이 되어있는 경우
+        //회원테이블에 id Token 정보가 저장되어있는 경우
         if(findUserId!=null) {
             User findUser = userRepository.findById(findUserId);
-            return login(findUser);
+            if(isNeedMoreInfo(findUser))
+                return getLoginResponseNeedSignUp(findUser);// (회원가입이 완료된 경우) 사용자 추가정보 입력 필요
+            return getLoginResponse(findUser);
         }
 
-        //회원가입이 필요한 경우
-        return signUp(authPlatform,authMemberResponse);
+        //회원테이블에 아무 정보도 없는 경우
+        User createdUser = createUser(authPlatform, authMemberResponse);
+        return getLoginResponseNeedSignUp(createdUser);
     }
 
-    private LoginResponseWithRefreshToken signUp(AuthPlatform authPlatform, AuthMemberResponse authMemberResponse) {
-        User createUser = createUser(authPlatform, authMemberResponse);
-        log.info("회원가입 성공! 추가적인 정보 입력이 필요합니다.");
-
-        return getRedirectToSignUpResponse(createUser);
+    private LoginResponseWithRefreshToken getLoginResponseNeedSignUp(User user) {
+        String userUuid = String.valueOf(uuidService.findByUserId(user.getUserId()));
+        LoginResponseDTO loginResponseDTO = new LoginResponseDTO(userUuid, null, false);
+        return new LoginResponseWithRefreshToken(loginResponseDTO,null);
     }
 
-    private LoginResponseWithRefreshToken getRedirectToSignUpResponse(User user) {
-        //회원가입이 되어있지 않으면 JWT 토큰을 반환없이 응답
-        LoginResponseDTO loginResponseDTO = new LoginResponseDTO("none", "none", false);
-        return new LoginResponseWithRefreshToken(loginResponseDTO,"none");
+    private boolean isNeedMoreInfo(User targetUser){
+        if(targetUser.getUserGrade().equals("none"))
+            return true;
+        return false;
     }
 
-    private LoginResponseWithRefreshToken login(User findUser) {
-        //회원가입은 되어있는데, 추가적인 정보 입력을 하지 않은 경우
-        if(findUser.getUserGrade().equals("none")) {
-            log.info("회원가입은 되어 있으나, 추가적인 정보 입력이 필요합니다.");
-            return getRedirectToSignUpResponse(findUser);
-        }
-        log.info("로그인에 성공하였습니다.");
-        return getLoginResponse(findUser,true);
-    }
-
-    private LoginResponseWithRefreshToken getLoginResponse(User createUser, boolean isRegistered) {
-        UUID uuid = uuidService.createUuid(createUser.getUserId());
-        String userUuid = String.valueOf(uuid);
+    private LoginResponseWithRefreshToken getLoginResponse(User user) {
+        String userUuid = String.valueOf(uuidService.findByUserId(user.getUserId()));
         JwtPairDto jwtPair = jwtService.createJwtPair(userUuid, new ArrayList<UserRole>(Arrays.asList(UserRole.USER)));
 
         String accessToken = jwtPair.getAccessToken();
         String refreshToken = jwtPair.getRefreshToken();
 
-        LoginResponseDTO loginResponseDTO = new LoginResponseDTO(userUuid, accessToken, isRegistered);
+        LoginResponseDTO loginResponseDTO = new LoginResponseDTO(userUuid, accessToken,true);
 
         return new LoginResponseWithRefreshToken(loginResponseDTO,refreshToken);
     }
@@ -94,15 +84,13 @@ public class AuthService {
                 .email(authMemberResponse.getEmail())
                 .nickName(authMemberResponse.getNickname())
                 .build();
-
         userRepository.save(user);
-
         Long savedId = user.getUserId();
 
         Auth auth = Auth.createAuth(savedId, authPlatform, authMemberResponse.getPlatformId());
         authRepository.save(auth);
 
+        uuidService.createUuid(savedId);
         return user;
     }
 }
-

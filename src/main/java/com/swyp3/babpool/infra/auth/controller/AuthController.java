@@ -9,6 +9,7 @@ import com.swyp3.babpool.infra.auth.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,14 +23,16 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/sign/in")
-    public ApiResponse<LoginResponseDTO> login(@RequestBody @Valid LoginRequestDTO loginRequest){
-        LoginResponseWithRefreshToken loginResponseWithRefreshToken = authService.kakaoLogin(loginRequest);
-        Boolean isRegistered = loginResponseWithRefreshToken.getLoginResponseDTO().getIsRegistered();
-        //추가정보 입력 필요 -> JWT 반환 X
-        if(isRegistered==false)
-            return ApiResponse.ok(ApiResponseWithCookie.ofRefreshToken(loginResponseWithRefreshToken);
-        //로그인 성공 -> JWT 반환
-        else
-            return ApiResponse.ok(loginResponseWithRefreshToken.getLoginResponseDTO());
+    public ApiResponseWithCookie<LoginResponseDTO> login(@RequestBody @Valid LoginRequestDTO loginRequest){
+        LoginResponseWithRefreshToken loginResponseData = authService.kakaoLogin(loginRequest);
+        Boolean isRegistered = loginResponseData.getLoginResponseDTO().getIsRegistered();
+
+        //로그인 성공한 경우
+        if(isRegistered)
+            return ApiResponseWithCookie.ofRefreshToken(HttpStatus.OK,"로그인에 성공하였습니다",
+                        loginResponseData.getLoginResponseDTO(), loginResponseData.getRefreshToken());
+        //추가정보 입력이 필요한 경우
+        return ApiResponseWithCookie.ofRefreshToken(HttpStatus.UNAUTHORIZED,"추가정보 입력이 필요한 사용자입니다",
+                        loginResponseData.getLoginResponseDTO(), loginResponseData.getRefreshToken());
     }
 }
