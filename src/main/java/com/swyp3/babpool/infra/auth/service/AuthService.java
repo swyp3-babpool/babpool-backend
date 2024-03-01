@@ -56,19 +56,20 @@ public class AuthService {
     }
 
     private LoginResponseWithRefreshToken getLoginResponseNeedSignUp(User user) {
-        String userUuid = String.valueOf(uuidService.findByUserId(user.getUserId()));
+        String userUuid = String.valueOf(uuidService.getUuidByUserId(user.getUserId()));
         LoginResponseDTO loginResponseDTO = new LoginResponseDTO(userUuid, null, false);
         return new LoginResponseWithRefreshToken(loginResponseDTO,null);
     }
 
     private boolean isNeedMoreInfo(User targetUser){
-        if(targetUser.getUserGrade().equals("none"))
+        if(targetUser.getUserGrade().equals("none")){
             return true;
+        }
         return false;
     }
 
     private LoginResponseWithRefreshToken getLoginResponse(User user) {
-        String userUuid = String.valueOf(uuidService.findByUserId(user.getUserId()));
+        String userUuid = String.valueOf(uuidService.getUuidByUserId(user.getUserId()));
         JwtPairDto jwtPair = jwtService.createJwtPair(userUuid, new ArrayList<UserRole>(Arrays.asList(UserRole.USER)));
 
         String accessToken = jwtPair.getAccessToken();
