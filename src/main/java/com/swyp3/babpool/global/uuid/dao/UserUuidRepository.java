@@ -11,4 +11,6 @@ public interface UserUuidRepository {
     Optional<UserUuid> findByUserUuIdBytes(byte[] userUuid);
 
     void save(UserUuid userUuid);
+
+    Optional<UserUuid> findByUserId(Long userId);
 }

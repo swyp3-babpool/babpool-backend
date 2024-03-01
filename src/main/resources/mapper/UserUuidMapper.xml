@@ -8,10 +8,17 @@
         <result property="userUuid" column="user_uuid"/>
     </resultMap>
 
+    <!--  userUuid 으로 Domain 조회  -->
     <select id="findByUserUuIdBytes" resultMap="userUuid">
         SELECT user_id, user_uuid FROM t_user_uuid where user_uuid = #{userUuid}
     </select>
 
+    <!--  userId 으로 Domain 조회  -->
+    <select id="findByUserId" resultMap="userUuid">
+        SELECT user_id, user_uuid FROM t_user_uuid where user_id = #{userId}
+    </select>
+
+    <!--  Only works on MySQL 8.0  -->
 <!--    <insert id="save" parameterType="com.swyp3.babpool.global.uuid.domain.UserUuid">-->
 <!--        INSERT INTO t_user_uuid (user_id, user_uuid) VALUES (#{userId}, UUID_TO_BIN(#{userUuid}))-->
 <!--    </insert>-->
