@@ -1,22 +1,18 @@
 package com.swyp3.babpool.global.common.response;
 
+import com.swyp3.babpool.global.common.response.config.ApiResponseConfigProperties;
 import lombok.Builder;
 import lombok.Getter;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
 
 @Getter
 public class ApiResponseWithCookie<T> {
 
-    @Value("${property.cookie.domain}")
-    private static String domain;
-    @Value("${property.jwt.refreshTokenExpireDays}")
-    private static Integer refreshTokenExpireDays;
+    private static String domain = ApiResponseConfigProperties.getDomain();
+    private static Integer refreshTokenExpireDays = Integer.valueOf(ApiResponseConfigProperties.getRefreshTokenExpireDays());
 
     private final LocalDateTime timestamp = LocalDateTime.now();
     private int code;
@@ -24,6 +20,7 @@ public class ApiResponseWithCookie<T> {
     private String message;
     private T data;
     private ResponseCookie cookie;
+
 
     public ApiResponseWithCookie(HttpStatus status, String message, T data, ResponseCookie cookie) {
         this.code = status.value();
