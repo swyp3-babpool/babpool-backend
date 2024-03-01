@@ -1,6 +1,5 @@
 package com.swyp3.babpool.global.uuid.exception;
 
-import com.swyp3.babpool.global.util.jwt.exception.errorcode.JwtExceptionErrorCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

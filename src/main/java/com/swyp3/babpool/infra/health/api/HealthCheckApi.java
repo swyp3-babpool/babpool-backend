@@ -1,8 +1,8 @@
 package com.swyp3.babpool.infra.health.api;
 
 import com.swyp3.babpool.domain.user.domain.UserRole;
-import com.swyp3.babpool.global.util.jwt.application.JwtService;
-import com.swyp3.babpool.global.util.jwt.application.response.JwtPairDto;
+import com.swyp3.babpool.global.jwt.application.JwtService;
+import com.swyp3.babpool.global.jwt.application.response.JwtPairDto;
 import com.swyp3.babpool.global.uuid.application.UuidService;
 import com.swyp3.babpool.infra.health.application.HealthCheckService;
 import lombok.RequiredArgsConstructor;

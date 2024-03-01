@@ -1,4 +1,4 @@
-package com.swyp3.babpool.global.util.jwt;
+package com.swyp3.babpool.global.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

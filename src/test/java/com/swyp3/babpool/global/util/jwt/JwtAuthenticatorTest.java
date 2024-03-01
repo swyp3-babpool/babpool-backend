@@ -1,21 +1,20 @@
 package com.swyp3.babpool.global.util.jwt;
 
+import com.swyp3.babpool.global.jwt.JwtAuthenticator;
+import com.swyp3.babpool.global.jwt.JwtTokenizer;
 import com.swyp3.babpool.global.uuid.dao.UserUuidRepository;
 import com.swyp3.babpool.global.uuid.exception.UuidException;
 import com.swyp3.babpool.global.uuid.util.UuidResolver;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.InvalidKeyException;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;

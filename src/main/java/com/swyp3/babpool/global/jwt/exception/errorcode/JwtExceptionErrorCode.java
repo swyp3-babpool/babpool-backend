@@ -1,4 +1,4 @@
-package com.swyp3.babpool.global.util.jwt.exception.errorcode;
+package com.swyp3.babpool.global.jwt.exception.errorcode;
 
 import com.swyp3.babpool.global.common.exception.errorcode.CustomErrorCode;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package com.swyp3.babpool.global.util.jwt.application.response;
+package com.swyp3.babpool.global.jwt.application.response;
 
 import lombok.Builder;
 import lombok.Getter;
