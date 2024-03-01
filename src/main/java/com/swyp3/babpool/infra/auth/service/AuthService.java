@@ -2,6 +2,10 @@ package com.swyp3.babpool.infra.auth.service;
 
 import com.swyp3.babpool.domain.user.dao.UserRepository;
 import com.swyp3.babpool.domain.user.domain.User;
+import com.swyp3.babpool.domain.user.domain.UserRole;
+import com.swyp3.babpool.global.util.jwt.application.JwtService;
+import com.swyp3.babpool.global.util.jwt.application.response.JwtPairDto;
+import com.swyp3.babpool.global.uuid.application.UuidService;
 import com.swyp3.babpool.infra.auth.AuthPlatform;
 import com.swyp3.babpool.infra.auth.domain.Auth;
 import com.swyp3.babpool.infra.auth.kakao.KakaoMemberProvider;
@@ -9,10 +13,15 @@ import com.swyp3.babpool.infra.auth.dao.AuthRepository;
 import com.swyp3.babpool.infra.auth.response.AuthMemberResponse;
 import com.swyp3.babpool.infra.auth.request.LoginRequestDTO;
 import com.swyp3.babpool.infra.auth.response.LoginResponseDTO;
+import com.swyp3.babpool.infra.auth.response.LoginResponseWithRefreshToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -22,68 +31,67 @@ public class AuthService {
     private final KakaoMemberProvider kakaoMemberProvider;
     private final UserRepository userRepository;
     private final AuthRepository authRepository;
+    private final JwtService jwtService;
+    private final UuidService uuidService;
 
-    public LoginResponseDTO kakaoLogin(LoginRequestDTO loginRequest) {
-        //TODO: 들어온 값들 중 NULL 있는지 예외 처리 필요
+    public LoginResponseWithRefreshToken kakaoLogin(LoginRequestDTO loginRequest) {
         AuthMemberResponse kakaoPlatformMember = kakaoMemberProvider.getKakaoPlatformMember(loginRequest.getIdToken());
         return generateLoginResponse(AuthPlatform.KAKAO,kakaoPlatformMember);
     }
 
-    private LoginResponseDTO generateLoginResponse(AuthPlatform authPlatform, AuthMemberResponse authMemberResponse) {
+    private LoginResponseWithRefreshToken generateLoginResponse(AuthPlatform authPlatform, AuthMemberResponse authMemberResponse) {
         Long findUserId = userRepository.findUserIdByPlatformAndPlatformId(authPlatform, authMemberResponse.getPlatformId());
 
-        //회원가입이 되어있는 경우
+        //회원테이블에 id Token 정보가 저장되어있는 경우
         if(findUserId!=null) {
             User findUser = userRepository.findById(findUserId);
-            return login(findUser);
+            if(isNeedMoreInfo(findUser))
+                return getLoginResponseNeedSignUp(findUser);// (회원가입이 완료된 경우) 사용자 추가정보 입력 필요
+            return getLoginResponse(findUser);
         }
 
-        //회원가입이 필요한 경우
-        return signUp(authPlatform,authMemberResponse);
+        //회원테이블에 아무 정보도 없는 경우
+        User createdUser = createUser(authPlatform, authMemberResponse);
+        return getLoginResponseNeedSignUp(createdUser);
     }
 
-    private LoginResponseDTO signUp(AuthPlatform authPlatform, AuthMemberResponse authMemberResponse) {
-        User createUser = createUser(authPlatform, authMemberResponse);
-        log.info("회원가입 성공! 추가적인 정보 입력이 필요합니다.");
-
-        return getLoginResponse(createUser,false);
+    private LoginResponseWithRefreshToken getLoginResponseNeedSignUp(User user) {
+        String userUuid = String.valueOf(uuidService.getUuidByUserId(user.getUserId()));
+        LoginResponseDTO loginResponseDTO = new LoginResponseDTO(userUuid, null, false);
+        return new LoginResponseWithRefreshToken(loginResponseDTO,null);
     }
 
-    private LoginResponseDTO login(User findUser) {
-        //회원가입은 되어있는데, 추가적인 정보 입력을 하지 않은 경우
-        if(findUser.getUserGrade().equals("none")) {
-            log.info("회원가입은 되어 있으나, 추가적인 정보 입력이 필요합니다.");
-            return getLoginResponse(findUser,false);
+    private boolean isNeedMoreInfo(User targetUser){
+        if(targetUser.getUserGrade().equals("none")){
+            return true;
         }
-        log.info("로그인에 성공하였습니다.");
-        return getLoginResponse(findUser,true);
+        return false;
     }
 
-    private LoginResponseDTO getLoginResponse(User createUser, boolean isRegistered) {
-        //TODO : 현도님 코드 적용 필요
-        String accessToken = "accessToken"; //현도님 코드 사용
-        String refreshToken = "refreshToken"; //현도님 코드 사용
-        String userUuid = "userUuid"; //후에 현도님 코드 적용 필요
+    private LoginResponseWithRefreshToken getLoginResponse(User user) {
+        String userUuid = String.valueOf(uuidService.getUuidByUserId(user.getUserId()));
+        JwtPairDto jwtPair = jwtService.createJwtPair(userUuid, new ArrayList<UserRole>(Arrays.asList(UserRole.USER)));
 
-        return new LoginResponseDTO(userUuid, accessToken,isRegistered);
+        String accessToken = jwtPair.getAccessToken();
+        String refreshToken = jwtPair.getRefreshToken();
+
+        LoginResponseDTO loginResponseDTO = new LoginResponseDTO(userUuid, accessToken,true);
+
+        return new LoginResponseWithRefreshToken(loginResponseDTO,refreshToken);
     }
 
     private User createUser(AuthPlatform authPlatform, AuthMemberResponse authMemberResponse) {
-
         User user = User.builder()
                 .email(authMemberResponse.getEmail())
                 .nickName(authMemberResponse.getNickname())
                 .build();
-
         userRepository.save(user);
-
         Long savedId = user.getUserId();
 
         Auth auth = Auth.createAuth(savedId, authPlatform, authMemberResponse.getPlatformId());
         authRepository.save(auth);
 
+        uuidService.createUuid(savedId);
         return user;
     }
-
 }
-

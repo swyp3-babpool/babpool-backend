@@ -16,7 +16,7 @@ public class ApiResponseWithCookie<T> {
     @Value("${property.cookie.domain}")
     private static String domain;
     @Value("${property.jwt.refreshTokenExpireDays}")
-    private static Integer refreshTokenExpireDays;
+    //private static Integer refreshTokenExpireDays;
 
     private final LocalDateTime timestamp = LocalDateTime.now();
     private int code;
@@ -54,7 +54,7 @@ public class ApiResponseWithCookie<T> {
                 .secure(true)
                 .sameSite("None")
                 .path("/")
-                .maxAge(60 * 60 * 24 * refreshTokenExpireDays)
+                .maxAge(60 * 60 * 24 * 7)
                 .build();
         return new ApiResponseWithCookie<>(status, message, data, cookie);
     }
