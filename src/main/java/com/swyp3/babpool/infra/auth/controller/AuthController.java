@@ -24,12 +24,12 @@ public class AuthController {
     @PostMapping("/sign/in")
     public ApiResponse<LoginResponseDTO> login(@RequestBody @Valid LoginRequestDTO loginRequest){
         LoginResponseWithRefreshToken loginResponseWithRefreshToken = authService.kakaoLogin(loginRequest);
+        Boolean isRegistered = loginResponseWithRefreshToken.getLoginResponseDTO().getIsRegistered();
         //추가정보 입력 필요 -> JWT 반환 X
-        if(loginResponse.getRefreshToken()=="none")
-            return ApiResponse.ok(ApiResponseWithCookie.ofRefreshToken(loginResponseWithRefreshToken.getLoginResponseDTO(),
-                loginResponseWithRefreshToken.getRefreshToken()));
+        if(isRegistered==false)
+            return ApiResponse.ok(ApiResponseWithCookie.ofRefreshToken(loginResponseWithRefreshToken);
         //로그인 성공 -> JWT 반환
         else
-            return ApiResponse.ok(loginResponse.getLoginResponseDTO());
+            return ApiResponse.ok(loginResponseWithRefreshToken.getLoginResponseDTO());
     }
 }
