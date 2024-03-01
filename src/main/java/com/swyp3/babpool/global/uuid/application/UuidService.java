@@ -5,4 +5,5 @@ import java.util.UUID;
 public interface UuidService {
 
     UUID createUuid(Long userId);
+    UUID getUuidByUserId(Long userId);
 }
