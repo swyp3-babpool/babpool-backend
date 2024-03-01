@@ -25,7 +25,8 @@ public class AuthJwtParser {
             String decodedHeader = new String(Base64.getDecoder().decode(encodedHeader));
             return objectMapper.readValue(decodedHeader, Map.class);
         } catch(JsonProcessingException | ArrayIndexOutOfBoundsException e) {
-            throw new AuthException(AuthExceptionErrorCode.AUTH_UNSUPPORTED_ID_TOKEN_TYPE);
+            throw new AuthException(AuthExceptionErrorCode.AUTH_UNSUPPORTED_ID_TOKEN_TYPE,
+                    "Identity Token 헤더 parse 중 문제가 발생했습니다.");
         }
     }
 
@@ -36,9 +37,11 @@ public class AuthJwtParser {
                     .parseClaimsJws(idToken)
                     .getBody();
         }catch(ExpiredJwtException e){
-            throw new AuthException(AuthExceptionErrorCode.AUTH_TOKEN_EXPIRED);
+            throw new AuthException(AuthExceptionErrorCode.AUTH_TOKEN_EXPIRED,
+                    "유효기간이 만료된 Identity Token 입니다.");
         }catch (UnsupportedJwtException | MalformedJwtException | SignatureException | IllegalArgumentException e){
-            throw new AuthException(AuthExceptionErrorCode.AUTH_MALFORMED_TOKEN);
+            throw new AuthException(AuthExceptionErrorCode.AUTH_MALFORMED_TOKEN,
+                    "유효하지 않은 Identity Token 입니다.");
         }
     }
 }

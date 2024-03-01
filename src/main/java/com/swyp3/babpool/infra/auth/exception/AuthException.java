@@ -8,5 +8,5 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthException extends RuntimeException{
     private final AuthExceptionErrorCode authExceptionErrorCode;
-    private String message;
+    private final String message;
 }

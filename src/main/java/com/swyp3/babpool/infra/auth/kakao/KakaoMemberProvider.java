@@ -37,7 +37,8 @@ public class KakaoMemberProvider {
 
     private void validateClaims(Claims claims) {
         if(!claims.getIssuer().contains(iss)&&claims.getAudience().equals(clientId)){
-            throw new AuthException(AuthExceptionErrorCode.AUTH_JWT_ERROR);
+            throw new AuthException(AuthExceptionErrorCode.AUTH_JWT_ERROR,
+                    "OAuth Claim 값이 올바르지 않습니다.");
         }
     }
 

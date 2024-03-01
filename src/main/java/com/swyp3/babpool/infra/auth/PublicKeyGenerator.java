@@ -38,7 +38,8 @@ public class PublicKeyGenerator {
             KeyFactory keyFactory = KeyFactory.getInstance(publicKey.getKty());
             return keyFactory.generatePublic(publicKeySpec);
         }catch(NoSuchAlgorithmException | InvalidKeySpecException exception){
-            throw new AuthException(AuthExceptionErrorCode.AUTH_PUBLIC_KEY_ERROR);
+            throw new AuthException(AuthExceptionErrorCode.AUTH_PUBLIC_KEY_ERROR
+            ,"OAuth 로그인 중 public key 생성에 문제가 발생했습니다.");
         }
     }
 }

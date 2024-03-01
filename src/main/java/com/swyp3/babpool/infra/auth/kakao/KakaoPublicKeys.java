@@ -18,6 +18,7 @@ public class KakaoPublicKeys {
         return this.keys.stream()
                 .filter(key -> key.getKid().equals(kid))
                 .findFirst()
-                .orElseThrow(() -> new AuthException(AuthExceptionErrorCode.AUTH_JWT_ERROR));
+                .orElseThrow(() -> new AuthException(AuthExceptionErrorCode.AUTH_JWT_ERROR,
+                        "공개키 리스트 중 Identity Token을 디코딩할 공개키를 찾을 수 없습니다."));
     }
 }
