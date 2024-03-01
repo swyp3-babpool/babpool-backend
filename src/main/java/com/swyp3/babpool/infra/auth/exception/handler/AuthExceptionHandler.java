@@ -1,7 +1,6 @@
 package com.swyp3.babpool.infra.auth.exception.handler;
 
 import com.swyp3.babpool.global.common.response.ApiErrorResponse;
-import com.swyp3.babpool.global.util.jwt.exception.BabpoolJwtException;
 import com.swyp3.babpool.infra.auth.exception.AuthException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;
