@@ -32,8 +32,9 @@ public class AuthJwtParser {
 
     public Claims parsePublicKeyAndGetClaims(String idToken, PublicKey publicKey) {
         try {
-            return Jwts.parser()
+            return Jwts.parserBuilder()
                     .setSigningKey(publicKey)
+                    .build()
                     .parseClaimsJws(idToken)
                     .getBody();
         }catch(ExpiredJwtException e){

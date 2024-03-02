@@ -7,13 +7,13 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class AuthMemberResponse {
-    @NotNull
+    @NotNull(message="platformId는 필수입니다.")
     private String platformId;
-    @NotNull
+    @NotNull(message="프로필 이름은 필수입니다.")
     private String nickname;
-    @NotNull
+    @NotNull(message="프로필 이미지는 필수입니다.")
     private String profile_image;
-    @NotNull
+    @NotNull(message="이메일은 필수입니다.")
     private String email;
 
 }
