@@ -1,5 +1,7 @@
 package com.swyp3.babpool.infra.auth.service;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.swyp3.babpool.domain.user.dao.UserRepository;
 import com.swyp3.babpool.domain.user.domain.User;
 import com.swyp3.babpool.domain.user.domain.UserRole;
@@ -8,17 +10,26 @@ import com.swyp3.babpool.global.jwt.application.response.JwtPairDto;
 import com.swyp3.babpool.global.uuid.application.UuidService;
 import com.swyp3.babpool.infra.auth.AuthPlatform;
 import com.swyp3.babpool.infra.auth.domain.Auth;
+import com.swyp3.babpool.infra.auth.exception.AuthException;
+import com.swyp3.babpool.infra.auth.exception.errorcode.AuthExceptionErrorCode;
 import com.swyp3.babpool.infra.auth.kakao.KakaoMemberProvider;
 import com.swyp3.babpool.infra.auth.dao.AuthRepository;
+import com.swyp3.babpool.infra.auth.kakao.KakaoTokenProvider;
 import com.swyp3.babpool.infra.auth.response.AuthMemberResponse;
 import com.swyp3.babpool.infra.auth.request.LoginRequestDTO;
 import com.swyp3.babpool.infra.auth.response.LoginResponseDTO;
 import com.swyp3.babpool.infra.auth.response.LoginResponseWithRefreshToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.UUID;
@@ -29,13 +40,15 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AuthService {
     private final KakaoMemberProvider kakaoMemberProvider;
+    private final KakaoTokenProvider kakaoTokenProvider;
     private final UserRepository userRepository;
     private final AuthRepository authRepository;
     private final JwtService jwtService;
     private final UuidService uuidService;
 
     public LoginResponseWithRefreshToken kakaoLogin(LoginRequestDTO loginRequest) {
-        AuthMemberResponse kakaoPlatformMember = kakaoMemberProvider.getKakaoPlatformMember(loginRequest.getIdToken());
+        String idToken = kakaoTokenProvider.getIdTokenFromKakao(loginRequest.getCode());
+        AuthMemberResponse kakaoPlatformMember = kakaoMemberProvider.getKakaoPlatformMember(idToken);
         return generateLoginResponse(AuthPlatform.KAKAO,kakaoPlatformMember);
     }
 
