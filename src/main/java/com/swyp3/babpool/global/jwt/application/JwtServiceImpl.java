@@ -1,9 +1,9 @@
-package com.swyp3.babpool.global.util.jwt.application;
+package com.swyp3.babpool.global.jwt.application;
 
-import com.swyp3.babpool.global.util.jwt.JwtTokenizer;
-import com.swyp3.babpool.global.util.jwt.application.response.JwtPairDto;
-import com.swyp3.babpool.global.util.jwt.exception.BabpoolJwtException;
-import com.swyp3.babpool.global.util.jwt.exception.errorcode.JwtExceptionErrorCode;
+import com.swyp3.babpool.global.jwt.JwtTokenizer;
+import com.swyp3.babpool.global.jwt.application.response.JwtPairDto;
+import com.swyp3.babpool.global.jwt.exception.BabpoolJwtException;
+import com.swyp3.babpool.global.jwt.exception.errorcode.JwtExceptionErrorCode;
 import com.swyp3.babpool.infra.redis.dao.TokenRedisRepository;
 import com.swyp3.babpool.infra.redis.domain.TokenForRedis;
 import io.jsonwebtoken.Claims;

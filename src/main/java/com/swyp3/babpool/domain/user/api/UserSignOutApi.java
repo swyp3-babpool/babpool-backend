@@ -1,6 +1,6 @@
 package com.swyp3.babpool.domain.user.api;
 
-import com.swyp3.babpool.global.util.jwt.application.JwtServiceImpl;
+import com.swyp3.babpool.global.jwt.application.JwtServiceImpl;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;

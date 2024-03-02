@@ -1,26 +1,22 @@
 package com.swyp3.babpool.global.util.jwt.application;
 
 
-import com.swyp3.babpool.global.util.jwt.JwtTokenizer;
-import com.swyp3.babpool.global.util.jwt.application.response.JwtPairDto;
-import com.swyp3.babpool.global.util.jwt.exception.BabpoolJwtException;
+import com.swyp3.babpool.global.jwt.JwtTokenizer;
+import com.swyp3.babpool.global.jwt.application.JwtServiceImpl;
+import com.swyp3.babpool.global.jwt.application.response.JwtPairDto;
 import com.swyp3.babpool.infra.redis.EmbeddedLocalRedisConfig;
 import com.swyp3.babpool.infra.redis.RedisRepositoryConfig;
 import com.swyp3.babpool.infra.redis.dao.TokenRedisRepository;
 import com.swyp3.babpool.infra.redis.domain.TokenForRedis;
 import lombok.extern.slf4j.Slf4j;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 

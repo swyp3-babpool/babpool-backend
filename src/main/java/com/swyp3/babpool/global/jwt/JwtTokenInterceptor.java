@@ -1,7 +1,7 @@
-package com.swyp3.babpool.global.util.jwt;
+package com.swyp3.babpool.global.jwt;
 
-import com.swyp3.babpool.global.util.jwt.exception.BadCredentialsException;
-import com.swyp3.babpool.global.util.jwt.exception.errorcode.JwtExceptionErrorCode;
+import com.swyp3.babpool.global.jwt.exception.BadCredentialsException;
+import com.swyp3.babpool.global.jwt.exception.errorcode.JwtExceptionErrorCode;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;

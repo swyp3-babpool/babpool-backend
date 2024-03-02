@@ -1,6 +1,7 @@
 package com.swyp3.babpool.global.util.jwt;
 
 
+import com.swyp3.babpool.global.jwt.JwtTokenizer;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;

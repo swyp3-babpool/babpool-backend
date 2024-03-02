@@ -1,6 +1,6 @@
-package com.swyp3.babpool.global.util.jwt.application;
+package com.swyp3.babpool.global.jwt.application;
 
-import com.swyp3.babpool.global.util.jwt.application.response.JwtPairDto;
+import com.swyp3.babpool.global.jwt.application.response.JwtPairDto;
 
 import java.util.List;
 

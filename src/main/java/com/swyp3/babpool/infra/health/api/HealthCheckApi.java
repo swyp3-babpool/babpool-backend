@@ -1,12 +1,14 @@
 package com.swyp3.babpool.infra.health.api;
 
 import com.swyp3.babpool.domain.user.domain.UserRole;
-import com.swyp3.babpool.global.util.jwt.application.JwtService;
-import com.swyp3.babpool.global.util.jwt.application.response.JwtPairDto;
+import com.swyp3.babpool.global.common.response.ApiResponseWithCookie;
+import com.swyp3.babpool.global.jwt.application.JwtService;
+import com.swyp3.babpool.global.jwt.application.response.JwtPairDto;
 import com.swyp3.babpool.global.uuid.application.UuidService;
 import com.swyp3.babpool.infra.health.application.HealthCheckService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -63,6 +65,11 @@ public class HealthCheckApi {
     @PostMapping("/api/test/uuid")
     public ResponseEntity<String> testGenerateUuid(@RequestBody Map<String, Long> requestBody) {
         return ResponseEntity.ok(String.valueOf(uuidService.createUuid(requestBody.get("userId"))));
+    }
+
+    @GetMapping("/api/test/cookie")
+    public ApiResponseWithCookie<String> testCookie() {
+        return ApiResponseWithCookie.ofRefreshToken(HttpStatus.OK, "success", "data", "refreshToken1234");
     }
 
 }
