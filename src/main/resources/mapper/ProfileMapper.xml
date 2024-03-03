@@ -3,6 +3,82 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.swyp3.babpool.domain.profile.dao.ProfileRepository">
 
+    <resultMap id="profilePagingResponse" type="com.swyp3.babpool.domain.profile.application.response.ProfilePagingResponse">
+        <result property="profileId" column="profile_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="profileImageUrl" column="profile_image_url"/>
+        <result property="profileIntro" column="profile_intro"/>
+        <result property="profileContents" column="profile_contents"/>
+        <result property="profileActiveFlag" column="profile_active_flag"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="keywordIdWithNameString" column="keyword_info"/>
+        <result property="userGrade" column="user_grade"/>
+    </resultMap>
+
+    <select id="findAllByPageable"
+            parameterType="com.swyp3.babpool.global.common.request.PagingRequestList"
+            resultMap="profilePagingResponse">
+        SELECT profile.*,
+            GROUP_CONCAT(CONCAT(k.keyword_id, ':', k.keyword_name)) AS keyword_info,
+            account.user_grade
+        FROM t_profile profile
+            inner JOIN t_user_account account ON profile.user_id = account.user_id
+            inner JOIN t_m_user_keyword muk ON profile.user_id = muk.user_id
+            inner JOIN t_keyword k ON muk.keyword_id = k.keyword_id
+        <where>
+            <if test="condition.search != null and !condition.search.equals('')">
+                profile.profile_intro LIKE CONCAT('%', #{condition.search}, '%')
+                OR profile.profile_contents LIKE CONCAT('%', #{condition.search}, '%')
+            </if>
+            <if test="condition.keywords != null and !condition.keywords.isEmpty()">
+                <foreach collection="condition.keywords" item="keyword" open="AND muk.keyword_id IN (" close=")" separator=",">
+                    #{keyword}
+                </foreach>
+            </if>
+            <if test="condition.userGrades != null and !condition.userGrades.isEmpty()">
+                <foreach collection="condition.userGrades" item="userGrade" open="AND account.user_grade IN (" close=")" separator=",">
+                    #{userGrade}
+                </foreach>
+            </if>
+            AND profile.profile_active_flag = 1
+        </where>
+        GROUP BY profile.profile_id
+        <if test="pageable.sort != null and !pageable.sort.isEmpty()">
+            ORDER BY
+            <foreach collection="pageable.sort" item="order" separator=",">
+                ${order.property} ${order.direction}
+            </foreach>
+        </if>
+        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
+    </select>
+
+    <select id="countByPageable" parameterType="com.swyp3.babpool.domain.profile.api.request.ProfilePagingConditions"
+            resultType="java.lang.Integer">
+        SELECT COUNT(DISTINCT profile.profile_id) FROM t_profile as profile
+            inner JOIN t_user_account as account
+                ON profile.user_id = account.user_id
+            inner JOIN t_m_user_keyword muk
+                ON profile.user_id = muk.user_id
+        <where>
+            <if test="search != null and !search.equals('')">
+                profile.profile_intro LIKE CONCAT('%', #{search}, '%')
+                OR profile.profile_contents LIKE CONCAT('%', #{search}, '%')
+            </if>
+            <if test="keywords != null and !keywords.isEmpty()">
+                <foreach collection="keywords" item="keyword" open="AND muk.keyword_id IN (" close=")" separator=",">
+                    #{keyword}
+                </foreach>
+            </if>
+            <if test="userGrades != null and !userGrades.isEmpty()">
+                <foreach collection="userGrades" item="userGrade" open="AND account.user_grade IN (" close=")" separator=",">
+                    #{userGrade}
+                </foreach>
+            </if>
+            AND profile.profile_active_flag = 1
+        </where>
+    </select>
+
     <insert id="saveProfileImageUrl" parameterType="com.swyp3.babpool.domain.profile.domain.Profile">
         INSERT INTO t_profile (profile_image_url) VALUES (#{profileImageUrl}) where user_id = #{userId}
     </insert>
