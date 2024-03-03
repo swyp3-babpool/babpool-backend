@@ -12,17 +12,20 @@ import java.util.Arrays;
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
 
-    private String[] clientUrl;
-    public CorsConfig( @Value("${property.url.clientUrl}") String[] clientUrl) {
-        this.clientUrl = clientUrl;
-    }
+    @Value("${property.url.clientUrl}")
+    private String clientUrl;
+    @Value("${property.url.clientUrlMain}")
+    private String clientUrlMain;
+    @Value("${property.url.clientUrlSub}")
+    private String clientUrlSub;
+
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        log.info("current clientUrl: {}", Arrays.toString(clientUrl));
+        log.info("current clientUrl: {}, {}, {}", clientUrl, clientUrlMain, clientUrlSub);
         registry
             .addMapping("/**")
-            .allowedOrigins(clientUrl)
+            .allowedOrigins(clientUrl, clientUrlMain, clientUrlSub) // String... origins
             .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
             .allowedHeaders("*")
             .allowCredentials(true);
