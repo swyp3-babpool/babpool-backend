@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.swyp3.babpool.domain.profile.dao.ProfileRepository">
+
+    <insert id="saveProfileImageUrl" parameterType="com.swyp3.babpool.domain.profile.domain.Profile">
+        INSERT INTO t_profile (profile_image_url) VALUES (#{profileImageUrl}) where user_id = #{userId}
+    </insert>
+
+
+</mapper>

@@ -40,21 +40,12 @@ jobs:
       - name: Create application.yml, *.sql and log4jdbc.lof4j2.properties for test
         run: |
           mkdir -p ./src/test/resources/data
-          touch ./src/test/resources/application-test.yml
-          echo -e "${{secrets.APPLICATION_TEST}}" | base64 --decode > ./src/test/resources/application-test.yml
           touch ./src/test/resources/data/data.sql
           echo -e "${{secrets.DATA_SQL}}" | base64 --decode > ./src/test/resources/data/data.sql
           touch ./src/test/resources/data/schema.sql
           echo -e "${{secrets.SCHEMA_SQL}}" | base64 --decode > ./src/test/resources/data/schema.sql
           touch ./src/test/resources/log4jdbc.log4j2.properties
           echo -e "${{secrets.LOG4JDBC}}" | base64 --decode > ./src/test/resources/log4jdbc.log4j2.properties
-
-      - name: Upload application-test.yml for test
-        uses: actions/upload-artifact@v3
-        with:
-          name: application-test.yml
-          path: ./src/test/resources/application-test.yml
-          retention-days: 1
 
       - name: Upload data.sql for test
         uses: actions/upload-artifact@v3
