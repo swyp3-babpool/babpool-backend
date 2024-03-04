@@ -1,5 +1,6 @@
 package com.swyp3.babpool.domain.profile.config;
 
+import com.swyp3.babpool.domain.profile.domain.ProfileSortType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.MethodParameter;
@@ -20,8 +21,6 @@ import java.util.List;
 @Configuration
 public class PagingSortTypeMappingConfig implements WebMvcConfigurer {
 
-    private static final String DEFAULT_PROFILE_MODIFY_DATE = "profile_modify_date";
-    private static final String NAME = "user_name";
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
@@ -37,11 +36,11 @@ public class PagingSortTypeMappingConfig implements WebMvcConfigurer {
                     for (Sort.Order order : currentSort) {
                         String convertToDatabaseColumnNameForSorting = null;
                         switch (order.getProperty()) {
-                            case "이름순":
-                                convertToDatabaseColumnNameForSorting = NAME;
+                            case "Name":
+                                convertToDatabaseColumnNameForSorting = ProfileSortType.Name.getColumnName();
                                 break;
                             default:
-                                convertToDatabaseColumnNameForSorting = DEFAULT_PROFILE_MODIFY_DATE;
+                                convertToDatabaseColumnNameForSorting = ProfileSortType.Newest.getColumnName();
                         }
 
                         Sort.Direction direction = order.getDirection();
