@@ -3,6 +3,7 @@ package com.swyp3.babpool.infra.auth.controller;
 import com.swyp3.babpool.global.common.response.ApiResponse;
 import com.swyp3.babpool.global.common.response.ApiResponseWithCookie;
 import com.swyp3.babpool.infra.auth.request.LoginRequestDTO;
+import com.swyp3.babpool.infra.auth.request.SignUpRequestDTO;
 import com.swyp3.babpool.infra.auth.response.LoginResponseDTO;
 import com.swyp3.babpool.infra.auth.response.LoginResponseWithRefreshToken;
 import com.swyp3.babpool.infra.auth.service.AuthService;
@@ -34,5 +35,13 @@ public class AuthController {
         //추가정보 입력이 필요한 경우
         return ApiResponseWithCookie.ofRefreshToken(HttpStatus.UNAUTHORIZED,"추가정보 입력이 필요한 사용자입니다",
                         loginResponseData.getLoginResponseDTO(), loginResponseData.getRefreshToken());
+    }
+
+    @PostMapping("/sign/up")
+    public ApiResponseWithCookie<LoginResponseDTO> signUp(@RequestBody @Valid SignUpRequestDTO signUpRequest){
+        LoginResponseWithRefreshToken loginResponseData = authService.signUp(signUpRequest);
+
+        return ApiResponseWithCookie.ofRefreshToken(HttpStatus.OK,"회원가입에 성공하였습니다",
+                loginResponseData.getLoginResponseDTO(), loginResponseData.getRefreshToken());
     }
 }
