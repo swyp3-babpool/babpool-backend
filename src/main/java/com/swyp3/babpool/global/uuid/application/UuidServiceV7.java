@@ -34,12 +34,21 @@ public class UuidServiceV7 implements UuidService{
         return targetUuid;
     }
 
+    @Override
     public UUID getUuidByUserId(Long userId) {
         byte[] resultUuidBytes = uuidRepository.findByUserId(userId).orElseThrow(
                 () -> new UuidException(UuidErrorCode.NOT_FOUND_USER_UUID,
                         "Not found user uuid with user id, while UuidServiceV7.getUuidByUserId() request to UserUuidRepository"))
                 .getUserUuid();
         return uuidResolver.parseBytesToUuid(resultUuidBytes);
+    }
+
+    @Override
+    public Long getUserIdByUuid(UUID userUuid) {
+        return uuidRepository.findByUserUuIdBytes(uuidResolver.parseUuidToBytes(userUuid)).orElseThrow(
+                        () -> new UuidException(UuidErrorCode.NOT_FOUND_USER_UUID,
+                                "Not found user id with uuid, while UuidService request to UserUuidRepository"))
+                .getUserId();
     }
 
 
