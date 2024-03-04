@@ -6,5 +6,5 @@ public interface UuidService {
 
     UUID createUuid(Long userId);
     UUID getUuidByUserId(Long userId);
-    Long getUserIdByUuid(UUID userUuid);
+    Long getUserIdByUuid(String userUuidOfStringType);
 }

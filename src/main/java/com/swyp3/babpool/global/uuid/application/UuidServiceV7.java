@@ -44,8 +44,8 @@ public class UuidServiceV7 implements UuidService{
     }
 
     @Override
-    public Long getUserIdByUuid(UUID userUuid) {
-        return uuidRepository.findByUserUuIdBytes(uuidResolver.parseUuidToBytes(userUuid)).orElseThrow(
+    public Long getUserIdByUuid(String userUuidOfStringType) {
+        return uuidRepository.findByUserUuIdBytes(uuidResolver.parseUuidToBytes(UUID.fromString(userUuidOfStringType))).orElseThrow(
                         () -> new UuidException(UuidErrorCode.NOT_FOUND_USER_UUID,
                                 "Not found user id with uuid, while UuidService request to UserUuidRepository"))
                 .getUserId();
