@@ -67,6 +67,11 @@ public class HealthCheckApi {
         return ResponseEntity.ok(String.valueOf(uuidService.createUuid(requestBody.get("userId"))));
     }
 
+    @GetMapping("/api/test/from/uuid/to/id")
+    public ResponseEntity<Long> testGetUserIdByUuid(@RequestParam String userUuid) {
+        return ResponseEntity.ok(uuidService.getUserIdByUuid(userUuid));
+    }
+
     @GetMapping("/api/test/cookie")
     public ApiResponseWithCookie<String> testCookie() {
         return ApiResponseWithCookie.ofRefreshToken(HttpStatus.OK, "success", "data", "refreshToken1234");

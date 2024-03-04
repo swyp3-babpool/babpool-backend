@@ -58,5 +58,32 @@ class UuidServiceV7Test {
 
     }
 
+    @Test
+    void getUuidByUserId() {
+        // given
+        Long userId = 1L;
+        UUID createdUuid = uuidServiceV7.createUuid(userId);
+        // when
+        UUID resultUuid = uuidServiceV7.getUuidByUserId(userId);
+        // then
+        log.info("UUID : {}", resultUuid);
+        assertNotNull(resultUuid);
+        Assertions.assertThat(resultUuid).isEqualTo(createdUuid);
+    }
+
+    @Test
+    void getUserIdByUuid() {
+        // given
+        Long userId = 1L;
+        UUID createdUuid = uuidServiceV7.createUuid(userId);
+        log.info("createdUuid : {}", createdUuid);
+        // when
+        Long resultUserId = uuidServiceV7.getUserIdByUuid(createdUuid.toString());
+
+        // then
+        log.info("resultUserId : {}", resultUserId);
+        assertNotNull(resultUserId);
+        Assertions.assertThat(resultUserId).isEqualTo(userId);
+    }
 
 }
