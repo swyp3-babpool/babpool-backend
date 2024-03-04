@@ -9,9 +9,7 @@
         <result property="profileImageUrl" column="profile_image_url"/>
         <result property="profileIntro" column="profile_intro"/>
         <result property="profileContents" column="profile_contents"/>
-        <result property="profileActiveFlag" column="profile_active_flag"/>
-        <result property="createdAt" column="created_at"/>
-        <result property="updatedAt" column="updated_at"/>
+        <result property="profileModifyDate" column="profile_modify_date"/>
         <result property="keywordIdWithNameString" column="keyword_info"/>
         <result property="userGrade" column="user_grade"/>
     </resultMap>
@@ -19,10 +17,10 @@
     <select id="findAllByPageable"
             parameterType="com.swyp3.babpool.global.common.request.PagingRequestList"
             resultMap="profilePagingResponse">
-        SELECT profile.*,
-            GROUP_CONCAT(CONCAT(k.keyword_id, ':', k.keyword_name)) AS keyword_info,
-            account.user_grade
-        FROM t_profile profile
+        SELECT profile.profile_id, profile.user_id, profile.profile_image_url, profile.profile_intro, profile.profile_contents,
+               profile.profile_modify_date,
+            GROUP_CONCAT(CONCAT(k.keyword_id, ':', k.keyword_name)) AS keyword_info, account.user_grade
+        FROM t_profile as profile
             inner JOIN t_user_account account ON profile.user_id = account.user_id
             inner JOIN t_m_user_keyword muk ON profile.user_id = muk.user_id
             inner JOIN t_keyword k ON muk.keyword_id = k.keyword_id
