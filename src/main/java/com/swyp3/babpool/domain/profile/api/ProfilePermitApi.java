@@ -22,7 +22,7 @@ public class ProfilePermitApi {
     private final ProfileService profileService;
 
     @GetMapping("/api/profile/list")
-    public ApiResponse<Page<ProfilePagingResponse>> getProfileListWithPageable(@RequestParam String searchTerm,
+    public ApiResponse<Page<ProfilePagingResponse>> getProfileListWithPageable(@RequestParam(required = false) String searchTerm,
                                                                                @RequestParam List<String> userGrades,
                                                                                @RequestParam List<String> keywords,
                                                                                @PageableDefault(size = 10) Pageable pageable){
