@@ -10,11 +10,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/profile")
 public class ProfileApi {
 
     private final ProfileService profileService;
 
-    @PostMapping("/api/profile/card")
+    @PostMapping("/card")
     public ApiResponse<ProfileUpdateResponse> updateProfileCard(@RequestAttribute(value = "userId") Long userId,
                                                                 @RequestPart(value = "profileImageFile") MultipartFile multipartFile,
                                                                 @RequestPart(value = "profileInfo") ProfileUpdateRequest profileUpdateRequest) {
@@ -23,4 +24,8 @@ public class ProfileApi {
         return ApiResponse.ok(profileResponse);
     }
 
+    @GetMapping("/detail/{userId}")
+    public ApiResponse<ProfileDetailResponse> getProfileDetail(@RequestAttribute(value = "userId") Long userId){
+        profileService.getProfileDetail()
+    }
 }
