@@ -79,9 +79,8 @@
         </where>
     </select>
 
-    <insert id="saveProfileImageUrl" parameterType="com.swyp3.babpool.domain.profile.domain.Profile">
-        INSERT INTO t_profile (profile_image_url) VALUES (#{profileImageUrl}) where user_id = #{userId}
+    <insert id="saveProfileImageUrl" useGeneratedKeys="true" keyProperty="profileId" parameterType="com.swyp3.babpool.domain.profile.domain.Profile">
+        INSERT INTO t_profile (profile_image_url, user_id) VALUES (#{profileImageUrl}, #{userId})
     </insert>
-
 
 </mapper>

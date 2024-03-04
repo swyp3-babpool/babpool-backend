@@ -2,6 +2,8 @@ package com.swyp3.babpool.infra.auth.service;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.swyp3.babpool.domain.profile.dao.ProfileRepository;
+import com.swyp3.babpool.domain.profile.domain.Profile;
 import com.swyp3.babpool.domain.user.dao.UserRepository;
 import com.swyp3.babpool.domain.user.domain.User;
 import com.swyp3.babpool.domain.user.domain.UserRole;
@@ -43,6 +45,7 @@ public class AuthService {
     private final KakaoTokenProvider kakaoTokenProvider;
     private final UserRepository userRepository;
     private final AuthRepository authRepository;
+    private final ProfileRepository profileRepository;
     private final JwtService jwtService;
     private final UuidService uuidService;
 
@@ -103,6 +106,12 @@ public class AuthService {
 
         Auth auth = Auth.createAuth(savedId, authPlatform, authMemberResponse.getPlatformId());
         authRepository.save(auth);
+
+        Profile profile = Profile.builder()
+                .userId(savedId)
+                .profileImageUrl(authMemberResponse.getProfile_image())
+                .build();
+        profileRepository.saveProfileImageUrl(profile);
 
         uuidService.createUuid(savedId);
         return user;
