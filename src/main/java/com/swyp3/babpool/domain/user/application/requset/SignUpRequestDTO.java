@@ -1,8 +1,9 @@
-package com.swyp3.babpool.infra.auth.request;
+package com.swyp3.babpool.domain.user.application.requset;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,5 +14,5 @@ public class SignUpRequestDTO {
     @NotNull(message = "userGrade 값은 필수입니다.")
     private String userGrade;
     @NotNull(message = "keyword 값은 필수입니다.")
-    private Map<String, Set<String>> keywords;
+    private List<Long> keywords;
 }

@@ -21,4 +21,15 @@
         where o.oauth_platform_name = #{platformName} and o.oauth_platform_id = #{platformId}
     </select>
 
+    <update id="updateSignUpInfo">
+        update t_user_account
+        set user_grade = #{userGrade}
+        where user_id = #{userId}
+    </update>
+
+    <insert id="saveKeyword">
+        insert into t_m_user_keyword(user_id,keyword_id)
+        values ( #{userId},#{keywordId})
+    </insert>
+
 </mapper>
