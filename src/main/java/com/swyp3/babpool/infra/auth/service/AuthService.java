@@ -1,40 +1,14 @@
 package com.swyp3.babpool.infra.auth.service;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.swyp3.babpool.domain.profile.dao.ProfileRepository;
-import com.swyp3.babpool.domain.profile.domain.Profile;
-import com.swyp3.babpool.domain.user.dao.UserRepository;
-import com.swyp3.babpool.domain.user.domain.User;
-import com.swyp3.babpool.domain.user.domain.UserRole;
-import com.swyp3.babpool.global.jwt.application.JwtService;
-import com.swyp3.babpool.global.jwt.application.response.JwtPairDto;
-import com.swyp3.babpool.global.uuid.application.UuidService;
-import com.swyp3.babpool.infra.auth.AuthPlatform;
 import com.swyp3.babpool.infra.auth.domain.Auth;
-import com.swyp3.babpool.infra.auth.exception.AuthException;
-import com.swyp3.babpool.infra.auth.exception.errorcode.AuthExceptionErrorCode;
 import com.swyp3.babpool.infra.auth.kakao.KakaoMemberProvider;
 import com.swyp3.babpool.infra.auth.dao.AuthRepository;
 import com.swyp3.babpool.infra.auth.kakao.KakaoTokenProvider;
 import com.swyp3.babpool.infra.auth.response.AuthMemberResponse;
-import com.swyp3.babpool.infra.auth.request.LoginRequestDTO;
-import com.swyp3.babpool.infra.auth.response.LoginResponseDTO;
-import com.swyp3.babpool.infra.auth.response.LoginResponseWithRefreshToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -43,77 +17,16 @@ import java.util.UUID;
 public class AuthService {
     private final KakaoMemberProvider kakaoMemberProvider;
     private final KakaoTokenProvider kakaoTokenProvider;
-    private final UserRepository userRepository;
     private final AuthRepository authRepository;
-    private final ProfileRepository profileRepository;
-    private final JwtService jwtService;
-    private final UuidService uuidService;
 
-    public LoginResponseWithRefreshToken kakaoLogin(LoginRequestDTO loginRequest) {
-        String idToken = kakaoTokenProvider.getIdTokenFromKakao(loginRequest.getCode());
+    public AuthMemberResponse getUserDataByCode(String code) {
+        String idToken = kakaoTokenProvider.getIdTokenFromKakao(code);
         AuthMemberResponse kakaoPlatformMember = kakaoMemberProvider.getKakaoPlatformMember(idToken);
-        return generateLoginResponse(AuthPlatform.KAKAO,kakaoPlatformMember);
+
+        return kakaoPlatformMember;
     }
 
-    private LoginResponseWithRefreshToken generateLoginResponse(AuthPlatform authPlatform, AuthMemberResponse authMemberResponse) {
-        Long findUserId = userRepository.findUserIdByPlatformAndPlatformId(authPlatform, authMemberResponse.getPlatformId());
-
-        //회원테이블에 id Token 정보가 저장되어있는 경우
-        if(findUserId!=null) {
-            User findUser = userRepository.findById(findUserId);
-            if(isNeedMoreInfo(findUser))
-                return getLoginResponseNeedSignUp(findUser);// (회원가입이 완료된 경우) 사용자 추가정보 입력 필요
-            return getLoginResponse(findUser);
-        }
-
-        //회원테이블에 아무 정보도 없는 경우
-        User createdUser = createUser(authPlatform, authMemberResponse);
-        return getLoginResponseNeedSignUp(createdUser);
-    }
-
-    private LoginResponseWithRefreshToken getLoginResponseNeedSignUp(User user) {
-        String userUuid = String.valueOf(uuidService.getUuidByUserId(user.getUserId()));
-        LoginResponseDTO loginResponseDTO = new LoginResponseDTO(userUuid, null, false);
-        return new LoginResponseWithRefreshToken(loginResponseDTO,null);
-    }
-
-    private boolean isNeedMoreInfo(User targetUser){
-        if(targetUser.getUserGrade().equals("none")){
-            return true;
-        }
-        return false;
-    }
-
-    private LoginResponseWithRefreshToken getLoginResponse(User user) {
-        String userUuid = String.valueOf(uuidService.getUuidByUserId(user.getUserId()));
-        JwtPairDto jwtPair = jwtService.createJwtPair(userUuid, new ArrayList<UserRole>(Arrays.asList(UserRole.USER)));
-
-        String accessToken = jwtPair.getAccessToken();
-        String refreshToken = jwtPair.getRefreshToken();
-
-        LoginResponseDTO loginResponseDTO = new LoginResponseDTO(userUuid, accessToken,true);
-
-        return new LoginResponseWithRefreshToken(loginResponseDTO,refreshToken);
-    }
-
-    private User createUser(AuthPlatform authPlatform, AuthMemberResponse authMemberResponse) {
-        User user = User.builder()
-                .email(authMemberResponse.getEmail())
-                .nickName(authMemberResponse.getNickname())
-                .build();
-        userRepository.save(user);
-        Long savedId = user.getUserId();
-
-        Auth auth = Auth.createAuth(savedId, authPlatform, authMemberResponse.getPlatformId());
+    public void save(Auth auth) {
         authRepository.save(auth);
-
-        Profile profile = Profile.builder()
-                .userId(savedId)
-                .profileImageUrl(authMemberResponse.getProfile_image())
-                .build();
-        profileRepository.saveProfileImageUrl(profile);
-
-        uuidService.createUuid(savedId);
-        return user;
     }
 }

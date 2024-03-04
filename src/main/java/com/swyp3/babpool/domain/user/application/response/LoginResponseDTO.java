@@ -1,4 +1,4 @@
-package com.swyp3.babpool.infra.auth.response;
+package com.swyp3.babpool.domain.user.application.response;
 
 import com.swyp3.babpool.domain.user.domain.UserStatus;
 import lombok.AllArgsConstructor;
