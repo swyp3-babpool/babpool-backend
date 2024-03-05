@@ -2,8 +2,8 @@ package com.swyp3.babpool.domain.profile.application;
 
 import com.swyp3.babpool.domain.profile.api.request.ProfilePagingConditions;
 import com.swyp3.babpool.domain.profile.api.request.ProfileUpdateRequest;
+import com.swyp3.babpool.domain.profile.application.response.ProfilePagingDto;
 import com.swyp3.babpool.domain.profile.application.response.ProfilePagingResponse;
-import com.swyp3.babpool.domain.profile.application.response.ProfileResponse;
 import com.swyp3.babpool.domain.profile.application.response.ProfileUpdateResponse;
 import com.swyp3.babpool.domain.profile.dao.ProfileRepository;
 import com.swyp3.babpool.domain.profile.domain.Profile;
@@ -35,18 +35,21 @@ public class ProfileServiceImpl implements ProfileService{
                 .condition(profilePagingConditions)
                 .pageable(pageable)
                 .build();
-        List<ProfilePagingResponse> profilePagingResponseList = null;
+        List<ProfilePagingDto> profilePagingDtoList = null;
         int counts = 0;
         try {
-            profilePagingResponseList = profileRepository.findAllByPageable(pagingRequest);
+            profilePagingDtoList = profileRepository.findAllByPageable(pagingRequest);
             counts = profileRepository.countByPageable(profilePagingConditions);
         } catch (Exception e) {
             log.error("프로필 리스트 조회 중 오류 발생. {}", e.getMessage());
             log.error("{}", e.getStackTrace());
             throw new ProfileException(ProfileErrorCode.PROFILE_LIST_ERROR, "프로필 리스트 조회 중 오류가 발생했습니다.");
         }
+        List<ProfilePagingResponse> profilePagingResponse = profilePagingDtoList.stream()
+                .map(ProfilePagingResponse::of)
+                .toList();
 
-        return new PageImpl<>(profilePagingResponseList, pagingRequest.getPageable(), counts);
+        return new PageImpl<>(profilePagingResponse, pagingRequest.getPageable(), counts);
     }
 
     @Override

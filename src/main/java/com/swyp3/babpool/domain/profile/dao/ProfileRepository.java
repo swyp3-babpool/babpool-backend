@@ -1,11 +1,10 @@
 package com.swyp3.babpool.domain.profile.dao;
 
 import com.swyp3.babpool.domain.profile.api.request.ProfilePagingConditions;
-import com.swyp3.babpool.domain.profile.application.response.ProfilePagingResponse;
+import com.swyp3.babpool.domain.profile.application.response.ProfilePagingDto;
 import com.swyp3.babpool.domain.profile.domain.Profile;
 import com.swyp3.babpool.global.common.request.PagingRequestList;
 import org.apache.ibatis.annotations.Mapper;
-import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -26,7 +25,7 @@ public interface ProfileRepository {
      *     - sort : 정렬 정보, ex) sort=createdAt,desc
      * @return 프로필 응답 리스트
      */
-    List<ProfilePagingResponse> findAllByPageable(PagingRequestList<?> pagingRequestList);
+    List<ProfilePagingDto> findAllByPageable(PagingRequestList<?> pagingRequestList);
 
     /**
      * 페이징 처리를 위한 카운트 조회
