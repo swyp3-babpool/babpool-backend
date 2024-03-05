@@ -1,4 +1,4 @@
-package com.swyp3.babpool.infra.auth.request;
+package com.swyp3.babpool.domain.user.application.requset;
 
 import com.swyp3.babpool.infra.auth.AuthPlatform;
 import jakarta.validation.constraints.NotNull;

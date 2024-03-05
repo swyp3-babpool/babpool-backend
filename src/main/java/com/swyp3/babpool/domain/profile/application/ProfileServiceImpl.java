@@ -55,11 +55,16 @@ public class ProfileServiceImpl implements ProfileService{
     @Override
     public String uploadProfileImage(Long userId, MultipartFile multipartFile) {
         String uploadedImageUrl = awsS3Provider.uploadImage(multipartFile);
-        profileRepository.saveProfileImageUrl(Profile.builder()
+        profileRepository.updateProfileImageUrl(Profile.builder()
                 .userId(userId)
                 .profileImageUrl(uploadedImageUrl)
                 .build());
         return uploadedImageUrl;
+    }
+
+    @Override
+    public void saveProfile(Profile profile) {
+        profileRepository.saveProfile(profile);
     }
 
     @Override

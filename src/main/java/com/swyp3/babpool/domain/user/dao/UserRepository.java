@@ -14,4 +14,8 @@ public interface UserRepository {
     Long findUserIdByPlatformAndPlatformId(@Param("platformName") AuthPlatform authPlatform,@Param("platformId") String platformId);
 
     User findById(Long userId);
+
+    void updateSignUpInfo(@Param("userId") Long userId, @Param("userGrade") String userGrade);
+
+    void saveKeyword(@Param("userId") Long userId, @Param("keywordId") Long keywordId);
 }
