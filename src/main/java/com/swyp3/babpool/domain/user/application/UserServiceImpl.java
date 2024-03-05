@@ -1,5 +1,6 @@
 package com.swyp3.babpool.domain.user.application;
 
+import com.swyp3.babpool.domain.profile.application.ProfileService;
 import com.swyp3.babpool.domain.profile.dao.ProfileRepository;
 import com.swyp3.babpool.domain.profile.domain.Profile;
 import com.swyp3.babpool.domain.user.dao.UserRepository;
@@ -33,8 +34,7 @@ public class UserServiceImpl implements UserService{
     private final UserRepository userRepository;
     private final UuidService uuidService;
     private final JwtService jwtService;
-    private final ProfileRepository profileRepository;
-
+    private final ProfileService profileService;
 
     public LoginResponseWithRefreshToken login(LoginRequestDTO loginRequest) {
         AuthMemberResponse kakaoPlatformMember = authService.getUserDataByCode(loginRequest.getCode());
@@ -53,7 +53,7 @@ public class UserServiceImpl implements UserService{
         Long userId = uuidService.getUserIdByUuid(userUuid);
         User findUser = userRepository.findById(userId);
 
-        return findUser.getUserGrade()!="none";
+        return !findUser.getUserGrade().equals("none");
     }
 
     private User insertUserExtraInfo(SignUpRequestDTO signUpRequest) {
@@ -122,8 +122,9 @@ public class UserServiceImpl implements UserService{
         Profile profile = Profile.builder()
                 .userId(savedId)
                 .profileImageUrl(authMemberResponse.getProfile_image())
+                .profileActiveFlag(false)
                 .build();
-        profileRepository.saveProfileImageUrl(profile);
+        profileService.saveProfile(profile);
 
         uuidService.createUuid(savedId);
         return user;
