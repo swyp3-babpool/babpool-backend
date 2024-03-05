@@ -8,7 +8,7 @@ import lombok.Getter;
 public enum ProfileSortType {
 
     Newest("profile_modify_date"),
-    Name("user_name")
+    Name("user_nick_name")
     ;
 
     private final String columnName;
