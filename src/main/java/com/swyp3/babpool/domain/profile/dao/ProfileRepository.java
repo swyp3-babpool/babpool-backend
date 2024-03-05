@@ -12,7 +12,8 @@ import java.util.List;
 @Mapper
 public interface ProfileRepository {
 
-    void saveProfileImageUrl(Profile profile);
+    void saveProfile(Profile profile);
+    void updateProfileImageUrl(Profile profile);
 
     /**
      * 프로필 리스트 조회
