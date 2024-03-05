@@ -2,8 +2,8 @@ package com.swyp3.babpool.domain.profile.api;
 
 import com.swyp3.babpool.domain.profile.api.request.ProfilePagingConditions;
 import com.swyp3.babpool.domain.profile.application.ProfileService;
+import com.swyp3.babpool.domain.profile.application.response.ProfilePagingDto;
 import com.swyp3.babpool.domain.profile.application.response.ProfilePagingResponse;
-import com.swyp3.babpool.domain.profile.application.response.ProfileResponse;
 import com.swyp3.babpool.global.common.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
