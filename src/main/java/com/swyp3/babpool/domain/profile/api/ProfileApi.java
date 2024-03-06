@@ -2,6 +2,7 @@ package com.swyp3.babpool.domain.profile.api;
 
 import com.swyp3.babpool.domain.profile.api.request.ProfileUpdateRequest;
 import com.swyp3.babpool.domain.profile.application.ProfileService;
+import com.swyp3.babpool.domain.profile.application.response.MyPageResponse;
 import com.swyp3.babpool.domain.profile.application.response.ProfileDetailResponse;
 import com.swyp3.babpool.domain.profile.application.response.ProfileUpdateResponse;
 import com.swyp3.babpool.global.common.response.ApiResponse;
@@ -30,4 +31,9 @@ public class ProfileApi {
         return ApiResponse.ok(profileDetailResponse);
     }
 
+    @GetMapping("/mypage")
+    public ApiResponse<MyPageResponse> getMyPage(@RequestAttribute(value = "userId") Long userId){
+        MyPageResponse myPageResponse = profileService.getMyPage(userId);
+        return ApiResponse.ok(myPageResponse);
+    }
 }

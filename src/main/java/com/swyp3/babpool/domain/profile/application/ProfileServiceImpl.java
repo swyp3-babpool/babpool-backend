@@ -2,10 +2,7 @@ package com.swyp3.babpool.domain.profile.application;
 
 import com.swyp3.babpool.domain.profile.api.request.ProfilePagingConditions;
 import com.swyp3.babpool.domain.profile.api.request.ProfileUpdateRequest;
-import com.swyp3.babpool.domain.profile.application.response.ProfileDetailResponse;
-import com.swyp3.babpool.domain.profile.application.response.ProfilePagingResponse;
-import com.swyp3.babpool.domain.profile.application.response.ProfileResponse;
-import com.swyp3.babpool.domain.profile.application.response.ProfileUpdateResponse;
+import com.swyp3.babpool.domain.profile.application.response.*;
 import com.swyp3.babpool.domain.profile.dao.ProfileDetailDaoDto;
 import com.swyp3.babpool.domain.profile.dao.ProfileRepository;
 import com.swyp3.babpool.domain.profile.domain.Profile;
@@ -60,9 +57,9 @@ public class ProfileServiceImpl implements ProfileService{
         }
         //review 데이터를 제외한 프로필 상세 데이터
         ProfileDetailDaoDto profileDetailDaoDto = profileRepository.getProfileDetail(targetProfileId);
+        //TODO: 후기 데이터와 연결 필요
         ProfileDetailResponse profileDetailResponse = new ProfileDetailResponse(profileDetailDaoDto, null, null);
         return profileDetailResponse;
-        //return null;
     }
 
     private boolean isExistProfile(Long profileId) {
