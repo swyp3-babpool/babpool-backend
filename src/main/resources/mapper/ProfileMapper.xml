@@ -84,10 +84,39 @@
         </where>
     </select>
 
-    <insert id="saveProfile" useGeneratedKeys="true" keyProperty="profileId" parameterType="com.swyp3.babpool.domain.profile.domain.Profile">
+    <insert id="saveProfile" parameterType="com.swyp3.babpool.domain.profile.domain.Profile">
         INSERT INTO t_profile (user_id, profile_image_url,profile_active_flag )
         VALUES (#{userId}, #{profileImageUrl},#{profileActiveFlag} )
     </insert>
+
+    <select id="findById" resultType="com.swyp3.babpool.domain.profile.domain.Profile">
+        select *
+        from t_profile
+        where profile_id = #{profileId}
+    </select>
+
+    <select id="getProfileDetail" resultType="com.swyp3.babpool.domain.profile.application.response.ProfileDetailDaoDto">
+        SELECT
+            p.profile_id AS profileId,
+            ua.user_nick_name AS name,
+            p.profile_image_url AS profileImg,
+            ua.user_grade AS grade,
+            p.profile_intro AS intro,
+            p.profile_contents AS contents,
+            GROUP_CONCAT(k.keyword_name) AS keywords
+        FROM
+            t_profile p
+                INNER JOIN
+            t_user_account ua ON p.user_id = ua.user_id
+                LEFT JOIN
+            t_m_user_keyword muk ON ua.user_id = muk.user_id
+                LEFT JOIN
+            t_keyword k ON muk.keyword_id = k.keyword_id
+        WHERE
+            p.profile_id = #{profileId}
+        GROUP BY
+            p.profile_id
+    </select>
 
     <update id="updateProfileImageUrl" parameterType="com.swyp3.babpool.domain.profile.domain.Profile">
         UPDATE t_profile SET profile_image_url = #{profileImageUrl} where user_id = #{userId}
