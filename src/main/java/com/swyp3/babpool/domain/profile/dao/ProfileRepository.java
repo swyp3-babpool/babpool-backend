@@ -6,6 +6,7 @@ import com.swyp3.babpool.domain.profile.application.response.ProfilePagingDto;
 import com.swyp3.babpool.domain.profile.domain.Profile;
 import com.swyp3.babpool.global.common.request.PagingRequestList;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -38,6 +39,22 @@ public interface ProfileRepository {
      * @return 조건 검색 결과 개수
      */
     int countByPageable(ProfilePagingConditions profilePagingConditions);
+
+    /**
+     * 프로필 정보 조회
+     * @param targetProfileId : 조회 대상 프로필 식별 값
+     * @return
+     */
+    Long findUserIdByProfileId(Long targetProfileId);
+
+    /**
+     * 특정 사용자의 특정 시간에 확정된 약속이 있는지 조회
+     * @param targetReceiverUserId
+     * @param possibleTimeIdList
+     * @return
+     */
+    Integer countAcceptedAppointmentByReceiverIdAndPossibleTimeId(@Param("targetReceiverUserId") Long targetReceiverUserId,
+                                                                  @Param("possibleTimeIdList") List<Long> possibleTimeIdList);
 
     Profile findById(Long profileId);
 
