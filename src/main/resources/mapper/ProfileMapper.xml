@@ -84,8 +84,9 @@
         </where>
     </select>
 
-    <insert id="saveProfileImageUrl" parameterType="com.swyp3.babpool.domain.profile.domain.Profile">
-        INSERT INTO t_profile (profile_image_url) VALUES (#{profileImageUrl}) where user_id = #{userId}
+    <insert id="saveProfile" parameterType="com.swyp3.babpool.domain.profile.domain.Profile">
+        INSERT INTO t_profile (user_id, profile_image_url,profile_active_flag )
+        VALUES (#{userId}, #{profileImageUrl},#{profileActiveFlag} )
     </insert>
 
     <select id="findById" resultType="com.swyp3.babpool.domain.profile.domain.Profile">
