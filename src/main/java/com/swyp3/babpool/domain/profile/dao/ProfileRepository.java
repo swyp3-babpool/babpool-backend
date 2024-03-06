@@ -1,6 +1,7 @@
 package com.swyp3.babpool.domain.profile.dao;
 
 import com.swyp3.babpool.domain.profile.api.request.ProfilePagingConditions;
+import com.swyp3.babpool.domain.profile.application.response.ProfileDetailDaoDto;
 import com.swyp3.babpool.domain.profile.application.response.ProfilePagingDto;
 import com.swyp3.babpool.domain.profile.domain.Profile;
 import com.swyp3.babpool.global.common.request.PagingRequestList;
@@ -54,4 +55,8 @@ public interface ProfileRepository {
      */
     Integer countAcceptedAppointmentByReceiverIdAndPossibleTimeId(@Param("targetReceiverUserId") Long targetReceiverUserId,
                                                                   @Param("possibleTimeIdList") List<Long> possibleTimeIdList);
+
+    Profile findById(Long profileId);
+
+    ProfileDetailDaoDto getProfileDetail(Long profileId);
 }
