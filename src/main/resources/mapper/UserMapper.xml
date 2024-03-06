@@ -32,4 +32,23 @@
         values ( #{userId},#{keywordId})
     </insert>
 
+    <select id="findMyProfile" resultType="com.swyp3.babpool.domain.user.application.response.MyPageUserDaoDto">
+        SELECT
+            p.profile_id AS profileId,
+            u.user_nick_name AS name,
+            p.profile_image_url AS profileImg,
+            u.user_grade AS grade,
+            p.profile_intro AS intro,
+            GROUP_CONCAT(k.keyword_name) AS keywords
+        FROM
+            t_user_account u
+                INNER JOIN t_profile p ON u.user_id = p.user_id
+                LEFT JOIN t_m_user_keyword muk ON u.user_id = muk.user_id
+                LEFT JOIN t_keyword k ON muk.keyword_id = k.keyword_id
+        WHERE
+            u.user_id = #{userId}
+        GROUP BY
+            u.user_id
+    </select>
+
 </mapper>

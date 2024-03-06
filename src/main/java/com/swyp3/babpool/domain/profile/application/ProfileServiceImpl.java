@@ -2,6 +2,8 @@ package com.swyp3.babpool.domain.profile.application;
 
 import com.swyp3.babpool.domain.profile.api.request.ProfilePagingConditions;
 import com.swyp3.babpool.domain.profile.api.request.ProfileUpdateRequest;
+import com.swyp3.babpool.domain.profile.application.response.*;
+import com.swyp3.babpool.domain.profile.application.response.ProfileDetailDaoDto;
 import com.swyp3.babpool.domain.profile.application.response.ProfilePagingDto;
 import com.swyp3.babpool.domain.profile.application.response.ProfilePagingResponse;
 import com.swyp3.babpool.domain.profile.application.response.ProfileUpdateResponse;
@@ -50,6 +52,24 @@ public class ProfileServiceImpl implements ProfileService{
                 .toList();
 
         return new PageImpl<>(profilePagingResponse, pagingRequest.getPageable(), counts);
+    }
+
+    @Override
+    public ProfileDetailResponse getProfileDetail(Long targetProfileId) {
+        if(!isExistProfile(targetProfileId)){
+            throw new ProfileException(ProfileErrorCode.PROFILE_TARGET_PROFILE_ERROR,"존재하지 않는 프로필을 조회하였습니다.");
+        }
+        //review 데이터를 제외한 프로필 상세 데이터
+        ProfileDetailDaoDto profileDetailDaoDto = profileRepository.getProfileDetail(targetProfileId);
+        //TODO: 후기 데이터와 연결 필요
+        ProfileDetailResponse profileDetailResponse = new ProfileDetailResponse(profileDetailDaoDto, null, null);
+        return profileDetailResponse;
+    }
+
+    private boolean isExistProfile(Long profileId) {
+        if(profileRepository.findById(profileId)==null)
+            return false;
+        return true;
     }
 
     @Override

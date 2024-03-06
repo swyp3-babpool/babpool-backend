@@ -6,6 +6,7 @@ import com.swyp3.babpool.domain.profile.application.response.ProfilePagingDto;
 import com.swyp3.babpool.domain.profile.application.response.ProfilePagingResponse;
 import com.swyp3.babpool.domain.profile.application.response.ProfileUpdateResponse;
 import com.swyp3.babpool.domain.profile.domain.Profile;
+import com.swyp3.babpool.domain.profile.application.response.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,5 +22,7 @@ public interface ProfileService {
     ProfileUpdateResponse saveProfileInfo(Long userId, ProfileUpdateRequest profileUpdateRequest);
 
     Page<ProfilePagingResponse> getProfileListWithPageable(ProfilePagingConditions profilePagingConditions, Pageable pageable);
+
+    ProfileDetailResponse getProfileDetail(Long targetProfileId);
 
 }

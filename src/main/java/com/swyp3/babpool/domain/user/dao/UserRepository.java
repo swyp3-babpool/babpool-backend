@@ -1,5 +1,6 @@
 package com.swyp3.babpool.domain.user.dao;
 
+import com.swyp3.babpool.domain.user.application.response.MyPageUserDaoDto;
 import com.swyp3.babpool.domain.user.domain.User;
 import com.swyp3.babpool.infra.auth.AuthPlatform;
 import org.apache.ibatis.annotations.Mapper;
@@ -18,4 +19,6 @@ public interface UserRepository {
     void updateSignUpInfo(@Param("userId") Long userId, @Param("userGrade") String userGrade);
 
     void saveKeyword(@Param("userId") Long userId, @Param("keywordId") Long keywordId);
+
+    MyPageUserDaoDto findMyProfile(Long userId);
 }

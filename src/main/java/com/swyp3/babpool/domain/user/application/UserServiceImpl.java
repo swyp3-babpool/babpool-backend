@@ -1,8 +1,9 @@
 package com.swyp3.babpool.domain.user.application;
 
 import com.swyp3.babpool.domain.profile.application.ProfileService;
-import com.swyp3.babpool.domain.profile.dao.ProfileRepository;
 import com.swyp3.babpool.domain.profile.domain.Profile;
+import com.swyp3.babpool.domain.user.application.response.MyPageResponse;
+import com.swyp3.babpool.domain.user.application.response.MyPageUserDaoDto;
 import com.swyp3.babpool.domain.user.dao.UserRepository;
 import com.swyp3.babpool.domain.user.domain.User;
 import com.swyp3.babpool.domain.user.domain.UserRole;
@@ -13,8 +14,8 @@ import com.swyp3.babpool.global.jwt.application.response.JwtPairDto;
 import com.swyp3.babpool.global.uuid.application.UuidService;
 import com.swyp3.babpool.infra.auth.AuthPlatform;
 import com.swyp3.babpool.infra.auth.domain.Auth;
-import com.swyp3.babpool.domain.user.application.requset.LoginRequestDTO;
-import com.swyp3.babpool.domain.user.application.requset.SignUpRequestDTO;
+import com.swyp3.babpool.domain.user.api.requset.LoginRequestDTO;
+import com.swyp3.babpool.domain.user.api.requset.SignUpRequestDTO;
 import com.swyp3.babpool.infra.auth.response.AuthMemberResponse;
 import com.swyp3.babpool.domain.user.application.response.LoginResponseDTO;
 import com.swyp3.babpool.domain.user.application.response.LoginResponseWithRefreshToken;
@@ -47,6 +48,14 @@ public class UserServiceImpl implements UserService{
                     "이미 데이터베이스에 등록된 사용자이므로 새로운 회원가입을 진행할 수 없습니다.");
         User user = insertUserExtraInfo(signUpRequest);
         return getLoginResponse(user);
+    }
+
+    @Override
+    public MyPageResponse getMyPage(Long userId) {
+        MyPageUserDaoDto myPageUserDaoDto= userRepository.findMyProfile(userId);
+        //TODO: 밥약 히스토리와 후기 데이터 추가 필요
+        MyPageResponse myPageResponse = new MyPageResponse(myPageUserDaoDto, null, null);
+        return myPageResponse;
     }
 
     private boolean isAlreadyRegisteredUser(String userUuid) {

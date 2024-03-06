@@ -1,6 +1,7 @@
 package com.swyp3.babpool.domain.profile.dao;
 
 import com.swyp3.babpool.domain.profile.api.request.ProfilePagingConditions;
+import com.swyp3.babpool.domain.profile.application.response.ProfileDetailDaoDto;
 import com.swyp3.babpool.domain.profile.application.response.ProfilePagingDto;
 import com.swyp3.babpool.domain.profile.domain.Profile;
 import com.swyp3.babpool.global.common.request.PagingRequestList;
@@ -37,4 +38,8 @@ public interface ProfileRepository {
      * @return 조건 검색 결과 개수
      */
     int countByPageable(ProfilePagingConditions profilePagingConditions);
+
+    Profile findById(Long profileId);
+
+    ProfileDetailDaoDto getProfileDetail(Long profileId);
 }
