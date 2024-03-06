@@ -37,4 +37,8 @@ public interface ProfileRepository {
      * @return 조건 검색 결과 개수
      */
     int countByPageable(ProfilePagingConditions profilePagingConditions);
+
+    Profile findById(Long profileId);
+
+    ProfileDetailDaoDto getProfileDetail(Long profileId);
 }

@@ -2,6 +2,7 @@ package com.swyp3.babpool.domain.profile.api;
 
 import com.swyp3.babpool.domain.profile.api.request.ProfileUpdateRequest;
 import com.swyp3.babpool.domain.profile.application.ProfileService;
+import com.swyp3.babpool.domain.profile.application.response.ProfileDetailResponse;
 import com.swyp3.babpool.domain.profile.application.response.ProfileUpdateResponse;
 import com.swyp3.babpool.global.common.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 @RequestMapping("/api/profile")
 public class ProfileApi {
-
     private final ProfileService profileService;
 
     @PostMapping("/card")
@@ -24,8 +24,10 @@ public class ProfileApi {
         return ApiResponse.ok(profileResponse);
     }
 
-    @GetMapping("/detail/{userId}")
-    public ApiResponse<ProfileDetailResponse> getProfileDetail(@RequestAttribute(value = "userId") Long userId){
-        profileService.getProfileDetail()
+    @GetMapping("/detail/{targetProfileId}")
+    public ApiResponse<ProfileDetailResponse> getProfileDetail(@PathVariable(name="targetProfileId") Long targetProfileId){
+        ProfileDetailResponse profileDetailResponse = profileService.getProfileDetail(targetProfileId);
+        return ApiResponse.ok(profileDetailResponse);
     }
+
 }

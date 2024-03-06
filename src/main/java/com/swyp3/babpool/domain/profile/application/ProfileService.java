@@ -2,6 +2,7 @@ package com.swyp3.babpool.domain.profile.application;
 
 import com.swyp3.babpool.domain.profile.api.request.ProfilePagingConditions;
 import com.swyp3.babpool.domain.profile.api.request.ProfileUpdateRequest;
+import com.swyp3.babpool.domain.profile.application.response.ProfileDetailResponse;
 import com.swyp3.babpool.domain.profile.application.response.ProfilePagingResponse;
 import com.swyp3.babpool.domain.profile.application.response.ProfileResponse;
 import com.swyp3.babpool.domain.profile.application.response.ProfileUpdateResponse;
@@ -19,4 +20,5 @@ public interface ProfileService {
 
     Page<ProfilePagingResponse> getProfileListWithPageable(ProfilePagingConditions profilePagingConditions, Pageable pageable);
 
+    ProfileDetailResponse getProfileDetail(Long targetProfileId);
 }

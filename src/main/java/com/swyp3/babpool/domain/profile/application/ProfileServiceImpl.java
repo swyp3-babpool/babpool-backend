@@ -2,14 +2,18 @@ package com.swyp3.babpool.domain.profile.application;
 
 import com.swyp3.babpool.domain.profile.api.request.ProfilePagingConditions;
 import com.swyp3.babpool.domain.profile.api.request.ProfileUpdateRequest;
+import com.swyp3.babpool.domain.profile.application.response.ProfileDetailResponse;
 import com.swyp3.babpool.domain.profile.application.response.ProfilePagingResponse;
 import com.swyp3.babpool.domain.profile.application.response.ProfileResponse;
 import com.swyp3.babpool.domain.profile.application.response.ProfileUpdateResponse;
+import com.swyp3.babpool.domain.profile.dao.ProfileDetailDaoDto;
 import com.swyp3.babpool.domain.profile.dao.ProfileRepository;
 import com.swyp3.babpool.domain.profile.domain.Profile;
 import com.swyp3.babpool.domain.profile.exception.ProfileException;
 import com.swyp3.babpool.domain.profile.exception.errorcode.ProfileErrorCode;
+import com.swyp3.babpool.domain.user.dao.UserRepository;
 import com.swyp3.babpool.global.common.request.PagingRequestList;
+import com.swyp3.babpool.global.uuid.application.UuidService;
 import com.swyp3.babpool.infra.s3.application.AwsS3Provider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +51,24 @@ public class ProfileServiceImpl implements ProfileService{
         }
 
         return new PageImpl<>(profilePagingResponseList, pagingRequest.getPageable(), counts);
+    }
+
+    @Override
+    public ProfileDetailResponse getProfileDetail(Long targetProfileId) {
+        if(!isExistProfile(targetProfileId)){
+            throw new ProfileException(ProfileErrorCode.PROFILE_TARGET_PROFILE_ERROR,"존재하지 않는 프로필을 조회하였습니다.");
+        }
+        //review 데이터를 제외한 프로필 상세 데이터
+        ProfileDetailDaoDto profileDetailDaoDto = profileRepository.getProfileDetail(targetProfileId);
+        ProfileDetailResponse profileDetailResponse = new ProfileDetailResponse(profileDetailDaoDto, null, null);
+        return profileDetailResponse;
+        //return null;
+    }
+
+    private boolean isExistProfile(Long profileId) {
+        if(profileRepository.findById(profileId)==null)
+            return false;
+        return true;
     }
 
     @Override
