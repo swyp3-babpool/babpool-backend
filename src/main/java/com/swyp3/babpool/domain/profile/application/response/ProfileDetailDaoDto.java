@@ -1,4 +1,4 @@
-package com.swyp3.babpool.domain.profile.dao;
+package com.swyp3.babpool.domain.profile.application.response;
 
 import lombok.Getter;
 
