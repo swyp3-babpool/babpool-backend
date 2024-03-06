@@ -59,10 +59,12 @@ public class ProfileServiceImpl implements ProfileService{
         if(!isExistProfile(targetProfileId)){
             throw new ProfileException(ProfileErrorCode.PROFILE_TARGET_PROFILE_ERROR,"존재하지 않는 프로필을 조회하였습니다.");
         }
-        //review 데이터를 제외한 프로필 상세 데이터
+        //review 데이터와 키워드를 제외한 프로필 상세 데이터
         ProfileDetailDaoDto profileDetailDaoDto = profileRepository.getProfileDetail(targetProfileId);
+        //키워드 데이터
+        KeywordsResponse keywords = profileRepository.getKeywords(targetProfileId);
         //TODO: 후기 데이터와 연결 필요
-        ProfileDetailResponse profileDetailResponse = new ProfileDetailResponse(profileDetailDaoDto, null, null);
+        ProfileDetailResponse profileDetailResponse = new ProfileDetailResponse(profileDetailDaoDto, keywords,null, null);
         return profileDetailResponse;
     }
 

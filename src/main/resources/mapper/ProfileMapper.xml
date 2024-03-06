@@ -95,6 +95,24 @@
         where profile_id = #{profileId}
     </select>
 
+    <select id="getKeywords" resultType="com.swyp3.babpool.domain.profile.application.response.KeywordsResponse">
+        SELECT JSON_OBJECTAGG(subject_name,keyword_name_list) AS keywords
+        FROM (
+                 SELECT
+                     s.subject_name,
+                     JSON_ARRAYAGG(k.keyword_name) AS keyword_name_list
+                 FROM
+                     t_profile p
+                         INNER JOIN t_user_account u on u.user_id = p.user_id
+                         INNER JOIN t_m_user_keyword muk ON u.user_id = muk.user_id
+                         INNER JOIN t_keyword k ON muk.keyword_id = k.keyword_id
+                         INNER JOIN t_subject s ON k.subject_id = s.subject_id
+                 WHERE p.profile_id = #{profileId}
+                 GROUP BY
+                     s.subject_name
+             )tb_json_arrayagg
+    </select>
+
     <select id="getProfileDetail" resultType="com.swyp3.babpool.domain.profile.application.response.ProfileDetailDaoDto">
         SELECT
             p.profile_id AS profileId,
@@ -102,20 +120,13 @@
             p.profile_image_url AS profileImg,
             ua.user_grade AS grade,
             p.profile_intro AS intro,
-            p.profile_contents AS contents,
-            GROUP_CONCAT(k.keyword_name) AS keywords
+            p.profile_contents AS contents
         FROM
             t_profile p
                 INNER JOIN
             t_user_account ua ON p.user_id = ua.user_id
-                LEFT JOIN
-            t_m_user_keyword muk ON ua.user_id = muk.user_id
-                LEFT JOIN
-            t_keyword k ON muk.keyword_id = k.keyword_id
         WHERE
             p.profile_id = #{profileId}
-        GROUP BY
-            p.profile_id
     </select>
 
     <update id="updateProfileImageUrl" parameterType="com.swyp3.babpool.domain.profile.domain.Profile">
