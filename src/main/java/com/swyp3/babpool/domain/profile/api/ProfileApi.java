@@ -15,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class ProfileApi {
     private final ProfileService profileService;
 
-    @PostMapping("/card")
+    @PostMapping("/update")
     public ApiResponse<ProfileUpdateResponse> updateProfileCard(@RequestAttribute(value = "userId") Long userId,
                                                                 @RequestPart(value = "profileImageFile") MultipartFile multipartFile,
                                                                 @RequestPart(value = "profileInfo") ProfileUpdateRequest profileUpdateRequest) {
