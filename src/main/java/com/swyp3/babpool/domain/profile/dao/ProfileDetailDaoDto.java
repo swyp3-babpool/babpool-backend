@@ -8,7 +8,6 @@ import java.util.List;
 public class ProfileDetailDaoDto {
     //후기 제외한 프로필 상세 조회 데이터
     private Long profileId;
-    private Long userId;
     private String name;
     private String profileImg;
     private String grade;

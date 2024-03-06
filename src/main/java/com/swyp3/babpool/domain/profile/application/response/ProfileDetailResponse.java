@@ -9,7 +9,6 @@ import java.util.Map;
 @Getter
 public class ProfileDetailResponse {
     private Long profileId;
-    private Long userId;
     private String name;
     private String profileImg;
     private String grade;
@@ -21,7 +20,6 @@ public class ProfileDetailResponse {
 
     public ProfileDetailResponse(ProfileDetailDaoDto profileDetailDaoDto, Map<String,Integer> reviewCount, List<String> reviews) {
         this.profileId=profileDetailDaoDto.getProfileId();
-        this.userId=profileDetailDaoDto.getUserId();
         this.name=profileDetailDaoDto.getName();
         this.profileImg=profileDetailDaoDto.getProfileImg();
         this.grade=profileDetailDaoDto.getGrade();

@@ -94,7 +94,6 @@
     <select id="getProfileDetail" resultType="com.swyp3.babpool.domain.profile.dao.ProfileDetailDaoDto">
         SELECT
             p.profile_id AS profileId,
-            p.user_id AS userId,
             ua.user_nick_name AS name,
             p.profile_image_url AS profileImg,
             ua.user_grade AS grade,
