@@ -118,6 +118,23 @@
              )tb_json_arrayagg
     </select>
 
+    <select id="getProfileDefault" resultType="com.swyp3.babpool.domain.profile.application.response.ProfileDefaultDaoDto">
+        SELECT
+            ua.user_nick_name AS userNickName,
+            p.profile_image_url AS imgUrl,
+            ua.user_grade AS userGrade,
+            p.profile_intro AS profileIntro,
+            p.profile_contents AS profileContents,
+            p.profile_contact_phone AS profileContactPhone,
+            p.profile_contact_chat AS profileContactChat
+        FROM
+            t_profile p
+                INNER JOIN
+            t_user_account ua ON p.user_id = ua.user_id
+        WHERE
+            p.profile_id = #{profileId}
+    </select>
+
     <select id="getProfileDetail" resultType="com.swyp3.babpool.domain.profile.application.response.ProfileDetailDaoDto">
         SELECT
             p.profile_id AS profileId,
