@@ -15,18 +15,18 @@ public class AppointmentHistoryDoneResponse {
     private String appointmentReceiverUserNickname;
     private String appointmentReceiverProfileImageUrl;
     private String appointmentStatus;
-    private LocalDateTime appointment_fix_date_time;
+    private LocalDateTime appointmentFixDateTime;
     private String reviewRequired;
 
     @Builder
-    public AppointmentHistoryDoneResponse(Long appointmentId, Long appointmentReceiverProfileId, String appointmentReceiverUserNickname, String appointmentReceiverProfileImageUrl, String appointmentStatus, LocalDateTime appointment_fix_date_time, String reviewRequired) {
+
+    public AppointmentHistoryDoneResponse(Long appointmentId, Long appointmentReceiverProfileId, String appointmentReceiverUserNickname, String appointmentReceiverProfileImageUrl, String appointmentStatus, LocalDateTime appointmentFixDateTime, String reviewRequired) {
         this.appointmentId = appointmentId;
         this.appointmentReceiverProfileId = appointmentReceiverProfileId;
         this.appointmentReceiverUserNickname = appointmentReceiverUserNickname;
         this.appointmentReceiverProfileImageUrl = appointmentReceiverProfileImageUrl;
         this.appointmentStatus = appointmentStatus;
-        this.appointment_fix_date_time = appointment_fix_date_time;
+        this.appointmentFixDateTime = appointmentFixDateTime;
         this.reviewRequired = reviewRequired;
     }
-
 }

@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -66,32 +67,47 @@ public class AppointmentServiceImpl implements AppointmentService{
 
     @Override
     public List<AppointmentSendResponse> getSendAppointmentList(Long userId) {
-        return appointmentRepository.findAppointmentListByRequesterId(userId)
-                .orElseThrow(() -> new AppointmentException(AppointmentErrorCode.APPOINTMENT_SEND_NOT_FOUND, "발신한 밥약이 존재하지 않습니다."));
+        List<AppointmentSendResponse> sendResponseList = appointmentRepository.findAppointmentListByRequesterId(userId);
+        if (sendResponseList.isEmpty()) {
+            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_SEND_NOT_FOUND, "발신한 밥약이 존재하지 않습니다.");
+        }
+        return sendResponseList;
     }
 
     @Override
     public List<AppointmentReceiveResponse> getReceiveAppointmentList(Long userId) {
-        return appointmentRepository.findAppointmentListByReceiverId(userId)
-                .orElseThrow(() -> new AppointmentException(AppointmentErrorCode.APPOINTMENT_RECEIVE_NOT_FOUND, "수신한 밥약이 존재하지 않습니다."));
+        List<AppointmentReceiveResponse> receiveResponseList = appointmentRepository.findAppointmentListByReceiverId(userId);
+        if (receiveResponseList.isEmpty()) {
+            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_RECEIVE_NOT_FOUND, "수신한 밥약이 존재하지 않습니다.");
+        }
+        return receiveResponseList;
     }
 
     @Override
     public List<AppointmentHistoryDoneResponse> getDoneAppointmentList(Long userId) {
-        return appointmentRepository.findDoneAppointmentListByRequesterId(userId)
-                .orElseThrow(() -> new AppointmentException(AppointmentErrorCode.APPOINTMENT_DONE_NOT_FOUND, "완료된 밥약이 존재하지 않습니다."));
+        List<AppointmentHistoryDoneResponse> historyDoneResponseList = appointmentRepository.findDoneAppointmentListByRequesterId(userId);
+        if (historyDoneResponseList.isEmpty()) {
+            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_DONE_NOT_FOUND, "완료된 밥약이 존재하지 않습니다.");
+        }
+        return historyDoneResponseList;
     }
 
     @Override
     public List<AppointmentHistoryRefuseResponse> getRefuseAppointmentList(Long receiverUserId) {
-    return appointmentRepository.findRefuseAppointmentListByReceiverId(receiverUserId)
-                .orElseThrow(() -> new AppointmentException(AppointmentErrorCode.APPOINTMENT_REFUSE_NOT_FOUND, "거절된 밥약이 존재하지 않습니다."));
+        List<AppointmentHistoryRefuseResponse> historyRefuseResponseList = appointmentRepository.findRefuseAppointmentListByReceiverId(receiverUserId);
+        if (historyRefuseResponseList.isEmpty()) {
+            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_REFUSE_NOT_FOUND, "거절된 밥약이 존재하지 않습니다.");
+        }
+        return historyRefuseResponseList;
     }
 
     @Override
     public List<AppointmentPossibleDateTimeResponse> getAppointmentPossibleDateTime(Long profileId) {
-        return appointmentRepository.findAppointmentPossibleDateTimeByProfileId(profileId)
-                .orElseThrow(() -> new AppointmentException(AppointmentErrorCode.APPOINTMENT_POSSIBLE_DATETIME_NOT_FOUND, "밥약 가능 시간이 존재하지 않습니다."));
+        List<AppointmentPossibleDateTimeResponse> possibleDateTimeResponseList = appointmentRepository.findAppointmentPossibleDateTimeByProfileId(profileId);
+        if (possibleDateTimeResponseList.isEmpty()) {
+            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_POSSIBLE_DATETIME_NOT_FOUND, "밥약 가능한 날짜 및 시간이 존재하지 않습니다.");
+        }
+        return possibleDateTimeResponseList;
     }
 
 

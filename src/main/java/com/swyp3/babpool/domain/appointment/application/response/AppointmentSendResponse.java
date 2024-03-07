@@ -14,18 +14,18 @@ public class AppointmentSendResponse {
     private Long appointmentReceiverProfileId;
     private String appointmentReceiverUserNickname;
     private String appointmentReceiverProfileImageUrl;
-    private String appointmentFixDateTime;
     private String appointmentStatus;
     private LocalDateTime appointmentCreateDate;
+    private String appointmentFixDateTime;
 
     @Builder
-    public AppointmentSendResponse(Long appointmentId, Long appointmentReceiverProfileId, String appointmentReceiverUserNickname, String appointmentReceiverProfileImageUrl, String appointmentFixDateTime, String appointmentStatus, LocalDateTime appointmentCreateDate) {
+    public AppointmentSendResponse(Long appointmentId, Long appointmentReceiverProfileId, String appointmentReceiverUserNickname, String appointmentReceiverProfileImageUrl, String appointmentStatus, LocalDateTime appointmentCreateDate, String appointmentFixDateTime) {
         this.appointmentId = appointmentId;
         this.appointmentReceiverProfileId = appointmentReceiverProfileId;
         this.appointmentReceiverUserNickname = appointmentReceiverUserNickname;
         this.appointmentReceiverProfileImageUrl = appointmentReceiverProfileImageUrl;
-        this.appointmentFixDateTime = appointmentFixDateTime;
         this.appointmentStatus = appointmentStatus;
         this.appointmentCreateDate = appointmentCreateDate;
+        this.appointmentFixDateTime = appointmentFixDateTime;
     }
 }
