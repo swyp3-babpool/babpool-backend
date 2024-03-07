@@ -88,5 +88,11 @@ public class AppointmentServiceImpl implements AppointmentService{
                 .orElseThrow(() -> new AppointmentException(AppointmentErrorCode.APPOINTMENT_REFUSE_NOT_FOUND, "거절된 밥약이 존재하지 않습니다."));
     }
 
+    @Override
+    public List<AppointmentPossibleDateTimeResponse> getAppointmentPossibleDateTime(Long profileId) {
+        return appointmentRepository.findAppointmentPossibleDateTimeByProfileId(profileId)
+                .orElseThrow(() -> new AppointmentException(AppointmentErrorCode.APPOINTMENT_POSSIBLE_DATETIME_NOT_FOUND, "밥약 가능 시간이 존재하지 않습니다."));
+    }
+
 
 }

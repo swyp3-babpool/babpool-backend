@@ -153,6 +153,21 @@
              and appoint.appointment_status IN ('REFUSE', 'EXPIRE')
     </select>
 
+    <select id="findAppointmentPossibleDateTimeByProfileId" parameterType="long" resultType="com.swyp3.babpool.domain.appointment.application.response.AppointmentPossibleDateTimeResponse">
+        SELECT
+            pdate.profile_id AS profileId,
+            ptime.possible_time_id AS possibleTimeId,
+            pdate.possible_date_id AS possibleDateId,
+            pdate.possible_date AS possibleDate,
+            ptime.possible_time_start AS possibleTime
+        FROM t_possible_date pdate
+                 INNER JOIN t_possible_time ptime ON pdate.possible_date_id = ptime.possible_date_id
+        WHERE
+            pdate.profile_id = #{profileId}
+          AND pdate.possible_date >= DATE_FORMAT(NOW() ,'%Y-%m-01')
+        ORDER BY pdate.possible_date ASC, ptime.possible_time_start ASC
+    </select>
+
     <!-- ######################################## INSERT ######################################## -->
 
     <insert id="saveAppointmentInit" parameterType="com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest"

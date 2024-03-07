@@ -59,5 +59,14 @@ public class AppointmentApi {
         return ApiResponse.ok(appointmentService.getRefuseAppointmentList(userId));
     }
 
+    /**
+     * 특정 프로필 카드가 활성화 해둔, 밥약 가능한 possibleTimeId와 식별값에 따른 날짜 및 시간 조회 API
+     * @param profileId
+     */
+    @GetMapping("/api/appointment/{profileId}/datetime")
+    public ApiResponse<List<AppointmentPossibleDateTimeResponse>> getAppointmentPossibleDateTime(@PathVariable Long profileId) {
+        return ApiResponse.ok(appointmentService.getAppointmentPossibleDateTime(profileId));
+    }
+
 
 }
