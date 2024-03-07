@@ -1,10 +1,7 @@
 package com.swyp3.babpool.domain.appointment.dao;
 
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
-import com.swyp3.babpool.domain.appointment.application.response.AppointmentHistoryDoneResponse;
-import com.swyp3.babpool.domain.appointment.application.response.AppointmentHistoryRefuseResponse;
-import com.swyp3.babpool.domain.appointment.application.response.AppointmentReceiveResponse;
-import com.swyp3.babpool.domain.appointment.application.response.AppointmentSendResponse;
+import com.swyp3.babpool.domain.appointment.application.response.*;
 import com.swyp3.babpool.domain.appointment.domain.Appointment;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -25,4 +22,6 @@ public interface AppointmentRepository {
     Optional<List<AppointmentHistoryDoneResponse>> findDoneAppointmentListByRequesterId(Long requesterUserId);
 
     Optional<List<AppointmentHistoryRefuseResponse>> findRefuseAppointmentListByReceiverId(Long receiverUserId);
+
+    Optional<List<AppointmentPossibleDateTimeResponse>> findAppointmentPossibleDateTimeByProfileId(Long profileId);
 }
