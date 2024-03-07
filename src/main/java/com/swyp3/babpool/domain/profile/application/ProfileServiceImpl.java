@@ -2,10 +2,12 @@ package com.swyp3.babpool.domain.profile.application;
 
 import com.swyp3.babpool.domain.profile.api.request.ProfilePagingConditions;
 import com.swyp3.babpool.domain.profile.api.request.ProfileUpdateRequest;
+import com.swyp3.babpool.domain.profile.application.response.*;
+import com.swyp3.babpool.domain.profile.application.response.ProfileDetailDaoDto;
+import com.swyp3.babpool.domain.profile.application.response.ProfilePagingDto;
 import com.swyp3.babpool.domain.profile.application.response.ProfilePagingResponse;
-import com.swyp3.babpool.domain.profile.application.response.ProfileResponse;
-import com.swyp3.babpool.domain.profile.application.response.ProfileUpdateResponse;
 import com.swyp3.babpool.domain.profile.dao.ProfileRepository;
+import com.swyp3.babpool.domain.profile.domain.PossibleDate;
 import com.swyp3.babpool.domain.profile.domain.Profile;
 import com.swyp3.babpool.domain.profile.exception.ProfileException;
 import com.swyp3.babpool.domain.profile.exception.errorcode.ProfileErrorCode;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -35,24 +38,54 @@ public class ProfileServiceImpl implements ProfileService{
                 .condition(profilePagingConditions)
                 .pageable(pageable)
                 .build();
-        List<ProfilePagingResponse> profilePagingResponseList = null;
+        List<ProfilePagingDto> profilePagingDtoList = null;
         int counts = 0;
         try {
-            profilePagingResponseList = profileRepository.findAllByPageable(pagingRequest);
+            profilePagingDtoList = profileRepository.findAllByPageable(pagingRequest);
             counts = profileRepository.countByPageable(profilePagingConditions);
         } catch (Exception e) {
             log.error("프로필 리스트 조회 중 오류 발생. {}", e.getMessage());
             log.error("{}", e.getStackTrace());
             throw new ProfileException(ProfileErrorCode.PROFILE_LIST_ERROR, "프로필 리스트 조회 중 오류가 발생했습니다.");
         }
+        List<ProfilePagingResponse> profilePagingResponse = profilePagingDtoList.stream()
+                .map(ProfilePagingResponse::of)
+                .toList();
 
-        return new PageImpl<>(profilePagingResponseList, pagingRequest.getPageable(), counts);
+        return new PageImpl<>(profilePagingResponse, pagingRequest.getPageable(), counts);
+    }
+
+    @Override
+    public ProfileDetailResponse getProfileDetail(Long targetProfileId) {
+        if(!isExistProfile(targetProfileId)){
+            throw new ProfileException(ProfileErrorCode.PROFILE_TARGET_PROFILE_ERROR,"존재하지 않는 프로필을 조회하였습니다.");
+        }
+        //review 데이터를 제외한 프로필 상세 데이터
+        ProfileDetailDaoDto profileDetailDaoDto = profileRepository.getProfileDetail(targetProfileId);
+        //TODO: 후기 데이터와 연결 필요
+        ProfileDetailResponse profileDetailResponse = new ProfileDetailResponse(profileDetailDaoDto, null, null);
+        return profileDetailResponse;
+    }
+
+    @Override
+    public ProfileDefaultResponse getProfileDefault(Long userId) {
+        Profile profile = profileRepository.findByUserId(userId);
+        ProfileDefaultDaoDto daoResponse= profileRepository.getProfileDefault(profile.getProfileId());
+        KeywordsResponse keywords = profileRepository.getKeywords(profile.getProfileId());
+
+        return new ProfileDefaultResponse(daoResponse,keywords);
+    }
+
+    private boolean isExistProfile(Long profileId) {
+        if(profileRepository.findById(profileId)==null)
+            return false;
+        return true;
     }
 
     @Override
     public String uploadProfileImage(Long userId, MultipartFile multipartFile) {
         String uploadedImageUrl = awsS3Provider.uploadImage(multipartFile);
-        profileRepository.saveProfileImageUrl(Profile.builder()
+        profileRepository.updateProfileImageUrl(Profile.builder()
                 .userId(userId)
                 .profileImageUrl(uploadedImageUrl)
                 .build());
@@ -60,8 +93,39 @@ public class ProfileServiceImpl implements ProfileService{
     }
 
     @Override
-    public ProfileUpdateResponse saveProfileInfo(Long userId, ProfileUpdateRequest profileUpdateRequest) {
-        return null;
+    public void saveProfile(Profile profile) {
+        profileRepository.saveProfile(profile);
     }
 
+    @Override
+    public ProfileUpdateResponse updateProfileInfo(Long userId, ProfileUpdateRequest profileUpdateRequest) {
+        Long profileId = profileRepository.findByUserId(userId).getProfileId();
+        profileRepository.updateUserAccount(userId,profileUpdateRequest);
+        profileRepository.updateProfile(profileId,profileUpdateRequest);
+        profileRepository.deleteUserKeywords(userId);
+        profileRepository.insertUserKeywords(userId,profileUpdateRequest.getKeywords());
+        updatePossibleDateTime(profileId,profileUpdateRequest);
+        return new ProfileUpdateResponse(profileId);
+    }
+
+    private void updatePossibleDateTime(Long profileId, ProfileUpdateRequest profileUpdateRequest) {
+        profileRepository.deletePossibleTimes(profileId);
+        profileRepository.deletePossibleDates(profileId);
+
+        for (Map.Entry<String, List<Integer>> entry : profileUpdateRequest.getPossibleDate().entrySet()) {
+            String date = entry.getKey();
+
+            PossibleDate possibleDate = PossibleDate.builder()
+                    .possible_date(date)
+                    .profile_id(profileId)
+                    .build();
+            profileRepository.insertPossibleDates(possibleDate);
+
+            List<Integer> times = entry.getValue();
+
+            for (Integer time : times) {
+                profileRepository.insertPossibleTimes(time, possibleDate.getId());
+            }
+        }
+    }
 }

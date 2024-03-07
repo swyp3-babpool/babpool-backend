@@ -24,10 +24,10 @@ public class CorsConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         log.info("current clientUrl: {}, {}, {}", clientUrl, clientUrlMain, clientUrlSub);
         registry
-            .addMapping("/**")
-            .allowedOrigins(clientUrl, clientUrlMain, clientUrlSub) // String... origins
-            .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-            .allowedHeaders("*")
-            .allowCredentials(true);
+                .addMapping("/**")
+                .allowedOrigins(clientUrl, clientUrlMain, clientUrlSub) // String... origins
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(true);
     }
 }

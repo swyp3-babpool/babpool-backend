@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.swyp3.babpool.domain.appointment.dao.AppointmentRepository">
+
+    <resultMap id="appointmentSendResponse" type="com.swyp3.babpool.domain.appointment.application.response.AppointmentSendResponse">
+        <id property="appointmentId" column="appointment_id"/>
+        <result property="profileId" column="profile_id"/>
+        <result property="userNickName" column="user_nick_name"/>
+        <result property="profileImageUrl" column="profile_image_url"/>
+        <result property="appointmentStatus" column="appointment_status"/>
+        <result property="appointmentCreateDate" column="appointment_create_date"/>
+        <result property="appointmentFixDateTime" column="appointment_fix_date_time"/>
+    </resultMap>
+
+    <resultMap id="appointmentReceiveResponse" type="com.swyp3.babpool.domain.appointment.application.response.AppointmentReceiveResponse">
+        <id property="appointmentId" column="appointment_id"/>
+        <result property="profileId" column="profile_id"/>
+        <result property="userNickName" column="user_nick_name"/>
+        <result property="profileImageUrl" column="profile_image_url"/>
+        <result property="appointmentStatus" column="appointment_status"/>
+        <result property="appointmentCreateDate" column="appointment_create_date"/>
+        <result property="appointmentFixDateTime" column="appointment_fix_date_time"/>
+    </resultMap>
+
+    <resultMap id="appointmentHistoryRefuseResponse" type="com.swyp3.babpool.domain.appointment.application.response.AppointmentHistoryRefuseResponse">
+        <id property="appointmentId" column="appointment_id"/>
+        <result property="appointmentReceiverProfileId" column="profile_id"/>
+        <result property="appointmentReceiverUserNickname" column="user_nick_name"/>
+        <result property="appointmentReceiverProfileImageUrl" column="profile_image_url"/>
+        <result property="appointmentStatus" column="appointment_status"/>
+        <result property="refuseCreateDate" column="refuse_create_date"/>
+        <result property="refuseType" column="refuse_type"/>
+    </resultMap>
+
+    <!--  밥약 알림 - 특정 사용자가 보낸 밥약 알림  -->
+    <select id="findAppointmentListByRequesterId" resultMap="appointmentSendResponse" parameterType="long">
+        SELECT
+            appoint.appointment_id AS appointmentId,
+            profile.profile_id AS appointmentReceiverProfileId,
+            account.user_nick_name AS appointmentReceiverUserNickname,
+            profile.profile_image_url AS appointmentReceiverProfileImageUrl,
+            appoint.appointment_status AS appointmentStatus,
+            appoint.appointment_create_date AS appointmentCreateDate,
+            IF(appoint.appointment_status = 'ACCEPT' OR appoint.appointment_status = 'DONE',
+               DATE_FORMAT(CONCAT(pdate.possible_date, ' ', ptime.possible_time_start), '%Y-%m-%d %H:%i:%s'),
+               NULL
+            ) AS appointmentFixDateTime
+        FROM t_appointment appoint
+            INNER JOIN t_profile profile ON appoint.appointment_receiver_id = profile.user_id
+            INNER JOIN t_user_account account ON appoint.appointment_receiver_id = account.user_id
+            LEFT JOIN t_possible_time ptime ON ptime.possible_time_id = appoint.possible_time_id
+            LEFT JOIN t_possible_date pdate ON pdate.possible_date_id = ptime.possible_date_id
+        WHERE
+            appoint.appointment_requester_id = #{requesterUserId}
+        AND appoint.appointment_status IN ('WAITING', 'ACCEPT')
+    </select>
+
+    <!--  밥약 알림 - 특정 사용자가 받은 밥약 알림  -->
+    <select id="findAppointmentListByReceiverId" resultMap="appointmentReceiveResponse" parameterType="long">
+        SELECT
+            appoint.appointment_id AS appointmentId,
+            profile.profile_id AS appointmentReceiverProfileId,
+            account.user_nick_name AS appointmentSenderUserNickname,
+            profile.profile_image_url AS appointmentSenderProfileImageUrl,
+            appoint.appointment_status AS appointmentStatus,
+            appoint.appointment_create_date AS appointmentCreateDate,
+            IF(appoint.appointment_status = 'ACCEPT' OR appoint.appointment_status = 'DONE',
+               DATE_FORMAT(CONCAT(pdate.possible_date, ' ', ptime.possible_time_start), '%Y-%m-%d %H:%i:%s'),
+               NULL
+            ) AS appointmentFixDateTime
+        FROM t_appointment appoint
+            INNER JOIN t_profile profile ON appoint.appointment_requester_id = profile.user_id
+            INNER JOIN t_user_account account ON appoint.appointment_requester_id = account.user_id
+            LEFT JOIN t_possible_time ptime ON ptime.possible_time_id = appoint.possible_time_id
+            LEFT JOIN t_possible_date pdate ON pdate.possible_date_id = ptime.possible_date_id
+        WHERE
+            appoint.appointment_receiver_id = #{receiverUserId}
+        AND appoint.appointment_status IN ('WAITING', 'ACCEPT')
+    </select>
+
+    <select id="findUserIdByProfileId" resultType="long" parameterType="long">
+        SELECT
+            user_id
+        FROM t_profile
+        WHERE
+            profile_id = #{profileId}
+    </select>
+
+    <select id="countAcceptedAppointmentByReceiverIdAndPossibleTimeId" resultType="int" parameterType="map">
+        SELECT
+            COUNT(*) AS count
+        FROM t_appointment
+        <where>
+            appointment_receiver_id = #{targetReceiverUserId}
+          AND appointment_status = 'ACCEPT'
+            <if test="possibleTimeIdList != null and !possibleTimeIdList.isEmpty()">
+                <foreach collection="possibleTimeIdList" item="possibleTimeId" open="AND possible_time_id IN (" close=")" separator=",">
+                    #{possibleTimeId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="findByAppointmentId" resultType="com.swyp3.babpool.domain.appointment.domain.Appointment" parameterType="long">
+        SELECT
+            appointment_id,
+            appointment_requester_id,
+            appointment_receiver_id,
+            appointment_status,
+            appointment_create_date,
+            appointment_modify_date
+        FROM t_appointment
+        WHERE
+            appointment_id = #{appointmentId}
+    </select>
+
+    <!--  밥약 히스토리 - 완료된 요청 리스트  -->
+    <select id="findDoneAppointmentListByRequesterId" resultType="com.swyp3.babpool.domain.appointment.application.response.AppointmentHistoryDoneResponse" parameterType="long">
+        SELECT
+            appoint.appointment_id AS appointmentId,
+            profile.profile_id AS appointmentReceiverProfileId,
+            account.user_nick_name AS appointmentReceiverUserNickname,
+            profile.profile_image_url AS appointmentReceiverProfileImageUrl,
+            appoint.appointment_status AS appointmentStatus,
+            DATE_FORMAT(CONCAT(pdate.possible_date, ' ', ptime.possible_time_start), '%Y-%m-%d %H:%i:%s') as appointmentFixDateTime,
+            IF(review.review_id is NULL AND DATE_ADD(DATE_FORMAT(CONCAT(pdate.possible_date, ' ', ptime.possible_time_start), '%Y-%m-%d %H:%i:%s'), INTERVAL 3 DAY) > NOW(), 'REVIEW_REQUIRED', 'REVIEW_NOT_REQUIRED') AS reviewRequired
+        FROM t_appointment appoint
+                 INNER JOIN t_profile profile ON appoint.appointment_receiver_id = profile.user_id
+                 INNER JOIN t_user_account account ON appoint.appointment_receiver_id = account.user_id
+                 LEFT JOIN t_possible_time ptime ON ptime.possible_time_id = appoint.possible_time_id
+                 LEFT JOIN t_possible_date pdate ON pdate.possible_date_id = ptime.possible_date_id
+                 LEFT JOIN t_review review ON appoint.appointment_id = review.appointment_id
+        WHERE
+            appoint.appointment_requester_id = #{requesterUserId}
+          AND appoint.appointment_status = 'DONE';
+    </select>
+
+    <!--  밥약 히스토리 - 거절 당한 요청 리스트  -->
+    <select id="findRefuseAppointmentListByReceiverId" resultMap="appointmentHistoryRefuseResponse">
+        select appoint.appointment_id,
+               profile.profile_id,
+               account.user_nick_name,
+               profile.profile_image_url,
+               appoint.appointment_status,
+               refuse.refuse_create_date,
+               refuse.refuse_type
+        from t_appointment appoint
+                inner join t_profile profile on appoint.appointment_requester_id = profile.user_id
+                inner join t_user_account account on appoint.appointment_requester_id = account.user_id
+                inner join t_refuse refuse on appoint.appointment_id = refuse.appointment_id
+          where appoint.appointment_requester_id = #{receiverUserId}
+             and appoint.appointment_status IN ('REFUSE', 'EXPIRE')
+    </select>
+
+    <select id="findAppointmentPossibleDateTimeByProfileId" parameterType="long" resultType="com.swyp3.babpool.domain.appointment.application.response.AppointmentPossibleDateTimeResponse">
+        SELECT
+            pdate.profile_id AS profileId,
+            ptime.possible_time_id AS possibleTimeId,
+            pdate.possible_date_id AS possibleDateId,
+            pdate.possible_date AS possibleDate,
+            ptime.possible_time_start AS possibleTime
+        FROM t_possible_date pdate
+                 INNER JOIN t_possible_time ptime ON pdate.possible_date_id = ptime.possible_date_id
+        WHERE
+            pdate.profile_id = #{profileId}
+          AND pdate.possible_date >= DATE_FORMAT(NOW() ,'%Y-%m-01')
+        ORDER BY pdate.possible_date ASC, ptime.possible_time_start ASC
+    </select>
+
+    <!-- ######################################## INSERT ######################################## -->
+
+    <insert id="saveAppointmentInit" parameterType="com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest"
+            useGeneratedKeys="true" keyProperty="appointmentId">
+        INSERT INTO t_appointment
+        (
+            appointment_requester_id,
+            appointment_receiver_id,
+            appointment_status,
+            appointment_create_date,
+            appointment_modify_date
+        )
+        VALUES
+        (
+            #{requesterUserId},
+            #{receiverUserId},
+            'WAITING',
+            CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP()
+        );
+        INSERT INTO t_appointment_request
+        (
+         appointment_id,
+         appointment_question
+        )
+        VALUES (
+         #{appointmentId},
+         #{appointmentQuestion}
+        );
+        <foreach collection="possibleTimeIdList" item="possibleTimeId" open="" close="" separator="">
+            INSERT INTO t_appointment_request_time
+            (
+                appointment_requester_id,
+                possible_time_id
+            )
+            VALUES
+            (
+                #{requesterUserId},
+                #{possibleTimeId}
+            );
+        </foreach>
+    </insert>
+
+</mapper>

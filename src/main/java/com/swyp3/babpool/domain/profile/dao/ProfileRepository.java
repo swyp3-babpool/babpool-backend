@@ -1,18 +1,24 @@
 package com.swyp3.babpool.domain.profile.dao;
 
 import com.swyp3.babpool.domain.profile.api.request.ProfilePagingConditions;
-import com.swyp3.babpool.domain.profile.application.response.ProfilePagingResponse;
+import com.swyp3.babpool.domain.profile.api.request.ProfileUpdateRequest;
+import com.swyp3.babpool.domain.profile.application.response.KeywordsResponse;
+import com.swyp3.babpool.domain.profile.application.response.ProfileDefaultDaoDto;
+import com.swyp3.babpool.domain.profile.application.response.ProfileDetailDaoDto;
+import com.swyp3.babpool.domain.profile.application.response.ProfilePagingDto;
+import com.swyp3.babpool.domain.profile.domain.PossibleDate;
 import com.swyp3.babpool.domain.profile.domain.Profile;
 import com.swyp3.babpool.global.common.request.PagingRequestList;
 import org.apache.ibatis.annotations.Mapper;
-import org.springframework.data.domain.Page;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 @Mapper
 public interface ProfileRepository {
 
-    void saveProfileImageUrl(Profile profile);
+    void saveProfile(Profile profile);
+    void updateProfileImageUrl(Profile profile);
 
     /**
      * 프로필 리스트 조회
@@ -26,7 +32,7 @@ public interface ProfileRepository {
      *     - sort : 정렬 정보, ex) sort=createdAt,desc
      * @return 프로필 응답 리스트
      */
-    List<ProfilePagingResponse> findAllByPageable(PagingRequestList<?> pagingRequestList);
+    List<ProfilePagingDto> findAllByPageable(PagingRequestList<?> pagingRequestList);
 
     /**
      * 페이징 처리를 위한 카운트 조회
@@ -37,4 +43,35 @@ public interface ProfileRepository {
      * @return 조건 검색 결과 개수
      */
     int countByPageable(ProfilePagingConditions profilePagingConditions);
+
+    /**
+     * 프로필 정보 조회
+     * @param targetProfileId : 조회 대상 프로필 식별 값
+     * @return
+     */
+    Long findUserIdByProfileId(Long targetProfileId);
+
+    /**
+     * 특정 사용자의 특정 시간에 확정된 약속이 있는지 조회
+     * @param targetReceiverUserId
+     * @param possibleTimeIdList
+     * @return
+     */
+    Integer countAcceptedAppointmentByReceiverIdAndPossibleTimeId(@Param("targetReceiverUserId") Long targetReceiverUserId,
+                                                                  @Param("possibleTimeIdList") List<Long> possibleTimeIdList);
+
+    Profile findById(Long profileId);
+    Profile findByUserId(Long userId);
+    ProfileDetailDaoDto getProfileDetail(Long profileId);
+
+    void updateUserAccount(@Param("userId") Long userId,@Param("request") ProfileUpdateRequest profileUpdateRequest);
+    void updateProfile(@Param("profileId") Long profileId,@Param("request") ProfileUpdateRequest profileUpdateRequest);
+    void deleteUserKeywords(Long userId);
+    void insertUserKeywords(@Param("userId")Long userId,@Param("keywords") List<String> keywords);
+    void deletePossibleDates(Long profileId);
+    void insertPossibleDates(PossibleDate possibleDate);
+    void deletePossibleTimes(Long profileId);
+    void insertPossibleTimes(@Param("possibleTimeStart") Integer possibleTimeStart,@Param("possibleDateId") Long possibleDateId);
+    KeywordsResponse getKeywords(Long profileId);
+    ProfileDefaultDaoDto getProfileDefault(Long profileId);
 }

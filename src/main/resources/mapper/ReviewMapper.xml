@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.swyp3.babpool.domain.review.dao.ReviewRepository">
+
+    <select id="countReviewByType" resultType="com.swyp3.babpool.domain.review.application.response.ReviewCountByTypeResponse"
+            parameterType="long">
+        SELECT
+            COUNT(CASE WHEN review_rate = 'BEST' THEN 1 END) AS bestCount,
+            COUNT(CASE WHEN review_rate = 'GREAT' THEN 1 END) AS goodCount,
+            COUNT(CASE WHEN review_rate = 'BAD' THEN 1 END) AS badCount
+        FROM t_review
+        WHERE appointment_id IN (
+            SELECT appointment_id FROM t_appointment
+            WHERE appointment_receiver_id = (
+                SELECT user_id FROM t_profile
+                WHERE profile_id = #{profileId}
+            ) AND appointment_status = 'DONE'
+        );
+    </select>
+
+    <select id="isReviewCreateAvailableTime" resultType="Boolean">
+        SELECT
+            CASE
+                WHEN DATE_ADD(DATE_FORMAT(CONCAT(pdate.possible_date, ' ', ptime.possible_time_start), '%Y-%m-%d %H:%i:%s'), INTERVAL 3 DAY) > NOW()
+                THEN 1 ELSE 0
+            END AS result
+        FROM t_appointment
+            INNER JOIN t_possible_time ptime ON ptime.possible_time_id = t_appointment.possible_time_id
+            INNER JOIN t_possible_date pdate ON pdate.possible_date_id = ptime.possible_date_id
+        WHERE appointment_id = #{appointmentId};
+    </select>
+
+    <select id="isReviewUpdateAvailableTime" resultType="Boolean">
+        SELECT
+            CASE
+                WHEN DATE_ADD(review_create_date), INTERVAL 1 DAY) > NOW()
+                THEN 1 ELSE 0
+            END AS result
+        FROM t_review
+        WHERE review_id = #{reviewId};
+    </select>
+
+    <select id="findByReviewId" resultType="com.swyp3.babpool.domain.review.domain.Review">
+        SELECT
+            review_id,
+            appointment_id,
+            review_rate,
+            review_comment,
+            review_create_date,
+            review_modify_date
+        FROM t_review
+        WHERE review_id = #{reviewId};
+    </select>
+
+    <select id="findAllByPageable" parameterType="com.swyp3.babpool.global.common.request.PagingRequestList"
+            resultType="com.swyp3.babpool.domain.review.application.response.ReviewPagingResponse">
+        SELECT
+            review_id,
+            appointment_id,
+            review_rate,
+            review_comment,
+            review_create_date
+        FROM t_review
+        WHERE appointment_id IN (
+            SELECT appointment_id FROM t_appointment
+            WHERE appointment_receiver_id = (
+                SELECT user_id FROM t_profile
+                WHERE profile_id = #{profileId}
+            ) AND appointment_status = 'DONE'
+        )
+        AND review_delete_flag = 0
+        GROUP BY review_id
+        <if test="pageable.sort != null and !pageable.sort.isEmpty()">
+            ORDER BY
+            <foreach collection="pageable.sort" item="order" separator=",">
+                ${order.property} ${order.direction}
+            </foreach>
+        </if>
+        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
+    </select>
+
+    <select id="countByPageable" parameterType="long"
+            resultType="java.lang.Integer">
+        SELECT
+            COUNT(DISTINCT review_id)
+        FROM t_review
+        WHERE appointment_id IN (
+            SELECT appointment_id FROM t_appointment
+            WHERE appointment_receiver_id = (
+                SELECT user_id FROM t_profile
+                WHERE profile_id = #{profileId}
+            ) AND appointment_status = 'DONE'
+        )
+        AND review_delete_flag = 0;
+    </select>
+
+    <insert id="saveReview" parameterType="com.swyp3.babpool.domain.review.api.request.ReviewCreateRequest"
+            useGeneratedKeys="true" keyProperty="reviewId">
+        INSERT INTO t_review (appointment_id, review_rate, review_comment, review_delete_flag, review_create_date, review_modify_date)
+        VALUES (
+            #{appointmentId},
+            #{rateType},
+            #{reviewContent},
+            0,
+            NOW(),
+            NOW()
+        );
+    </insert>
+
+    <update id="updateReview" parameterType="com.swyp3.babpool.domain.review.api.request.ReviewUpdateRequest">
+        UPDATE t_review
+        SET review_rate = #{rateType},
+            review_comment = #{reviewContent},
+            review_modify_date = NOW()
+        WHERE review_id = #{reviewId};
+    </update>
+
+
+</mapper>

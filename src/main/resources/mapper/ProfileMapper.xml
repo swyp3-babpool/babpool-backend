@@ -3,33 +3,35 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.swyp3.babpool.domain.profile.dao.ProfileRepository">
 
-    <resultMap id="profilePagingResponse" type="com.swyp3.babpool.domain.profile.application.response.ProfilePagingResponse">
+    <resultMap id="profilePagingDto" type="com.swyp3.babpool.domain.profile.application.response.ProfilePagingDto">
         <result property="profileId" column="profile_id"/>
         <result property="userId" column="user_id"/>
         <result property="profileImageUrl" column="profile_image_url"/>
         <result property="profileIntro" column="profile_intro"/>
         <result property="profileContents" column="profile_contents"/>
-        <result property="profileActiveFlag" column="profile_active_flag"/>
-        <result property="createdAt" column="created_at"/>
-        <result property="updatedAt" column="updated_at"/>
-        <result property="keywordIdWithNameString" column="keyword_info"/>
+        <result property="profileModifyDate" column="profile_modify_date"/>
+        <result property="keywordNamesConcat" column="keyword_info"/>
         <result property="userGrade" column="user_grade"/>
+        <result property="userNickname" column="user_nick_name"/>
     </resultMap>
 
     <select id="findAllByPageable"
             parameterType="com.swyp3.babpool.global.common.request.PagingRequestList"
-            resultMap="profilePagingResponse">
-        SELECT profile.*,
-            GROUP_CONCAT(CONCAT(k.keyword_id, ':', k.keyword_name)) AS keyword_info,
-            account.user_grade
-        FROM t_profile profile
+            resultMap="profilePagingDto">
+        SELECT profile.profile_id, profile.user_id, profile.profile_image_url, profile.profile_intro, profile.profile_contents,
+               profile.profile_modify_date,
+            GROUP_CONCAT(k.keyword_name) AS keyword_info, account.user_grade, account.user_nick_name
+        FROM t_profile as profile
             inner JOIN t_user_account account ON profile.user_id = account.user_id
             inner JOIN t_m_user_keyword muk ON profile.user_id = muk.user_id
             inner JOIN t_keyword k ON muk.keyword_id = k.keyword_id
         <where>
             <if test="condition.search != null and !condition.search.equals('')">
+                (
                 profile.profile_intro LIKE CONCAT('%', #{condition.search}, '%')
                 OR profile.profile_contents LIKE CONCAT('%', #{condition.search}, '%')
+                OR account.user_nick_name LIKE CONCAT('%', #{condition.search}, '%')
+                )
             </if>
             <if test="condition.keywords != null and !condition.keywords.isEmpty()">
                 <foreach collection="condition.keywords" item="keyword" open="AND muk.keyword_id IN (" close=")" separator=",">
@@ -62,8 +64,11 @@
                 ON profile.user_id = muk.user_id
         <where>
             <if test="search != null and !search.equals('')">
+                (
                 profile.profile_intro LIKE CONCAT('%', #{search}, '%')
                 OR profile.profile_contents LIKE CONCAT('%', #{search}, '%')
+                OR account.user_nick_name LIKE CONCAT('%', #{search}, '%')
+                )
             </if>
             <if test="keywords != null and !keywords.isEmpty()">
                 <foreach collection="keywords" item="keyword" open="AND muk.keyword_id IN (" close=")" separator=",">
@@ -79,9 +84,134 @@
         </where>
     </select>
 
-    <insert id="saveProfileImageUrl" parameterType="com.swyp3.babpool.domain.profile.domain.Profile">
-        INSERT INTO t_profile (profile_image_url) VALUES (#{profileImageUrl}) where user_id = #{userId}
+    <insert id="saveProfile" parameterType="com.swyp3.babpool.domain.profile.domain.Profile">
+        INSERT INTO t_profile (user_id, profile_image_url,profile_active_flag )
+        VALUES (#{userId}, #{profileImageUrl},#{profileActiveFlag} )
     </insert>
 
+    <select id="findById" resultType="com.swyp3.babpool.domain.profile.domain.Profile">
+        select *
+        from t_profile
+        where profile_id = #{profileId}
+    </select>
+
+    <select id="findByUserId" resultType="com.swyp3.babpool.domain.profile.domain.Profile">
+        select *
+        from t_profile
+        where user_id = #{userId}
+    </select>
+     <select id="getKeywords" resultType="com.swyp3.babpool.domain.profile.application.response.KeywordsResponse">
+        SELECT JSON_OBJECTAGG(subject_name,keyword_name_list) AS keywords
+        FROM (
+                 SELECT
+                     s.subject_name,
+                     JSON_ARRAYAGG(k.keyword_name) AS keyword_name_list
+                 FROM
+                     t_profile p
+                         INNER JOIN t_user_account u on u.user_id = p.user_id
+                         INNER JOIN t_m_user_keyword muk ON u.user_id = muk.user_id
+                         INNER JOIN t_keyword k ON muk.keyword_id = k.keyword_id
+                         INNER JOIN t_subject s ON k.subject_id = s.subject_id
+                 WHERE p.profile_id = #{profileId}
+                 GROUP BY
+                     s.subject_name
+             )tb_json_arrayagg
+    </select>
+
+    <select id="getProfileDefault" resultType="com.swyp3.babpool.domain.profile.application.response.ProfileDefaultDaoDto">
+        SELECT
+            ua.user_nick_name AS userNickName,
+            p.profile_image_url AS imgUrl,
+            ua.user_grade AS userGrade,
+            p.profile_intro AS profileIntro,
+            p.profile_contents AS profileContents,
+            p.profile_contact_phone AS profileContactPhone,
+            p.profile_contact_chat AS profileContactChat
+        FROM
+            t_profile p
+                INNER JOIN
+            t_user_account ua ON p.user_id = ua.user_id
+        WHERE
+            p.profile_id = #{profileId}
+    </select>
+
+    <select id="getProfileDetail" resultType="com.swyp3.babpool.domain.profile.application.response.ProfileDetailDaoDto">
+        SELECT
+            p.profile_id AS profileId,
+            ua.user_nick_name AS name,
+            p.profile_image_url AS profileImg,
+            ua.user_grade AS grade,
+            p.profile_intro AS intro,
+            p.profile_contents AS contents,
+            GROUP_CONCAT(k.keyword_name) AS keywords
+        FROM
+            t_profile p
+                INNER JOIN
+            t_user_account ua ON p.user_id = ua.user_id
+                LEFT JOIN
+            t_m_user_keyword muk ON ua.user_id = muk.user_id
+                LEFT JOIN
+            t_keyword k ON muk.keyword_id = k.keyword_id
+        WHERE
+            p.profile_id = #{profileId}
+        GROUP BY
+            p.profile_id
+    </select>
+
+
+    <update id="updateProfileImageUrl" parameterType="com.swyp3.babpool.domain.profile.domain.Profile">
+        UPDATE t_profile SET profile_image_url = #{profileImageUrl} where user_id = #{userId}
+    </update>
+
+    <update id="updateUserAccount">
+        UPDATE t_user_account
+        SET
+            user_nick_name = #{request.userNickName},
+            user_grade = #{request.userGrade}
+        WHERE
+            user_id = #{userId}
+    </update>
+
+    <update id="updateProfile">
+        UPDATE t_profile
+        SET
+            profile_intro = #{request.profileIntro},
+            profile_contents = #{request.profileContents},
+            profile_contact_phone = #{request.profileContactPhone},
+            profile_contact_chat = #{request.profileContactChat},
+            profile_active_flag = 1
+        WHERE
+            profile_id = #{profileId};
+    </update>
+
+    <delete id="deleteUserKeywords" parameterType="long">
+        DELETE FROM t_m_user_keyword WHERE user_id = #{userId}
+    </delete>
+
+    <insert id="insertUserKeywords">
+        INSERT INTO t_m_user_keyword (user_id, keyword_id)
+        VALUES
+        <foreach item="keywordId" index="index" collection="keywords" separator=",">
+            (#{userId}, #{keywordId})
+        </foreach>
+    </insert>
+
+    <delete id="deletePossibleDates" parameterType="long">
+        DELETE FROM t_possible_date WHERE profile_id = #{profileId};
+    </delete>
+
+    <insert id="insertPossibleDates"  parameterType="com.swyp3.babpool.domain.profile.domain.PossibleDate" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_possible_date (possible_date, profile_id)
+        VALUES (#{possibleDate}, #{profileId})
+    </insert>
+
+    <delete id="deletePossibleTimes" parameterType="long">
+        DELETE FROM t_possible_time WHERE possible_date_id IN (SELECT possible_date_id FROM t_possible_date WHERE profile_id = #{profileId});
+    </delete>
+
+    <insert id="insertPossibleTimes">
+        INSERT INTO t_possible_time (possible_time_start,possible_date_id,possible_time_range)
+        VALUES ( #{possibleTimeStart},#{possibleDateId},1 )
+    </insert>
 
 </mapper>

@@ -1,23 +1,21 @@
 package com.swyp3.babpool.domain.profile.api.request;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 
-@ToString
+import java.util.List;
+import java.util.Map;
+
 @Getter
+@ToString
+@AllArgsConstructor
+@NoArgsConstructor
 public class ProfileUpdateRequest {
-
+    private String userNickName;
+    private String userGrade;
     private String profileIntro;
     private String profileContents;
     private String profileContactPhone;
     private String profileContactChat;
-
-    @Builder
-    public ProfileUpdateRequest(String profileIntro, String profileContents, String profileContactPhone, String profileContactChat) {
-        this.profileIntro = profileIntro;
-        this.profileContents = profileContents;
-        this.profileContactPhone = profileContactPhone;
-        this.profileContactChat = profileContactChat;
-    }
+    private List<String> keywords;
+    private Map<String, List<Integer>> possibleDate;
 }

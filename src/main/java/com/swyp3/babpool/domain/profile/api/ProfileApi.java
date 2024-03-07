@@ -2,6 +2,8 @@ package com.swyp3.babpool.domain.profile.api;
 
 import com.swyp3.babpool.domain.profile.api.request.ProfileUpdateRequest;
 import com.swyp3.babpool.domain.profile.application.ProfileService;
+import com.swyp3.babpool.domain.profile.application.response.ProfileDefaultResponse;
+import com.swyp3.babpool.domain.profile.application.response.ProfileDetailResponse;
 import com.swyp3.babpool.domain.profile.application.response.ProfileUpdateResponse;
 import com.swyp3.babpool.global.common.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -10,17 +12,30 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/profile")
 public class ProfileApi {
-
     private final ProfileService profileService;
 
-    @PostMapping("/api/profile/card")
+    @PostMapping("/update")
     public ApiResponse<ProfileUpdateResponse> updateProfileCard(@RequestAttribute(value = "userId") Long userId,
                                                                 @RequestPart(value = "profileImageFile") MultipartFile multipartFile,
                                                                 @RequestPart(value = "profileInfo") ProfileUpdateRequest profileUpdateRequest) {
         profileService.uploadProfileImage(userId, multipartFile);
-        ProfileUpdateResponse profileResponse = profileService.saveProfileInfo(userId, profileUpdateRequest);
-        return ApiResponse.ok(profileResponse);
+        ProfileUpdateResponse response =  profileService.updateProfileInfo(userId, profileUpdateRequest);
+        return ApiResponse.ok(response);
     }
+
+    @GetMapping("/default")
+    public ApiResponse<ProfileDefaultResponse> getProfileDefault(@RequestAttribute(value = "userId") Long userId){
+        ProfileDefaultResponse response = profileService.getProfileDefault(userId);
+        return ApiResponse.ok(response);
+    }
+
+    @GetMapping("/detail/{targetProfileId}")
+    public ApiResponse<ProfileDetailResponse> getProfileDetail(@PathVariable(name="targetProfileId") Long targetProfileId){
+        ProfileDetailResponse profileDetailResponse = profileService.getProfileDetail(targetProfileId);
+        return ApiResponse.ok(profileDetailResponse);
+    }
+
 
 }

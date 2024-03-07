@@ -31,6 +31,12 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws ServletException, IOException {
+        if (request.getMethod().equals("OPTIONS")) {
+            log.debug("if request method is options, return true");
+
+            return true;
+        }
+
         String accessToken = StringUtil.EMPTY_STRING;
         Claims authenticatedClaims = null;
         try {
