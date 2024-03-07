@@ -13,4 +13,6 @@ public class ProfileDetailDaoDto {
     private String grade;
     private String intro;
     private String contents;
+
+    private String keywords;
 }
