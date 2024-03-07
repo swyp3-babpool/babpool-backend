@@ -1,15 +1,16 @@
 package com.swyp3.babpool.domain.appointment.application;
 
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
-import com.swyp3.babpool.domain.appointment.application.response.AppointmentReceiveResponse;
-import com.swyp3.babpool.domain.appointment.application.response.AppointmentCreateResponse;
-import com.swyp3.babpool.domain.appointment.application.response.AppointmentSendResponse;
+import com.swyp3.babpool.domain.appointment.application.response.*;
 import com.swyp3.babpool.domain.appointment.dao.AppointmentRepository;
 import com.swyp3.babpool.domain.appointment.domain.Appointment;
 import com.swyp3.babpool.domain.appointment.domain.AppointmentRequestMessage;
 import com.swyp3.babpool.domain.appointment.exception.AppointmentException;
 import com.swyp3.babpool.domain.appointment.exception.eoorcode.AppointmentErrorCode;
 import com.swyp3.babpool.domain.profile.dao.ProfileRepository;
+import com.swyp3.babpool.domain.profile.domain.Profile;
+import com.swyp3.babpool.domain.user.application.UserService;
+import com.swyp3.babpool.domain.user.application.response.MyPageResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,7 @@ public class AppointmentServiceImpl implements AppointmentService{
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final AppointmentRepository appointmentRepository;
     private final ProfileRepository profileRepository;
+    private final UserService userService;
     
     @Transactional
     @Override
@@ -64,12 +66,26 @@ public class AppointmentServiceImpl implements AppointmentService{
 
     @Override
     public List<AppointmentSendResponse> getSendAppointmentList(Long userId) {
-        return appointmentRepository.findAppointmentListByRequesterId(userId);
+        return appointmentRepository.findAppointmentListByRequesterId(userId)
+                .orElseThrow(() -> new AppointmentException(AppointmentErrorCode.APPOINTMENT_SEND_NOT_FOUND, "발신한 밥약이 존재하지 않습니다."));
     }
 
     @Override
     public List<AppointmentReceiveResponse> getReceiveAppointmentList(Long userId) {
-        return appointmentRepository.findAppointmentListByReceiverId(userId);
+        return appointmentRepository.findAppointmentListByReceiverId(userId)
+                .orElseThrow(() -> new AppointmentException(AppointmentErrorCode.APPOINTMENT_RECEIVE_NOT_FOUND, "수신한 밥약이 존재하지 않습니다."));
+    }
+
+    @Override
+    public List<AppointmentHistoryDoneResponse> getDoneAppointmentList(Long userId) {
+        return appointmentRepository.findDoneAppointmentListByRequesterId(userId)
+                .orElseThrow(() -> new AppointmentException(AppointmentErrorCode.APPOINTMENT_DONE_NOT_FOUND, "완료된 밥약이 존재하지 않습니다."));
+    }
+
+    @Override
+    public List<AppointmentHistoryRefuseResponse> getRefuseAppointmentList(Long receiverUserId) {
+    return appointmentRepository.findRefuseAppointmentListByReceiverId(receiverUserId)
+                .orElseThrow(() -> new AppointmentException(AppointmentErrorCode.APPOINTMENT_REFUSE_NOT_FOUND, "거절된 밥약이 존재하지 않습니다."));
     }
 
 

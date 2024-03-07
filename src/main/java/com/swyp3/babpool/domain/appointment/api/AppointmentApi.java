@@ -2,9 +2,7 @@ package com.swyp3.babpool.domain.appointment.api;
 
 import com.swyp3.babpool.domain.appointment.application.AppointmentService;
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
-import com.swyp3.babpool.domain.appointment.application.response.AppointmentReceiveResponse;
-import com.swyp3.babpool.domain.appointment.application.response.AppointmentCreateResponse;
-import com.swyp3.babpool.domain.appointment.application.response.AppointmentSendResponse;
+import com.swyp3.babpool.domain.appointment.application.response.*;
 import com.swyp3.babpool.global.common.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +41,22 @@ public class AppointmentApi {
     @GetMapping("/api/appointment/list/receive")
     public ApiResponse<List<AppointmentReceiveResponse>> getReceiveAppointmentList(@RequestAttribute(value = "userId", required = false) Long userId) {
         return ApiResponse.ok(appointmentService.getReceiveAppointmentList(userId));
+    }
+
+    /**
+     * 밥약 히스토리 - 완료(DONE) 리스트 조회 API
+     */
+    @GetMapping("/api/appointment/list/done")
+    public ApiResponse<List<AppointmentHistoryDoneResponse>> getDoneAppointmentList(@RequestAttribute(value = "userId", required = false) Long userId) {
+        return ApiResponse.ok(appointmentService.getDoneAppointmentList(userId));
+    }
+
+    /**
+     * 밥약 히스토리 - 거절(EXPIRE, REJECT) 리스트 조회 API
+     */
+    @GetMapping("/api/appointment/list/refuse")
+    public ApiResponse<List<AppointmentHistoryRefuseResponse>> getRefuseAppointmentList(@RequestAttribute(value = "userId", required = false) Long userId) {
+        return ApiResponse.ok(appointmentService.getRefuseAppointmentList(userId));
     }
 
 

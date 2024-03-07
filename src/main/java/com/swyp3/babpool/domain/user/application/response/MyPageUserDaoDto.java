@@ -10,5 +10,14 @@ public class MyPageUserDaoDto {
     private String profileImg;
     private String grade;
     private String intro;
-    private String keywords;
+    private String[] keywords;
+
+    public MyPageUserDaoDto(Long profileId, String name, String profileImg, String grade, String intro, String keywords) {
+        this.profileId = profileId;
+        this.name = name;
+        this.profileImg = profileImg;
+        this.grade = grade;
+        this.intro = intro;
+        this.keywords = keywords.split(",");
+    }
 }

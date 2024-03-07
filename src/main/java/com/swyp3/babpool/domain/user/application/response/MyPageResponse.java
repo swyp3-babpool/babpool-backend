@@ -14,7 +14,7 @@ public class MyPageResponse {
     private String profileImg;
     private String grade;
     private String intro;
-    private String keywords;
+    private String[] keywords;
     private Map<String,Integer> reviewCount;
 
     //TODO: 밥약 히스토리 DTO 리스트로 변경 필요
