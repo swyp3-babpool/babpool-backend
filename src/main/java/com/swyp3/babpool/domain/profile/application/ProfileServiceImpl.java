@@ -67,6 +67,15 @@ public class ProfileServiceImpl implements ProfileService{
         return profileDetailResponse;
     }
 
+    @Override
+    public ProfileDefaultResponse getProfileDefault(Long userId) {
+        Profile profile = profileRepository.findByUserId(userId);
+        ProfileDefaultDaoDto daoResponse= profileRepository.getProfileDefault(profile.getProfileId());
+        KeywordsResponse keywords = profileRepository.getKeywords(profile.getProfileId());
+
+        return new ProfileDefaultResponse(daoResponse,keywords);
+    }
+
     private boolean isExistProfile(Long profileId) {
         if(profileRepository.findById(profileId)==null)
             return false;

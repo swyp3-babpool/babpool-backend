@@ -2,6 +2,7 @@ package com.swyp3.babpool.domain.profile.api;
 
 import com.swyp3.babpool.domain.profile.api.request.ProfileUpdateRequest;
 import com.swyp3.babpool.domain.profile.application.ProfileService;
+import com.swyp3.babpool.domain.profile.application.response.ProfileDefaultResponse;
 import com.swyp3.babpool.domain.profile.application.response.ProfileDetailResponse;
 import com.swyp3.babpool.domain.profile.application.response.ProfileUpdateResponse;
 import com.swyp3.babpool.global.common.response.ApiResponse;
@@ -21,6 +22,12 @@ public class ProfileApi {
                                                                 @RequestPart(value = "profileInfo") ProfileUpdateRequest profileUpdateRequest) {
         profileService.uploadProfileImage(userId, multipartFile);
         ProfileUpdateResponse response =  profileService.updateProfileInfo(userId, profileUpdateRequest);
+        return ApiResponse.ok(response);
+    }
+
+    @GetMapping("/default")
+    public ApiResponse<ProfileDefaultResponse> getProfileDefault(@RequestAttribute(value = "userId") Long userId){
+        ProfileDefaultResponse response = profileService.getProfileDefault(userId);
         return ApiResponse.ok(response);
     }
 
