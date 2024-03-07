@@ -34,13 +34,17 @@ public class PagingSortTypeMappingConfig implements WebMvcConfigurer {
 
                 if (currentSort != null && !currentSort.isEmpty()) {
                     for (Sort.Order order : currentSort) {
-                        String convertToDatabaseColumnNameForSorting = null;
+                        String convertToDatabaseColumnNameForSorting = order.getProperty();
                         switch (order.getProperty()) {
-                            case "Name":
-                                convertToDatabaseColumnNameForSorting = ProfileSortType.Name.getColumnName();
+                            case "NickName":
+                                convertToDatabaseColumnNameForSorting = ProfileSortType.NickName.getColumnName();
                                 break;
-                            default:
-                                convertToDatabaseColumnNameForSorting = ProfileSortType.Newest.getColumnName();
+                            case "NewestPofile":
+                                convertToDatabaseColumnNameForSorting = ProfileSortType.NewestPofile.getColumnName();
+                                break;
+                            case "NewestReview":
+                                convertToDatabaseColumnNameForSorting = ProfileSortType.NewestReview.getColumnName();
+                                break;
                         }
 
                         Sort.Direction direction = order.getDirection();
