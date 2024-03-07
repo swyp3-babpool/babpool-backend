@@ -3,6 +3,7 @@ package com.swyp3.babpool.domain.profile.dao;
 import com.swyp3.babpool.domain.profile.api.request.ProfilePagingConditions;
 import com.swyp3.babpool.domain.profile.api.request.ProfileUpdateRequest;
 import com.swyp3.babpool.domain.profile.application.response.KeywordsResponse;
+import com.swyp3.babpool.domain.profile.application.response.ProfileDefaultDaoDto;
 import com.swyp3.babpool.domain.profile.application.response.ProfileDetailDaoDto;
 import com.swyp3.babpool.domain.profile.application.response.ProfilePagingDto;
 import com.swyp3.babpool.domain.profile.domain.PossibleDate;
@@ -72,4 +73,5 @@ public interface ProfileRepository {
     void deletePossibleTimes(Long profileId);
     void insertPossibleTimes(@Param("possibleTimeStart") Integer possibleTimeStart,@Param("possibleDateId") Long possibleDateId);
     KeywordsResponse getKeywords(Long profileId);
+    ProfileDefaultDaoDto getProfileDefault(Long profileId);
 }
