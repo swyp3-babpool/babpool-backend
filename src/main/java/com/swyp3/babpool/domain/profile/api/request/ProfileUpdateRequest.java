@@ -7,7 +7,6 @@ import lombok.ToString;
 @ToString
 @Getter
 public class ProfileUpdateRequest {
-
     private String profileIntro;
     private String profileContents;
     private String profileContactPhone;

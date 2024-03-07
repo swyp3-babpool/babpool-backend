@@ -1,6 +1,7 @@
 package com.swyp3.babpool.domain.profile.dao;
 
 import com.swyp3.babpool.domain.profile.api.request.ProfilePagingConditions;
+import com.swyp3.babpool.domain.profile.application.response.KeywordsResponse;
 import com.swyp3.babpool.domain.profile.application.response.ProfileDetailDaoDto;
 import com.swyp3.babpool.domain.profile.application.response.ProfilePagingDto;
 import com.swyp3.babpool.domain.profile.domain.Profile;
@@ -59,4 +60,6 @@ public interface ProfileRepository {
     Profile findById(Long profileId);
 
     ProfileDetailDaoDto getProfileDetail(Long profileId);
+
+    KeywordsResponse getKeywords(Long profileId);
 }

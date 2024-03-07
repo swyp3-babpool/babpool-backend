@@ -13,7 +13,7 @@ public class ProfileDetailResponse {
     private String grade;
     private String intro;
     private String contents;
-    private String keywords;
+    private String[] keywords;
     private Map<String,Integer> reviewCount;
     private List<String> reviews;
 
@@ -24,7 +24,7 @@ public class ProfileDetailResponse {
         this.grade=profileDetailDaoDto.getGrade();
         this.intro=profileDetailDaoDto.getIntro();
         this.contents=profileDetailDaoDto.getContents();
-        this.keywords=profileDetailDaoDto.getKeywords();
+        this.keywords = profileDetailDaoDto.getKeywords().split(",");
         this.reviewCount=reviewCount;
         this.reviews=reviews;
     }
