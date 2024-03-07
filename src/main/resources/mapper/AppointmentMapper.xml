@@ -116,15 +116,15 @@
     </select>
 
     <!--  밥약 히스토리 - 완료된 요청 리스트  -->
-    <select id="findDoneAppointmentListByRequesterId" resultMap="appointmentSendResponse" parameterType="long">
+    <select id="findDoneAppointmentListByRequesterId" resultType="com.swyp3.babpool.domain.appointment.application.response.AppointmentHistoryDoneResponse" parameterType="long">
         SELECT
-            appoint.appointment_id,
-            profile.profile_id,
-            account.user_nick_name,
-            profile.profile_image_url,
-            appoint.appointment_status,
-            DATE_FORMAT(CONCAT(pdate.possible_date, ' ', ptime.possible_time_start), '%Y-%m-%d %H:%i:%s') as appointment_fix_date_time,
-            IF(review.review_id is NULL AND DATE_ADD(DATE_FORMAT(CONCAT(pdate.possible_date, ' ', ptime.possible_time_start), '%Y-%m-%d %H:%i:%s'), INTERVAL 3 DAY) > NOW(), 'REVIEW_REQUIRED', 'REVIEW_NOT_REQUIRED') AS review_require
+            appoint.appointment_id AS appointmentId,
+            profile.profile_id AS appointmentReceiverProfileId,
+            account.user_nick_name AS appointmentReceiverUserNickname,
+            profile.profile_image_url AS appointmentReceiverProfileImageUrl,
+            appoint.appointment_status AS appointmentStatus,
+            DATE_FORMAT(CONCAT(pdate.possible_date, ' ', ptime.possible_time_start), '%Y-%m-%d %H:%i:%s') as appointmentFixDateTime,
+            IF(review.review_id is NULL AND DATE_ADD(DATE_FORMAT(CONCAT(pdate.possible_date, ' ', ptime.possible_time_start), '%Y-%m-%d %H:%i:%s'), INTERVAL 3 DAY) > NOW(), 'REVIEW_REQUIRED', 'REVIEW_NOT_REQUIRED') AS reviewRequired
         FROM t_appointment appoint
                  INNER JOIN t_profile profile ON appoint.appointment_receiver_id = profile.user_id
                  INNER JOIN t_user_account account ON appoint.appointment_receiver_id = account.user_id
