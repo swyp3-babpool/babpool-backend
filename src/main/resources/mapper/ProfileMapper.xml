@@ -95,7 +95,12 @@
         where profile_id = #{profileId}
     </select>
 
-    <select id="getKeywords" resultType="com.swyp3.babpool.domain.profile.application.response.KeywordsResponse">
+    <select id="findByUserId" resultType="com.swyp3.babpool.domain.profile.domain.Profile">
+        select *
+        from t_profile
+        where user_id = #{userId}
+    </select>
+     <select id="getKeywords" resultType="com.swyp3.babpool.domain.profile.application.response.KeywordsResponse">
         SELECT JSON_OBJECTAGG(subject_name,keyword_name_list) AS keywords
         FROM (
                  SELECT
@@ -140,5 +145,56 @@
     <update id="updateProfileImageUrl" parameterType="com.swyp3.babpool.domain.profile.domain.Profile">
         UPDATE t_profile SET profile_image_url = #{profileImageUrl} where user_id = #{userId}
     </update>
+
+    <update id="updateUserAccount">
+        UPDATE t_user_account
+        SET
+            user_nick_name = #{request.userNickName},
+            user_grade = #{request.userGrade}
+        WHERE
+            user_id = #{userId}
+    </update>
+
+    <update id="updateProfile">
+        UPDATE t_profile
+        SET
+            profile_intro = #{request.profileIntro},
+            profile_contents = #{request.profileContents},
+            profile_contact_phone = #{request.profileContactPhone},
+            profile_contact_chat = #{request.profileContactChat},
+            profile_active_flag = 1
+        WHERE
+            profile_id = #{profileId};
+    </update>
+
+    <delete id="deleteUserKeywords" parameterType="long">
+        DELETE FROM t_m_user_keyword WHERE user_id = #{userId}
+    </delete>
+
+    <insert id="insertUserKeywords">
+        INSERT INTO t_m_user_keyword (user_id, keyword_id)
+        VALUES
+        <foreach item="keywordId" index="index" collection="keywords" separator=",">
+            (#{userId}, #{keywordId})
+        </foreach>
+    </insert>
+
+    <delete id="deletePossibleDates" parameterType="long">
+        DELETE FROM t_possible_date WHERE profile_id = #{profileId};
+    </delete>
+
+    <insert id="insertPossibleDates"  parameterType="com.swyp3.babpool.domain.profile.domain.PossibleDate" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_possible_date (possible_date, profile_id)
+        VALUES (#{possibleDate}, #{profileId})
+    </insert>
+
+    <delete id="deletePossibleTimes" parameterType="long">
+        DELETE FROM t_possible_time WHERE possible_date_id IN (SELECT possible_date_id FROM t_possible_date WHERE profile_id = #{profileId});
+    </delete>
+
+    <insert id="insertPossibleTimes">
+        INSERT INTO t_possible_time (possible_time_start,possible_date_id,possible_time_range)
+        VALUES ( #{possibleTimeStart},#{possibleDateId},1 )
+    </insert>
 
 </mapper>

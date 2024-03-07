@@ -1,9 +1,11 @@
 package com.swyp3.babpool.domain.profile.dao;
 
 import com.swyp3.babpool.domain.profile.api.request.ProfilePagingConditions;
+import com.swyp3.babpool.domain.profile.api.request.ProfileUpdateRequest;
 import com.swyp3.babpool.domain.profile.application.response.KeywordsResponse;
 import com.swyp3.babpool.domain.profile.application.response.ProfileDetailDaoDto;
 import com.swyp3.babpool.domain.profile.application.response.ProfilePagingDto;
+import com.swyp3.babpool.domain.profile.domain.PossibleDate;
 import com.swyp3.babpool.domain.profile.domain.Profile;
 import com.swyp3.babpool.global.common.request.PagingRequestList;
 import org.apache.ibatis.annotations.Mapper;
@@ -58,8 +60,16 @@ public interface ProfileRepository {
                                                                   @Param("possibleTimeIdList") List<Long> possibleTimeIdList);
 
     Profile findById(Long profileId);
-
+    Profile findByUserId(Long userId);
     ProfileDetailDaoDto getProfileDetail(Long profileId);
 
+    void updateUserAccount(@Param("userId") Long userId,@Param("request") ProfileUpdateRequest profileUpdateRequest);
+    void updateProfile(@Param("profileId") Long profileId,@Param("request") ProfileUpdateRequest profileUpdateRequest);
+    void deleteUserKeywords(Long userId);
+    void insertUserKeywords(@Param("userId")Long userId,@Param("keywords") List<String> keywords);
+    void deletePossibleDates(Long profileId);
+    void insertPossibleDates(PossibleDate possibleDate);
+    void deletePossibleTimes(Long profileId);
+    void insertPossibleTimes(@Param("possibleTimeStart") Integer possibleTimeStart,@Param("possibleDateId") Long possibleDateId);
     KeywordsResponse getKeywords(Long profileId);
 }
