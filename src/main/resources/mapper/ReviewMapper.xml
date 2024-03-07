@@ -80,7 +80,7 @@
         LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
     </select>
 
-    <select id="countByPageable" parameterType="com.swyp3.babpool.domain.review.api.request.ReviewPagingConditions"
+    <select id="countByPageable" parameterType="long"
             resultType="java.lang.Integer">
         SELECT
             COUNT(DISTINCT review_id)
