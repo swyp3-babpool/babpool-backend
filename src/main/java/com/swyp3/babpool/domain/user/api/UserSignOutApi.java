@@ -21,7 +21,7 @@ public class UserSignOutApi {
         Cookie[] cookies = request.getCookies();
         if(cookies != null){
             Optional<Cookie> optionalCookie = Arrays.stream(cookies)
-                    .filter(cookie -> cookie.getName().equals("userRefreshToken"))
+                    .filter(cookie -> cookie.getName().equals("refreshToken"))
                     .findAny();
             optionalCookie.ifPresent(cookie -> jwtService.logout(cookie.getValue()));
         }
