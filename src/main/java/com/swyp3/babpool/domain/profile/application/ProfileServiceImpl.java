@@ -6,8 +6,8 @@ import com.swyp3.babpool.domain.profile.application.response.*;
 import com.swyp3.babpool.domain.profile.application.response.ProfileDetailDaoDto;
 import com.swyp3.babpool.domain.profile.application.response.ProfilePagingDto;
 import com.swyp3.babpool.domain.profile.application.response.ProfilePagingResponse;
-import com.swyp3.babpool.domain.profile.application.response.ProfileUpdateResponse;
 import com.swyp3.babpool.domain.profile.dao.ProfileRepository;
+import com.swyp3.babpool.domain.profile.domain.PossibleDate;
 import com.swyp3.babpool.domain.profile.domain.Profile;
 import com.swyp3.babpool.domain.profile.exception.ProfileException;
 import com.swyp3.babpool.domain.profile.exception.errorcode.ProfileErrorCode;
@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -88,8 +89,34 @@ public class ProfileServiceImpl implements ProfileService{
     }
 
     @Override
-    public ProfileUpdateResponse saveProfileInfo(Long userId, ProfileUpdateRequest profileUpdateRequest) {
-        return null;
+    public ProfileUpdateResponse updateProfileInfo(Long userId, ProfileUpdateRequest profileUpdateRequest) {
+        Long profileId = profileRepository.findByUserId(userId).getProfileId();
+        profileRepository.updateUserAccount(userId,profileUpdateRequest);
+        profileRepository.updateProfile(profileId,profileUpdateRequest);
+        profileRepository.deleteUserKeywords(userId);
+        profileRepository.insertUserKeywords(userId,profileUpdateRequest.getKeywords());
+        updatePossibleDateTime(profileId,profileUpdateRequest);
+        return new ProfileUpdateResponse(profileId);
     }
 
+    private void updatePossibleDateTime(Long profileId, ProfileUpdateRequest profileUpdateRequest) {
+        profileRepository.deletePossibleTimes(profileId);
+        profileRepository.deletePossibleDates(profileId);
+
+        for (Map.Entry<String, List<Integer>> entry : profileUpdateRequest.getPossibleDate().entrySet()) {
+            String date = entry.getKey();
+
+            PossibleDate possibleDate = PossibleDate.builder()
+                    .possible_date(date)
+                    .profile_id(profileId)
+                    .build();
+            profileRepository.insertPossibleDates(possibleDate);
+
+            List<Integer> times = entry.getValue();
+
+            for (Integer time : times) {
+                profileRepository.insertPossibleTimes(time, possibleDate.getId());
+            }
+        }
+    }
 }

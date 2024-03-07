@@ -20,8 +20,8 @@ public class ProfileApi {
                                                                 @RequestPart(value = "profileImageFile") MultipartFile multipartFile,
                                                                 @RequestPart(value = "profileInfo") ProfileUpdateRequest profileUpdateRequest) {
         profileService.uploadProfileImage(userId, multipartFile);
-        ProfileUpdateResponse profileResponse = profileService.saveProfileInfo(userId, profileUpdateRequest);
-        return ApiResponse.ok(profileResponse);
+        ProfileUpdateResponse response =  profileService.updateProfileInfo(userId, profileUpdateRequest);
+        return ApiResponse.ok(response);
     }
 
     @GetMapping("/detail/{targetProfileId}")
