@@ -4,6 +4,7 @@ import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest
 import com.swyp3.babpool.domain.appointment.application.response.*;
 import com.swyp3.babpool.domain.appointment.domain.Appointment;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +18,7 @@ public interface AppointmentRepository {
 
     List<AppointmentReceiveResponse> findAppointmentListByReceiverId(Long receiverUserId);
 
-    Appointment findByAppointmentId(Long appointmentId);
+    Appointment findByAppointmentId(@Param("appointmentId") Long appointmentId);
 
     List<AppointmentHistoryDoneResponse> findDoneAppointmentListByRequesterId(Long requesterUserId);
 

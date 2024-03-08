@@ -34,7 +34,7 @@
     <select id="isReviewUpdateAvailableTime" resultType="Boolean">
         SELECT
             CASE
-                WHEN DATE_ADD(review_create_date), INTERVAL 1 DAY) > NOW()
+                WHEN DATE_ADD(review_create_date, INTERVAL 1 DAY) >= NOW()
                 THEN 1 ELSE 0
             END AS result
         FROM t_review
@@ -43,12 +43,7 @@
 
     <select id="findByReviewId" resultType="com.swyp3.babpool.domain.review.domain.Review">
         SELECT
-            review_id,
-            appointment_id,
-            review_rate,
-            review_comment,
-            review_create_date,
-            review_modify_date
+            *
         FROM t_review
         WHERE review_id = #{reviewId};
     </select>
@@ -56,21 +51,20 @@
     <select id="findAllByPageable" parameterType="com.swyp3.babpool.global.common.request.PagingRequestList"
             resultType="com.swyp3.babpool.domain.review.application.response.ReviewPagingResponse">
         SELECT
-            review_id,
-            appointment_id,
-            review_rate,
-            review_comment,
-            review_create_date
+            review_id AS reviewId,
+            appointment_id AS appointmentId,
+            review_rate AS reviewRate,
+            review_comment AS reviewComment,
+            review_create_date AS reviewCreateDate
         FROM t_review
         WHERE appointment_id IN (
             SELECT appointment_id FROM t_appointment
             WHERE appointment_receiver_id = (
                 SELECT user_id FROM t_profile
-                WHERE profile_id = #{profileId}
+                WHERE profile_id = #{condition}
             ) AND appointment_status = 'DONE'
         )
         AND review_delete_flag = 0
-        GROUP BY review_id
         <if test="pageable.sort != null and !pageable.sort.isEmpty()">
             ORDER BY
             <foreach collection="pageable.sort" item="order" separator=",">
@@ -80,7 +74,7 @@
         LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
     </select>
 
-    <select id="countByPageable" parameterType="long"
+    <select id="countByPageable"
             resultType="java.lang.Integer">
         SELECT
             COUNT(DISTINCT review_id)
@@ -95,11 +89,44 @@
         AND review_delete_flag = 0;
     </select>
 
+    <select id="findAllByProfileIdAndLimit" resultType="com.swyp3.babpool.domain.review.application.response.ReviewPagingResponse">
+        SELECT
+            review_id AS reviewId,
+            appointment_id AS appointmentId,
+            review_rate AS reviewRate,
+            review_comment AS reviewComment,
+            review_create_date AS reviewCreateDate
+        FROM t_review
+        WHERE appointment_id IN (
+            SELECT appointment_id FROM t_appointment
+            WHERE appointment_receiver_id = (
+                SELECT user_id FROM t_profile
+                WHERE profile_id = #{profileId}
+            ) AND appointment_status = 'DONE'
+        )
+        AND review_delete_flag = 0
+        ORDER BY review_create_date DESC
+        LIMIT #{limit};
+    </select>
+
+    <select id="findByAppointmentId" resultType="com.swyp3.babpool.domain.review.domain.Review">
+        SELECT
+            review_id,
+            appointment_id,
+            review_rate,
+            review_comment,
+            review_delete_flag,
+            review_create_date,
+            review_modify_date
+        FROM t_review
+        WHERE appointment_id = #{appointmentId};
+    </select>
+
     <insert id="saveReview" parameterType="com.swyp3.babpool.domain.review.api.request.ReviewCreateRequest"
             useGeneratedKeys="true" keyProperty="reviewId">
         INSERT INTO t_review (appointment_id, review_rate, review_comment, review_delete_flag, review_create_date, review_modify_date)
         VALUES (
-            #{appointmentId},
+            #{targetAppointmentId},
             #{rateType},
             #{reviewContent},
             0,
