@@ -1,8 +1,11 @@
 package com.swyp3.babpool.domain.profile.application.response;
 
 import com.swyp3.babpool.domain.profile.domain.ProfileDetail;
+import com.swyp3.babpool.domain.review.application.response.ReviewCountByTypeResponse;
+import com.swyp3.babpool.domain.review.application.response.ReviewPagingResponse;
 import lombok.Getter;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,10 +18,10 @@ public class ProfileDetailResponse {
     private String intro;
     private String contents;
     private String[] keywords;
-    private Map<String,Integer> reviewCount;
-    private List<String> reviews;
+    private Map<String,Long> reviewCount;
+    private List<ReviewPagingResponse> reviews;
 
-    public ProfileDetailResponse(ProfileDetail profileDetail, Map<String,Integer> reviewCount, List<String> reviews) {
+    public ProfileDetailResponse(ProfileDetail profileDetail, ReviewCountByTypeResponse reviewCount, List<ReviewPagingResponse> reviews) {
         this.profileId= profileDetail.getProfileId();
         this.name= profileDetail.getName();
         this.profileImg= profileDetail.getProfileImg();
@@ -26,7 +29,13 @@ public class ProfileDetailResponse {
         this.intro= profileDetail.getIntro();
         this.contents= profileDetail.getContents();
         this.keywords = profileDetail.getKeywords().split(",");
-        this.reviewCount=reviewCount;
+
+        Map<String, Long> reviewCountMap = new HashMap<>();
+        reviewCountMap.put("best",reviewCount.getBestCount());
+        reviewCountMap.put("good",reviewCount.getGreatCount());
+        reviewCountMap.put("bad",reviewCount.getBadCount());
+        this.reviewCount=reviewCountMap;
+
         this.reviews=reviews;
     }
 }

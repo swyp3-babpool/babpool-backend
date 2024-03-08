@@ -1,7 +1,10 @@
 package com.swyp3.babpool.domain.user.application.response;
 
+import com.swyp3.babpool.domain.appointment.application.response.AppointmentHistoryDoneResponse;
+import com.swyp3.babpool.domain.review.application.response.ReviewCountByTypeResponse;
 import lombok.Getter;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,19 +17,23 @@ public class MyPageResponse {
     private String grade;
     private String intro;
     private String[] keywords;
-    private Map<String,Integer> reviewCount;
+    private Map<String,Long> reviewCount;
+    private List<AppointmentHistoryDoneResponse> histories;
 
-    //TODO: 밥약 히스토리 DTO 리스트로 변경 필요
-    private List<String> histories;
-
-    public MyPageResponse(MyPageUserDaoDto myPageUserDaoDto, Map<String,Integer> reviewCount, List<String> histories) {
+    public MyPageResponse(MyPageUserDaoDto myPageUserDaoDto, ReviewCountByTypeResponse reviewCount, List<AppointmentHistoryDoneResponse> histories) {
         this.profileId = myPageUserDaoDto.getProfileId();
         this.name=myPageUserDaoDto.getName();
         this.profileImg= myPageUserDaoDto.getProfileImg();
         this.grade= myPageUserDaoDto.getGrade();
         this.intro= myPageUserDaoDto.getIntro();
         this.keywords= myPageUserDaoDto.getKeywords();
-        this.reviewCount=reviewCount;
+
+        Map<String, Long> reviewCountMap = new HashMap<>();
+        reviewCountMap.put("best",reviewCount.getBestCount());
+        reviewCountMap.put("good",reviewCount.getGreatCount());
+        reviewCountMap.put("bad",reviewCount.getBadCount());
+        this.reviewCount=reviewCountMap;
+
         this.histories=histories;
     }
 }
