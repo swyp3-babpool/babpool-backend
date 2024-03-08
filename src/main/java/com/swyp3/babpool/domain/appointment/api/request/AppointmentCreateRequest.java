@@ -26,4 +26,8 @@ public class AppointmentCreateRequest {
     public void setRequesterUserId(Long userId) {
         this.requesterUserId = userId;
     }
+
+    public void setTargetProfileId(Long targetProfileId) {
+        this.targetProfileId = targetProfileId;
+    }
 }
