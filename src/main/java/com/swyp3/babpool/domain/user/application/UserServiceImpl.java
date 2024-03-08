@@ -1,7 +1,12 @@
 package com.swyp3.babpool.domain.user.application;
 
+import com.swyp3.babpool.domain.appointment.application.AppointmentService;
+import com.swyp3.babpool.domain.appointment.application.response.AppointmentHistoryDoneResponse;
+import com.swyp3.babpool.domain.appointment.dao.AppointmentRepository;
 import com.swyp3.babpool.domain.profile.application.ProfileService;
 import com.swyp3.babpool.domain.profile.domain.Profile;
+import com.swyp3.babpool.domain.review.application.ReviewService;
+import com.swyp3.babpool.domain.review.application.response.ReviewCountByTypeResponse;
 import com.swyp3.babpool.domain.user.application.response.MyPageResponse;
 import com.swyp3.babpool.domain.user.application.response.MyPageUserDaoDto;
 import com.swyp3.babpool.domain.user.dao.UserRepository;
@@ -26,6 +31,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -36,6 +44,8 @@ public class UserServiceImpl implements UserService{
     private final UuidService uuidService;
     private final JwtService jwtService;
     private final ProfileService profileService;
+    private final ReviewService reviewService;
+    private final AppointmentRepository appointmentRepository;
 
     public LoginResponseWithRefreshToken login(LoginRequestDTO loginRequest) {
         AuthMemberResponse kakaoPlatformMember = authService.getUserDataByCode(loginRequest.getCode());
@@ -53,8 +63,10 @@ public class UserServiceImpl implements UserService{
     @Override
     public MyPageResponse getMyPage(Long userId) {
         MyPageUserDaoDto myPageUserDaoDto= userRepository.findMyProfile(userId);
-        //TODO: 밥약 히스토리와 후기 데이터 추가 필요
-        MyPageResponse myPageResponse = new MyPageResponse(myPageUserDaoDto, null, null);
+        Profile profile = profileService.getByUserId(userId);
+        ReviewCountByTypeResponse reviewCountByType = reviewService.getReviewCountByType(profile.getProfileId());
+        //List<AppointmentHistoryDoneResponse> doneAppointmentList = appointmentRepository.findDoneAppointmentListByRequesterId(userId);
+        MyPageResponse myPageResponse = new MyPageResponse(myPageUserDaoDto, reviewCountByType, latestTwoAppointments);
         return myPageResponse;
     }
 

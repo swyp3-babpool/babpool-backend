@@ -11,6 +11,8 @@ import com.swyp3.babpool.domain.profile.domain.PossibleDate;
 import com.swyp3.babpool.domain.profile.domain.Profile;
 import com.swyp3.babpool.domain.profile.exception.ProfileException;
 import com.swyp3.babpool.domain.profile.exception.errorcode.ProfileErrorCode;
+import com.swyp3.babpool.domain.review.application.ReviewService;
+import com.swyp3.babpool.domain.review.application.response.ReviewCountByTypeResponse;
 import com.swyp3.babpool.global.common.request.PagingRequestList;
 import com.swyp3.babpool.infra.s3.application.AwsS3Provider;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +33,7 @@ public class ProfileServiceImpl implements ProfileService{
 
     private final AwsS3Provider awsS3Provider;
     private final ProfileRepository profileRepository;
-
+    private final ReviewService reviewService;
     @Override
     public Page<ProfilePagingResponse> getProfileListWithPageable(ProfilePagingConditions profilePagingConditions, Pageable pageable) {
         PagingRequestList<?> pagingRequest = PagingRequestList.builder()
@@ -60,10 +62,10 @@ public class ProfileServiceImpl implements ProfileService{
         if(!isExistProfile(targetProfileId)){
             throw new ProfileException(ProfileErrorCode.PROFILE_TARGET_PROFILE_ERROR,"존재하지 않는 프로필을 조회하였습니다.");
         }
-        //review 데이터를 제외한 프로필 상세 데이터
+
         ProfileDetailDaoDto profileDetailDaoDto = profileRepository.getProfileDetail(targetProfileId);
-        //TODO: 후기 데이터와 연결 필요
-        ProfileDetailResponse profileDetailResponse = new ProfileDetailResponse(profileDetailDaoDto, null, null);
+        ReviewCountByTypeResponse reviewCountByType = reviewService.getReviewCountByType(targetProfileId);
+        ProfileDetailResponse profileDetailResponse = new ProfileDetailResponse(profileDetailDaoDto, reviewCountByType);
         return profileDetailResponse;
     }
 
@@ -95,6 +97,11 @@ public class ProfileServiceImpl implements ProfileService{
     @Override
     public void saveProfile(Profile profile) {
         profileRepository.saveProfile(profile);
+    }
+
+    @Override
+    public Profile getByUserId(Long userId) {
+        return profileRepository.findByUserId(userId);
     }
 
     @Override
