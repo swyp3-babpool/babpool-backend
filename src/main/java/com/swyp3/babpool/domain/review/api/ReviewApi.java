@@ -1,5 +1,6 @@
 package com.swyp3.babpool.domain.review.api;
 
+import com.swyp3.babpool.domain.review.application.response.ReviewInfoResponse;
 import com.swyp3.babpool.domain.review.application.response.ReviewPagingResponse;
 import com.swyp3.babpool.domain.review.application.response.ReviewSaveResponse;
 import com.swyp3.babpool.domain.review.api.request.ReviewUpdateRequest;
@@ -58,7 +59,7 @@ public class ReviewApi {
      * 리뷰 상세 조회
      */
     @GetMapping("/api/review/{appointmentId}")
-    public ApiResponse<ReviewSaveResponse> getReview(@PathVariable("appointmentId") Long appointmentId) {
+    public ApiResponse<ReviewInfoResponse> getReview(@PathVariable("appointmentId") Long appointmentId) {
         return ApiResponse.ok(reviewService.getReviewInfo(appointmentId));
     }
 
@@ -67,7 +68,7 @@ public class ReviewApi {
      * @param request
      * @return
      */
-    @PutMapping("/api/review/update")
+    @PostMapping("/api/review/update")
     public ApiResponse<ReviewSaveResponse> updateReview(@RequestAttribute(value = "userId") Long userId,
                                                           @RequestBody ReviewUpdateRequest request) {
         return ApiResponse.ok(reviewService.updateReview(request.setReviewerUserId(userId)));
