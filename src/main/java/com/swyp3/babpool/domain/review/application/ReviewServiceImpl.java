@@ -99,6 +99,7 @@ public class ReviewServiceImpl implements ReviewService{
         int counts = 0;
         try {
             reviewPagingResponse = reviewRepository.findAllByPageable(pagingRequest);
+            log.info("리뷰 리스트 조회 결과. reviewPagingResponse: {}", reviewPagingResponse);
             counts = reviewRepository.countByPageable(profileId);
         } catch (Exception e) {
             log.error("리뷰 리스트 조회 중 오류 발생. {}", e.getMessage());
