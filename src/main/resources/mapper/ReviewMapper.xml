@@ -43,12 +43,7 @@
 
     <select id="findByReviewId" resultType="com.swyp3.babpool.domain.review.domain.Review">
         SELECT
-            review_id,
-            appointment_id,
-            review_rate,
-            review_comment,
-            review_create_date,
-            review_modify_date
+            *
         FROM t_review
         WHERE review_id = #{reviewId};
     </select>
@@ -114,11 +109,24 @@
         LIMIT #{limit};
     </select>
 
+    <select id="findByAppointmentId" resultType="com.swyp3.babpool.domain.review.domain.Review">
+        SELECT
+            review_id,
+            appointment_id,
+            review_rate,
+            review_comment,
+            review_delete_flag,
+            review_create_date,
+            review_modify_date
+        FROM t_review
+        WHERE appointment_id = #{appointmentId};
+    </select>
+
     <insert id="saveReview" parameterType="com.swyp3.babpool.domain.review.api.request.ReviewCreateRequest"
             useGeneratedKeys="true" keyProperty="reviewId">
         INSERT INTO t_review (appointment_id, review_rate, review_comment, review_delete_flag, review_create_date, review_modify_date)
         VALUES (
-            #{appointmentId},
+            #{targetAppointmentId},
             #{rateType},
             #{reviewContent},
             0,

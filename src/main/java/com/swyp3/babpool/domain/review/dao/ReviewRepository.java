@@ -17,13 +17,13 @@ import java.util.Optional;
 public interface ReviewRepository {
     Optional<ReviewCountByTypeResponse> countReviewByType(Long profileId);
 
-    Optional<Object> findByAppointmentId(Long targetAppointmentId);
+    Optional<Review> findByAppointmentId(@Param("appointmentId") Long targetAppointmentId);
 
     Optional<Review> findByReviewId(Long reviewId);
 
-    Optional<ReviewSaveResponse> saveReview(ReviewCreateRequest reviewCreateRequest);
+    int saveReview(ReviewCreateRequest reviewCreateRequest);
 
-    Optional<ReviewSaveResponse> updateReview(ReviewUpdateRequest reviewUpdateRequest);
+    int updateReview(ReviewUpdateRequest reviewUpdateRequest);
 
     boolean isReviewCreateAvailableTime(Long targetAppointmentId);
 

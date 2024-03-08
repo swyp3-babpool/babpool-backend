@@ -47,8 +47,10 @@ public class ReviewServiceImpl implements ReviewService{
             throw new ReviewException(ReviewErrorCode.REVIEW_CREATE_REQUEST_FAIL,"리뷰 작성 가능 시간이 아닙니다.");
         }
 
-        reviewRepository.saveReview(reviewCreateRequest)
-                .orElseThrow(() -> new ReviewException(ReviewErrorCode.REVIEW_CREATE_REQUEST_FAIL,"리뷰 작성에 실패하였습니다."));
+        int resultRows = reviewRepository.saveReview(reviewCreateRequest);
+        if(resultRows != 1){
+            throw new ReviewException(ReviewErrorCode.REVIEW_CREATE_REQUEST_FAIL,"리뷰 작성에 실패하였습니다.");
+        }
 
         return ReviewSaveResponse.of(reviewRepository.findByReviewId(reviewCreateRequest.getReviewId()).orElseThrow(
                 () -> new ReviewException(ReviewErrorCode.NOT_FOUND_REVIEW,"리뷰 정보를 찾을 수 없습니다.")
@@ -64,8 +66,10 @@ public class ReviewServiceImpl implements ReviewService{
             throw new ReviewException(ReviewErrorCode.REVIEW_UPDATE_REQUEST_FAIL,"리뷰 수정 가능 시간이 아닙니다.");
         }
 
-        reviewRepository.updateReview(reviewUpdateRequest)
-                .orElseThrow(() -> new ReviewException(ReviewErrorCode.REVIEW_UPDATE_REQUEST_FAIL,"리뷰 수정에 실패하였습니다."));
+        int updatedRows = reviewRepository.updateReview(reviewUpdateRequest);
+        if(updatedRows != 1){
+            throw new ReviewException(ReviewErrorCode.REVIEW_UPDATE_REQUEST_FAIL,"리뷰 수정에 실패하였습니다.");
+        }
 
         return ReviewSaveResponse.of(reviewRepository.findByReviewId(reviewUpdateRequest.getReviewId()).orElseThrow(
                 () -> new ReviewException(ReviewErrorCode.NOT_FOUND_REVIEW,"리뷰 정보를 찾을 수 없습니다.")
