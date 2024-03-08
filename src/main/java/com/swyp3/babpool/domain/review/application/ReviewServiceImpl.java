@@ -5,6 +5,7 @@ import com.swyp3.babpool.domain.appointment.domain.Appointment;
 import com.swyp3.babpool.domain.review.api.request.ReviewCreateRequest;
 import com.swyp3.babpool.domain.review.api.request.ReviewUpdateRequest;
 import com.swyp3.babpool.domain.review.application.response.ReviewCountByTypeResponse;
+import com.swyp3.babpool.domain.review.application.response.ReviewInfoResponse;
 import com.swyp3.babpool.domain.review.application.response.ReviewPagingResponse;
 import com.swyp3.babpool.domain.review.application.response.ReviewSaveResponse;
 import com.swyp3.babpool.domain.review.dao.ReviewRepository;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -62,7 +64,11 @@ public class ReviewServiceImpl implements ReviewService{
         validateIsSameAppointmentRequest(reviewUpdateRequest.getTargetAppointmentId(), reviewUpdateRequest.getReviewerUserId());
 
         // 리뷰 수정 가능 시간 체크
-        if(!reviewRepository.isReviewUpdateAvailableTime(reviewUpdateRequest.getTargetAppointmentId())){
+        Optional<Boolean> isReviewUpdateAvailable = reviewRepository.isReviewUpdateAvailableTime(reviewUpdateRequest.getReviewId());
+        isReviewUpdateAvailable.orElseThrow(
+                () -> new ReviewException(ReviewErrorCode.NOT_FOUND_REVIEW, "수정할 리뷰를 찾을 수 없습니다.")
+        );
+        if(!isReviewUpdateAvailable.get()){
             throw new ReviewException(ReviewErrorCode.REVIEW_UPDATE_REQUEST_FAIL,"리뷰 수정 가능 시간이 아닙니다.");
         }
 
@@ -89,8 +95,10 @@ public class ReviewServiceImpl implements ReviewService{
     }
 
     @Override
-    public ReviewSaveResponse getReviewInfo(Long appointmentId) {
-        return null;
+    public ReviewInfoResponse getReviewInfo(Long appointmentId) {
+        return reviewRepository.findByAppointmentId(appointmentId)
+                .map(ReviewInfoResponse::of)
+                .orElseThrow(() -> new ReviewException(ReviewErrorCode.NOT_FOUND_REVIEW,"리뷰 정보를 찾을 수 없습니다."));
     }
 
     @Override
