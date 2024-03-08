@@ -2,6 +2,7 @@ package com.swyp3.babpool.domain.profile.application.response;
 
 import com.swyp3.babpool.domain.profile.domain.ProfileDetail;
 import com.swyp3.babpool.domain.review.application.response.ReviewCountByTypeResponse;
+import com.swyp3.babpool.domain.review.application.response.ReviewPagingResponse;
 import lombok.Getter;
 
 import java.util.HashMap;
@@ -18,8 +19,9 @@ public class ProfileDetailResponse {
     private String contents;
     private String[] keywords;
     private Map<String,Long> reviewCount;
+    private List<ReviewPagingResponse> reviews;
 
-    public ProfileDetailResponse(ProfileDetail profileDetail, ReviewCountByTypeResponse reviewCount) {
+    public ProfileDetailResponse(ProfileDetail profileDetail, ReviewCountByTypeResponse reviewCount, List<ReviewPagingResponse> reviews) {
         this.profileId= profileDetail.getProfileId();
         this.name= profileDetail.getName();
         this.profileImg= profileDetail.getProfileImg();
@@ -33,5 +35,7 @@ public class ProfileDetailResponse {
         reviewCountMap.put("good",reviewCount.getGreatCount());
         reviewCountMap.put("bad",reviewCount.getBadCount());
         this.reviewCount=reviewCountMap;
+
+        this.reviews=reviews;
     }
 }

@@ -29,10 +29,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -65,8 +62,19 @@ public class UserServiceImpl implements UserService{
         MyPageUserDaoDto myPageUserDaoDto= userRepository.findMyProfile(userId);
         Profile profile = profileService.getByUserId(userId);
         ReviewCountByTypeResponse reviewCountByType = reviewService.getReviewCountByType(profile.getProfileId());
-        //List<AppointmentHistoryDoneResponse> doneAppointmentList = appointmentRepository.findDoneAppointmentListByRequesterId(userId);
-        MyPageResponse myPageResponse = new MyPageResponse(myPageUserDaoDto, reviewCountByType, null);
+
+        List<AppointmentHistoryDoneResponse> doneAppointmentList = appointmentRepository.findDoneAppointmentListByRequesterId(userId);
+
+        log.info("test: " +doneAppointmentList.size());
+        // appointmentFixDateTime을 기준으로 내림차순으로 정렬
+        Collections.sort(doneAppointmentList, Comparator.comparing(AppointmentHistoryDoneResponse::getAppointmentFixDateTime).reversed());
+
+        // 최신 2개의 AppointmentHistoryDoneResponse 객체만 유지
+        if (doneAppointmentList.size() > 2) {
+            doneAppointmentList = doneAppointmentList.subList(0, 2);
+        }
+
+        MyPageResponse myPageResponse = new MyPageResponse(myPageUserDaoDto, reviewCountByType, doneAppointmentList);
         return myPageResponse;
     }
 
