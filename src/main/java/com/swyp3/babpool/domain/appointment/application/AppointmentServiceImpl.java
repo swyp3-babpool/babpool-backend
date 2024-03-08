@@ -36,11 +36,13 @@ public class AppointmentServiceImpl implements AppointmentService{
     public AppointmentCreateResponse makeAppointment(AppointmentCreateRequest appointmentCreateRequest) {
         // 프로필 카드 식별 번호로, 타겟(요청받을) 사용자 내부 식별 값 조회.
         Long targetReceiverUserId = profileRepository.findUserIdByProfileId(appointmentCreateRequest.getTargetProfileId());
-
+        appointmentCreateRequest.setTargetProfileId(targetReceiverUserId);
         throwExceptionIfOtherAppointmentAlreadyAcceptedAtSameTime(targetReceiverUserId, appointmentCreateRequest.getPossibleTimeIdList());
 
         // t_appointment, t_appointment_request, t_appointment_request_time 테이블에 초기 데이터 저장.
-        appointmentRepository.saveAppointmentInit(appointmentCreateRequest);
+        appointmentRepository.saveAppointment(appointmentCreateRequest);
+        appointmentRepository.saveAppointmentRequest(appointmentCreateRequest);
+        appointmentRepository.saveAppointmentRequestTime(appointmentCreateRequest);
 
         // 요청 상대에게 알림 메시지 전송.
         simpMessagingTemplate.convertAndSend("/topic/appointment/" + appointmentCreateRequest.getTargetProfileId(),
@@ -59,7 +61,7 @@ public class AppointmentServiceImpl implements AppointmentService{
      * @param targetReceiverUserId,possibleTimeIdList
      */
     private void throwExceptionIfOtherAppointmentAlreadyAcceptedAtSameTime(Long targetReceiverUserId, List<Long> possibleTimeIdList) {
-        Integer countDuplicateAppointmentRequest = profileRepository.countAcceptedAppointmentByReceiverIdAndPossibleTimeId(targetReceiverUserId, possibleTimeIdList);
+        Integer countDuplicateAppointmentRequest = appointmentRepository.countAcceptedAppointmentByReceiverIdAndPossibleTimeId(targetReceiverUserId, possibleTimeIdList);
         if(countDuplicateAppointmentRequest > 0) {
             throw new AppointmentException(AppointmentErrorCode.DUPLICATE_APPOINTMENT_REQUEST, "이미 예약된 시간대가 존재합니다.");
         }
