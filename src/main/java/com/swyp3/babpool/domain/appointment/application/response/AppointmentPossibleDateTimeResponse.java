@@ -15,10 +15,10 @@ public class AppointmentPossibleDateTimeResponse {
     private Long possibleTimeId;
     private Long possibleDateId;
     private LocalDate possibleDate;
-    private LocalTime possibleTime;
+    private Integer possibleTime;
 
     @Builder
-    public AppointmentPossibleDateTimeResponse(Long profileId, Long possibleTimeId, Long possibleDateId, LocalDate possibleDate, LocalTime possibleTime) {
+    public AppointmentPossibleDateTimeResponse(Long profileId, Long possibleTimeId, Long possibleDateId, LocalDate possibleDate, Integer possibleTime) {
         this.profileId = profileId;
         this.possibleTimeId = possibleTimeId;
         this.possibleDateId = possibleDateId;
