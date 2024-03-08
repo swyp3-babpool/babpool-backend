@@ -1,9 +1,11 @@
 package com.swyp3.babpool.domain.appointment.api;
 
+import com.swyp3.babpool.domain.appointment.api.request.AppointmentRefuseRequest;
 import com.swyp3.babpool.domain.appointment.application.AppointmentService;
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
 import com.swyp3.babpool.domain.appointment.application.response.*;
 import com.swyp3.babpool.global.common.response.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -68,5 +70,12 @@ public class AppointmentApi {
         return ApiResponse.ok(appointmentService.getAppointmentPossibleDateTime(profileId));
     }
 
-
+    /**
+     * 밥약 요청 거절 API
+     */
+    @PostMapping("/api/appointment/refuse")
+    public ApiResponse<AppointmentRefuseResponse> refuseAppointment(@RequestAttribute(value = "userId", required = false) Long userId,
+                                                                    @RequestBody @Valid AppointmentRefuseRequest appointmentRefuseRequest) {
+        return ApiResponse.ok(appointmentService.refuseAppointment(appointmentRefuseRequest));
+    }
 }

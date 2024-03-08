@@ -1,6 +1,7 @@
 package com.swyp3.babpool.domain.appointment.application;
 
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
+import com.swyp3.babpool.domain.appointment.api.request.AppointmentRefuseRequest;
 import com.swyp3.babpool.domain.appointment.application.response.*;
 
 import java.util.List;
@@ -17,4 +18,6 @@ public interface AppointmentService {
     List<AppointmentHistoryRefuseResponse> getRefuseAppointmentList(Long userId);
 
     List<AppointmentPossibleDateTimeResponse> getAppointmentPossibleDateTime(Long profileId);
+
+    AppointmentRefuseResponse refuseAppointment(AppointmentRefuseRequest appointmentRefuseRequest);
 }

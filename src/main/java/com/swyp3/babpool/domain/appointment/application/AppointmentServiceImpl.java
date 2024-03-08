@@ -1,6 +1,7 @@
 package com.swyp3.babpool.domain.appointment.application;
 
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
+import com.swyp3.babpool.domain.appointment.api.request.AppointmentRefuseRequest;
 import com.swyp3.babpool.domain.appointment.application.response.*;
 import com.swyp3.babpool.domain.appointment.dao.AppointmentRepository;
 import com.swyp3.babpool.domain.appointment.domain.Appointment;
@@ -112,5 +113,27 @@ public class AppointmentServiceImpl implements AppointmentService{
         return possibleDateTimeResponseList;
     }
 
+    @Override
+    @Transactional
+    public AppointmentRefuseResponse refuseAppointment(AppointmentRefuseRequest appointmentRefuseRequest) {
+        Appointment appointment = appointmentRepository.findByAppointmentId(appointmentRefuseRequest.getAppointmentId());
+        if(!appointmentRepository.findByAppointmentId(appointment.getAppointmentId()).getAppointmentStatus()
+                .equals("WAITING")){
+            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_IS_NOT_WAITING,"" +
+                    "밥약 요청 상태가 WAITING이 아닙니다.");
+        }
+        appointmentRepository.updateAppointmentReject(appointmentRefuseRequest);
+        appointmentRepository.saveRefuseData(appointmentRefuseRequest);
 
+        //상대에게 거절 알림 메시지 전송
+        Long requesterUserId = appointment.getAppointmentRequesterUserId();
+        Long requesterProfileId = profileRepository.findByUserId(requesterUserId).getProfileId();
+
+        simpMessagingTemplate.convertAndSend("/topic/appointment/" + requesterProfileId,
+                AppointmentRequestMessage.builder()
+                        .targetProfileId(requesterProfileId)
+                        .message(HttpStatus.OK.name())
+                        .build());
+        return new AppointmentRefuseResponse("밥약 거절이 처리되었습니다.");
+    }
 }
