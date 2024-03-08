@@ -1,6 +1,5 @@
 package com.swyp3.babpool.domain.user.application.response;
 
-import com.swyp3.babpool.domain.profile.application.response.ProfileDetailDaoDto;
 import lombok.Getter;
 
 import java.util.List;

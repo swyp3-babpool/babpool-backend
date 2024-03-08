@@ -3,7 +3,8 @@ package com.swyp3.babpool.domain.profile.application;
 import com.swyp3.babpool.domain.profile.api.request.ProfilePagingConditions;
 import com.swyp3.babpool.domain.profile.api.request.ProfileUpdateRequest;
 import com.swyp3.babpool.domain.profile.application.response.*;
-import com.swyp3.babpool.domain.profile.application.response.ProfileDetailDaoDto;
+import com.swyp3.babpool.domain.profile.domain.ProfileDefault;
+import com.swyp3.babpool.domain.profile.domain.ProfileDetail;
 import com.swyp3.babpool.domain.profile.application.response.ProfilePagingDto;
 import com.swyp3.babpool.domain.profile.application.response.ProfilePagingResponse;
 import com.swyp3.babpool.domain.profile.dao.ProfileRepository;
@@ -61,17 +62,17 @@ public class ProfileServiceImpl implements ProfileService{
             throw new ProfileException(ProfileErrorCode.PROFILE_TARGET_PROFILE_ERROR,"존재하지 않는 프로필을 조회하였습니다.");
         }
         //review 데이터를 제외한 프로필 상세 데이터
-        ProfileDetailDaoDto profileDetailDaoDto = profileRepository.getProfileDetail(targetProfileId);
+        ProfileDetail profileDetail = profileRepository.findProfileDetail(targetProfileId);
         //TODO: 후기 데이터와 연결 필요
-        ProfileDetailResponse profileDetailResponse = new ProfileDetailResponse(profileDetailDaoDto, null, null);
+        ProfileDetailResponse profileDetailResponse = new ProfileDetailResponse(profileDetail, null, null);
         return profileDetailResponse;
     }
 
     @Override
     public ProfileDefaultResponse getProfileDefault(Long userId) {
         Profile profile = profileRepository.findByUserId(userId);
-        ProfileDefaultDaoDto daoResponse= profileRepository.getProfileDefault(profile.getProfileId());
-        KeywordsResponse keywords = profileRepository.getKeywords(profile.getProfileId());
+        ProfileDefault daoResponse= profileRepository.findProfileDefault(profile.getProfileId());
+        ProfileKeywordsResponse keywords = profileRepository.findKeywords(profile.getProfileId());
 
         return new ProfileDefaultResponse(daoResponse,keywords);
     }
@@ -103,7 +104,7 @@ public class ProfileServiceImpl implements ProfileService{
         profileRepository.updateUserAccount(userId,profileUpdateRequest);
         profileRepository.updateProfile(profileId,profileUpdateRequest);
         profileRepository.deleteUserKeywords(userId);
-        profileRepository.insertUserKeywords(userId,profileUpdateRequest.getKeywords());
+        profileRepository.saveUserKeywords(userId,profileUpdateRequest.getKeywords());
         updatePossibleDateTime(profileId,profileUpdateRequest);
         return new ProfileUpdateResponse(profileId);
     }
@@ -119,12 +120,12 @@ public class ProfileServiceImpl implements ProfileService{
                     .possible_date(date)
                     .profile_id(profileId)
                     .build();
-            profileRepository.insertPossibleDates(possibleDate);
+            profileRepository.savePossibleDates(possibleDate);
 
             List<Integer> times = entry.getValue();
 
             for (Integer time : times) {
-                profileRepository.insertPossibleTimes(time, possibleDate.getId());
+                profileRepository.savePossibleTimes(time, possibleDate.getId());
             }
         }
     }
