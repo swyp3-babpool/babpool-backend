@@ -79,14 +79,6 @@
         AND appoint.appointment_status IN ('WAITING', 'ACCEPT')
     </select>
 
-    <select id="findUserIdByProfileId" resultType="long" parameterType="long">
-        SELECT
-            user_id
-        FROM t_profile
-        WHERE
-            profile_id = #{profileId}
-    </select>
-
     <select id="countAcceptedAppointmentByReceiverIdAndPossibleTimeId" resultType="int" parameterType="map">
         SELECT
             COUNT(*) AS count
@@ -104,12 +96,13 @@
 
     <select id="findByAppointmentId" resultType="com.swyp3.babpool.domain.appointment.domain.Appointment" parameterType="long">
         SELECT
-            appointment_id,
-            appointment_requester_id,
-            appointment_receiver_id,
-            appointment_status,
-            appointment_create_date,
-            appointment_modify_date
+            appointment_id AS appointmentId,
+            appointment_requester_id AS appointmentRequesterUserId,
+            appointment_receiver_id AS appointmentReceiverUserId,
+            possible_time_id AS appointmentFixTimeId,
+            appointment_status AS appointmentStatus,
+            appointment_create_date AS appointmentCreateDate,
+            appointment_modify_date AS appointmentModifyDate
         FROM t_appointment
         WHERE
             appointment_id = #{appointmentId}
@@ -148,9 +141,9 @@
         from t_appointment appoint
                 inner join t_profile profile on appoint.appointment_requester_id = profile.user_id
                 inner join t_user_account account on appoint.appointment_requester_id = account.user_id
-                inner join t_refuse refuse on appoint.appointment_id = refuse.appointment_id
+                left join t_refuse refuse on appoint.appointment_id = refuse.appointment_id
           where appoint.appointment_requester_id = #{receiverUserId}
-             and appoint.appointment_status IN ('REFUSE', 'EXPIRE')
+             and appoint.appointment_status IN ('REJECT', 'EXPIRE')
     </select>
 
     <select id="findAppointmentPossibleDateTimeByProfileId" parameterType="long" resultType="com.swyp3.babpool.domain.appointment.application.response.AppointmentPossibleDateTimeResponse">
@@ -170,7 +163,7 @@
 
     <!-- ######################################## INSERT ######################################## -->
 
-    <insert id="saveAppointmentInit" parameterType="com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest"
+    <insert id="saveAppointment" parameterType="com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest"
             useGeneratedKeys="true" keyProperty="appointmentId">
         INSERT INTO t_appointment
         (
@@ -181,31 +174,37 @@
             appointment_modify_date
         )
         VALUES
-        (
-            #{requesterUserId},
-            #{receiverUserId},
-            'WAITING',
-            CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP()
-        );
+            (
+                #{requesterUserId},
+                #{targetProfileId},
+                'WAITING',
+                CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP()
+            );
+    </insert>
+
+    <insert id="saveAppointmentRequest" parameterType="com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest">
         INSERT INTO t_appointment_request
         (
-         appointment_id,
-         appointment_question
+            appointment_id,
+            appointment_question
         )
         VALUES (
-         #{appointmentId},
-         #{appointmentQuestion}
-        );
+                   #{appointmentId},
+                   #{questionContents}
+               );
+    </insert>
+
+    <insert id="saveAppointmentRequestTime" parameterType="java.util.List">
         <foreach collection="possibleTimeIdList" item="possibleTimeId" open="" close="" separator="">
             INSERT INTO t_appointment_request_time
             (
-                appointment_requester_id,
-                possible_time_id
+            appointment_request_id,
+            possible_time_id
             )
             VALUES
             (
-                #{requesterUserId},
-                #{possibleTimeId}
+            #{requesterUserId},
+            #{possibleTimeId}
             );
         </foreach>
     </insert>

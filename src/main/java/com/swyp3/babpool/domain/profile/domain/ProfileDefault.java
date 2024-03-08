@@ -1,9 +1,9 @@
-package com.swyp3.babpool.domain.profile.application.response;
+package com.swyp3.babpool.domain.profile.domain;
 
 import lombok.Getter;
 
 @Getter
-public class ProfileDefaultDaoDto {
+public class ProfileDefault {
     private String userNickName;
     private String userGrade;
     private String imgUrl;

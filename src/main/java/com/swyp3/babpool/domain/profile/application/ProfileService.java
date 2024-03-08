@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 public interface ProfileService {
     //회원가입 시 프로필 생성
     void saveProfile(Profile profile);
+    Profile getByUserId(Long userId);
     //사용자 지정 이미지로 수정
     String uploadProfileImage(Long userId, MultipartFile multipartFile);
     //사용자가 프로필 카드 업데이트

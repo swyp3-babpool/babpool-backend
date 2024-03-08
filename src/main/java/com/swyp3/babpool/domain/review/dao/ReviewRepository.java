@@ -8,6 +8,7 @@ import com.swyp3.babpool.domain.review.application.response.ReviewSaveResponse;
 import com.swyp3.babpool.domain.review.domain.Review;
 import com.swyp3.babpool.global.common.request.PagingRequestList;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,19 +17,22 @@ import java.util.Optional;
 public interface ReviewRepository {
     Optional<ReviewCountByTypeResponse> countReviewByType(Long profileId);
 
-    Optional<Object> findByAppointmentId(Long targetAppointmentId);
+    Optional<Review> findByAppointmentId(@Param("appointmentId") Long targetAppointmentId);
 
     Optional<Review> findByReviewId(Long reviewId);
 
-    Optional<ReviewSaveResponse> saveReview(ReviewCreateRequest reviewCreateRequest);
+    int saveReview(ReviewCreateRequest reviewCreateRequest);
 
-    Optional<ReviewSaveResponse> updateReview(ReviewUpdateRequest reviewUpdateRequest);
+    int updateReview(ReviewUpdateRequest reviewUpdateRequest);
 
     boolean isReviewCreateAvailableTime(Long targetAppointmentId);
 
-    boolean isReviewUpdateAvailableTime(Long targetAppointmentId);
+    Optional<Boolean> isReviewUpdateAvailableTime(Long targetAppointmentId);
 
     List<ReviewPagingResponse> findAllByPageable(PagingRequestList<?> pagingRequest);
 
     int countByPageable(Long profileId);
+
+    List<ReviewPagingResponse> findAllByProfileIdAndLimit(@Param("profileId") Long profileId, @Param("limit") Integer limit);
+
 }
