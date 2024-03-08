@@ -28,6 +28,7 @@ import com.swyp3.babpool.infra.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -85,7 +86,8 @@ public class UserServiceImpl implements UserService{
         return !findUser.getUserGrade().equals("none");
     }
 
-    private User insertUserExtraInfo(SignUpRequestDTO signUpRequest) {
+    @Transactional
+    public User insertUserExtraInfo(SignUpRequestDTO signUpRequest) {
         Long userId = uuidService.getUserIdByUuid(signUpRequest.getUserUuid());
         userRepository.updateSignUpInfo(userId, signUpRequest.getUserGrade());
 
@@ -137,7 +139,8 @@ public class UserServiceImpl implements UserService{
         return new LoginResponseWithRefreshToken(loginResponseDTO,refreshToken);
     }
 
-    private User createUser(AuthPlatform authPlatform, AuthMemberResponse authMemberResponse) {
+    @Transactional
+    public User createUser(AuthPlatform authPlatform, AuthMemberResponse authMemberResponse) {
         User user = User.builder()
                 .email(authMemberResponse.getEmail())
                 .nickName(authMemberResponse.getNickname())
