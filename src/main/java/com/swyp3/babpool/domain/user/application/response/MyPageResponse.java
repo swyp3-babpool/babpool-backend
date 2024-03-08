@@ -1,7 +1,6 @@
 package com.swyp3.babpool.domain.user.application.response;
 
 import com.swyp3.babpool.domain.appointment.application.response.AppointmentHistoryDoneResponse;
-import com.swyp3.babpool.domain.profile.application.response.ProfileDetailDaoDto;
 import com.swyp3.babpool.domain.review.application.response.ReviewCountByTypeResponse;
 import lombok.Getter;
 

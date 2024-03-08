@@ -1,5 +1,6 @@
 package com.swyp3.babpool.domain.profile.application.response;
 
+import com.swyp3.babpool.domain.profile.domain.ProfileDetail;
 import com.swyp3.babpool.domain.review.application.response.ReviewCountByTypeResponse;
 import lombok.Getter;
 
@@ -18,14 +19,14 @@ public class ProfileDetailResponse {
     private String[] keywords;
     private Map<String,Long> reviewCount;
 
-    public ProfileDetailResponse(ProfileDetailDaoDto profileDetailDaoDto, ReviewCountByTypeResponse reviewCount) {
-        this.profileId=profileDetailDaoDto.getProfileId();
-        this.name=profileDetailDaoDto.getName();
-        this.profileImg=profileDetailDaoDto.getProfileImg();
-        this.grade=profileDetailDaoDto.getGrade();
-        this.intro=profileDetailDaoDto.getIntro();
-        this.contents=profileDetailDaoDto.getContents();
-        this.keywords = profileDetailDaoDto.getKeywords().split(",");
+    public ProfileDetailResponse(ProfileDetail profileDetail, ReviewCountByTypeResponse reviewCount) {
+        this.profileId= profileDetail.getProfileId();
+        this.name= profileDetail.getName();
+        this.profileImg= profileDetail.getProfileImg();
+        this.grade= profileDetail.getGrade();
+        this.intro= profileDetail.getIntro();
+        this.contents= profileDetail.getContents();
+        this.keywords = profileDetail.getKeywords().split(",");
 
         Map<String, Long> reviewCountMap = new HashMap<>();
         reviewCountMap.put("best",reviewCount.getBestCount());

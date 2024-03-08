@@ -1,6 +1,5 @@
 package com.swyp3.babpool.domain.profile.application.response;
 
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
@@ -11,10 +10,10 @@ import java.util.Map;
 
 @Slf4j
 @Getter
-public class KeywordsResponse {
+public class ProfileKeywordsResponse {
     private Map<String,String[]> keywords;
 
-    public KeywordsResponse(String keywords) throws IOException {
+    public ProfileKeywordsResponse(String keywords) throws IOException {
         //JSON_expression을 사용하면 응답이 json 문자열로 반환돼서 바로 응답으로 보내면 이스케이프 처리가 된 채로 보내짐. "->\"
         //그래서 따로 처리가 필요
         ObjectMapper mapper = new ObjectMapper();

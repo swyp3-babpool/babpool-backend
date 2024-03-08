@@ -1,8 +1,8 @@
 package com.swyp3.babpool.domain.profile.application.response;
 
+import com.swyp3.babpool.domain.profile.domain.ProfileDefault;
 import lombok.Getter;
 
-import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -17,7 +17,7 @@ public class ProfileDefaultResponse {
     private Map<String,String[]> keywords;
 
 
-    public ProfileDefaultResponse(ProfileDefaultDaoDto daoResponse, KeywordsResponse keywords) {
+    public ProfileDefaultResponse(ProfileDefault daoResponse, ProfileKeywordsResponse keywords) {
         this.userNickName = daoResponse.getUserNickName();
         this.userGrade = daoResponse.getUserGrade();
         this.imgUrl = daoResponse.getImgUrl();

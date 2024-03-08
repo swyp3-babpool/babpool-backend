@@ -66,7 +66,7 @@ public class UserServiceImpl implements UserService{
         Profile profile = profileService.getByUserId(userId);
         ReviewCountByTypeResponse reviewCountByType = reviewService.getReviewCountByType(profile.getProfileId());
         //List<AppointmentHistoryDoneResponse> doneAppointmentList = appointmentRepository.findDoneAppointmentListByRequesterId(userId);
-        MyPageResponse myPageResponse = new MyPageResponse(myPageUserDaoDto, reviewCountByType, latestTwoAppointments);
+        MyPageResponse myPageResponse = new MyPageResponse(myPageUserDaoDto, reviewCountByType, null);
         return myPageResponse;
     }
 
