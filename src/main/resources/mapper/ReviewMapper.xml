@@ -34,7 +34,7 @@
     <select id="isReviewUpdateAvailableTime" resultType="Boolean">
         SELECT
             CASE
-                WHEN DATE_ADD(review_create_date), INTERVAL 1 DAY) > NOW()
+                WHEN DATE_ADD(review_create_date, INTERVAL 1 DAY) >= NOW()
                 THEN 1 ELSE 0
             END AS result
         FROM t_review

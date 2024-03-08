@@ -27,7 +27,7 @@ public interface ReviewRepository {
 
     boolean isReviewCreateAvailableTime(Long targetAppointmentId);
 
-    boolean isReviewUpdateAvailableTime(Long targetAppointmentId);
+    Optional<Boolean> isReviewUpdateAvailableTime(Long targetAppointmentId);
 
     List<ReviewPagingResponse> findAllByPageable(PagingRequestList<?> pagingRequest);
 
