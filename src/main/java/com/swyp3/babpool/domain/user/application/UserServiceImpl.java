@@ -62,10 +62,14 @@ public class UserServiceImpl implements UserService{
         MyPageUserDaoDto myPageUserDaoDto= userRepository.findMyProfile(userId);
         Profile profile = profileService.getByUserId(userId);
         ReviewCountByTypeResponse reviewCountByType = reviewService.getReviewCountByType(profile.getProfileId());
+        List<AppointmentHistoryDoneResponse> appointmentHistories = getAppointmentHistories(userId);
+        MyPageResponse myPageResponse = new MyPageResponse(myPageUserDaoDto, reviewCountByType, appointmentHistories);
+        return myPageResponse;
+    }
 
+    private List<AppointmentHistoryDoneResponse> getAppointmentHistories(Long userId) {
         List<AppointmentHistoryDoneResponse> doneAppointmentList = appointmentRepository.findDoneAppointmentListByRequesterId(userId);
 
-        log.info("test: " +doneAppointmentList.size());
         // appointmentFixDateTime을 기준으로 내림차순으로 정렬
         Collections.sort(doneAppointmentList, Comparator.comparing(AppointmentHistoryDoneResponse::getAppointmentFixDateTime).reversed());
 
@@ -74,8 +78,7 @@ public class UserServiceImpl implements UserService{
             doneAppointmentList = doneAppointmentList.subList(0, 2);
         }
 
-        MyPageResponse myPageResponse = new MyPageResponse(myPageUserDaoDto, reviewCountByType, doneAppointmentList);
-        return myPageResponse;
+        return doneAppointmentList;
     }
 
     private boolean isAlreadyRegisteredUser(String userUuid) {
