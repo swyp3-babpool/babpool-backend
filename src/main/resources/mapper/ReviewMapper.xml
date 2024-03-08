@@ -95,6 +95,26 @@
         AND review_delete_flag = 0;
     </select>
 
+    <select id="findAllByProfileIdAndLimit" resultType="com.swyp3.babpool.domain.review.application.response.ReviewPagingResponse">
+        SELECT
+            review_id AS reviewId,
+            appointment_id AS appointmentId,
+            review_rate AS reviewRate,
+            review_comment AS reviewComment,
+            review_create_date AS reviewCreateDate
+        FROM t_review
+        WHERE appointment_id IN (
+            SELECT appointment_id FROM t_appointment
+            WHERE appointment_receiver_id = (
+                SELECT user_id FROM t_profile
+                WHERE profile_id = #{profileId}
+            ) AND appointment_status = 'DONE'
+        )
+        AND review_delete_flag = 0
+        ORDER BY review_create_date DESC
+        LIMIT #{limit};
+    </select>
+
     <insert id="saveReview" parameterType="com.swyp3.babpool.domain.review.api.request.ReviewCreateRequest"
             useGeneratedKeys="true" keyProperty="reviewId">
         INSERT INTO t_review (appointment_id, review_rate, review_comment, review_delete_flag, review_create_date, review_modify_date)

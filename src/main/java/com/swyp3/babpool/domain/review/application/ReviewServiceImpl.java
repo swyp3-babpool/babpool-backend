@@ -107,4 +107,11 @@ public class ReviewServiceImpl implements ReviewService{
         }
         return new PageImpl<>(reviewPagingResponse, pageable, counts);
     }
+
+
+    @Override
+    public List<ReviewPagingResponse> getReviewListForProfileDetail(Long profileId, Integer limit) {
+        return reviewRepository.findAllByProfileIdAndLimit(profileId, limit);
+    }
+
 }

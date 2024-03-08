@@ -8,6 +8,7 @@ import com.swyp3.babpool.domain.review.application.response.ReviewSaveResponse;
 import com.swyp3.babpool.domain.review.domain.Review;
 import com.swyp3.babpool.global.common.request.PagingRequestList;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,4 +32,7 @@ public interface ReviewRepository {
     List<ReviewPagingResponse> findAllByPageable(PagingRequestList<?> pagingRequest);
 
     int countByPageable(Long profileId);
+
+    List<ReviewPagingResponse> findAllByProfileIdAndLimit(@Param("profileId") Long profileId, @Param("limit") Integer limit);
+
 }

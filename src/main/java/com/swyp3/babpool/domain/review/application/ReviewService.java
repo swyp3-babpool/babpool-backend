@@ -8,6 +8,8 @@ import com.swyp3.babpool.domain.review.application.response.ReviewSaveResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface ReviewService {
     ReviewCountByTypeResponse getReviewCountByType(Long profileId);
 
@@ -18,4 +20,6 @@ public interface ReviewService {
     ReviewSaveResponse getReviewInfo(Long appointmentId);
 
     Page<ReviewPagingResponse> getReviewList(Long profileId, Pageable pageable);
+
+    List<ReviewPagingResponse> getReviewListForProfileDetail(Long profileId, Integer limit);
 }
