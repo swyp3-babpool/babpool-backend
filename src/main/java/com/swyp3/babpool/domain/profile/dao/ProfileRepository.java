@@ -51,15 +51,6 @@ public interface ProfileRepository {
      */
     Long findUserIdByProfileId(Long targetProfileId);
 
-    /**
-     * 특정 사용자의 특정 시간에 확정된 약속이 있는지 조회
-     * @param targetReceiverUserId
-     * @param possibleTimeIdList
-     * @return
-     */
-    Integer countAcceptedAppointmentByReceiverIdAndPossibleTimeId(@Param("targetReceiverUserId") Long targetReceiverUserId,
-                                                                  @Param("possibleTimeIdList") List<Long> possibleTimeIdList);
-
     Profile findById(Long profileId);
     Profile findByUserId(Long userId);
     ProfileDetail findProfileDetail(Long profileId);
