@@ -2,9 +2,9 @@ package com.swyp3.babpool.domain.profile.dao;
 
 import com.swyp3.babpool.domain.profile.api.request.ProfilePagingConditions;
 import com.swyp3.babpool.domain.profile.api.request.ProfileUpdateRequest;
-import com.swyp3.babpool.domain.profile.application.response.KeywordsResponse;
-import com.swyp3.babpool.domain.profile.application.response.ProfileDefaultDaoDto;
-import com.swyp3.babpool.domain.profile.application.response.ProfileDetailDaoDto;
+import com.swyp3.babpool.domain.profile.application.response.ProfileKeywordsResponse;
+import com.swyp3.babpool.domain.profile.domain.ProfileDefault;
+import com.swyp3.babpool.domain.profile.domain.ProfileDetail;
 import com.swyp3.babpool.domain.profile.application.response.ProfilePagingDto;
 import com.swyp3.babpool.domain.profile.domain.PossibleDate;
 import com.swyp3.babpool.domain.profile.domain.Profile;
@@ -62,16 +62,16 @@ public interface ProfileRepository {
 
     Profile findById(Long profileId);
     Profile findByUserId(Long userId);
-    ProfileDetailDaoDto getProfileDetail(Long profileId);
+    ProfileDetail findProfileDetail(Long profileId);
 
     void updateUserAccount(@Param("userId") Long userId,@Param("request") ProfileUpdateRequest profileUpdateRequest);
     void updateProfile(@Param("profileId") Long profileId,@Param("request") ProfileUpdateRequest profileUpdateRequest);
     void deleteUserKeywords(Long userId);
-    void insertUserKeywords(@Param("userId")Long userId,@Param("keywords") List<String> keywords);
+    void saveUserKeywords(@Param("userId")Long userId,@Param("keywords") List<String> keywords);
     void deletePossibleDates(Long profileId);
-    void insertPossibleDates(PossibleDate possibleDate);
+    void savePossibleDates(PossibleDate possibleDate);
     void deletePossibleTimes(Long profileId);
-    void insertPossibleTimes(@Param("possibleTimeStart") Integer possibleTimeStart,@Param("possibleDateId") Long possibleDateId);
-    KeywordsResponse getKeywords(Long profileId);
-    ProfileDefaultDaoDto getProfileDefault(Long profileId);
+    void savePossibleTimes(@Param("possibleTimeStart") Integer possibleTimeStart,@Param("possibleDateId") Long possibleDateId);
+    ProfileKeywordsResponse findKeywords(Long profileId);
+    ProfileDefault findProfileDefault(Long profileId);
 }

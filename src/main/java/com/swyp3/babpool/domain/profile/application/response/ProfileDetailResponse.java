@@ -1,5 +1,6 @@
 package com.swyp3.babpool.domain.profile.application.response;
 
+import com.swyp3.babpool.domain.profile.domain.ProfileDetail;
 import lombok.Getter;
 
 import java.util.List;
@@ -17,14 +18,14 @@ public class ProfileDetailResponse {
     private Map<String,Integer> reviewCount;
     private List<String> reviews;
 
-    public ProfileDetailResponse(ProfileDetailDaoDto profileDetailDaoDto, Map<String,Integer> reviewCount, List<String> reviews) {
-        this.profileId=profileDetailDaoDto.getProfileId();
-        this.name=profileDetailDaoDto.getName();
-        this.profileImg=profileDetailDaoDto.getProfileImg();
-        this.grade=profileDetailDaoDto.getGrade();
-        this.intro=profileDetailDaoDto.getIntro();
-        this.contents=profileDetailDaoDto.getContents();
-        this.keywords = profileDetailDaoDto.getKeywords().split(",");
+    public ProfileDetailResponse(ProfileDetail profileDetail, Map<String,Integer> reviewCount, List<String> reviews) {
+        this.profileId= profileDetail.getProfileId();
+        this.name= profileDetail.getName();
+        this.profileImg= profileDetail.getProfileImg();
+        this.grade= profileDetail.getGrade();
+        this.intro= profileDetail.getIntro();
+        this.contents= profileDetail.getContents();
+        this.keywords = profileDetail.getKeywords().split(",");
         this.reviewCount=reviewCount;
         this.reviews=reviews;
     }
