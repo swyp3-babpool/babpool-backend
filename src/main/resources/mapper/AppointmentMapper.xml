@@ -194,17 +194,17 @@
     </insert>
 
     <insert id="saveAppointmentRequestTime" parameterType="com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest">
-        <foreach collection="possibleTimeIdList" item="possibleTimeId" open="" close="" separator="">
-            INSERT INTO t_appointment_request_time
-            (
-            appointment_request_id,
-            possible_time_id
-            )
-            VALUES
+        INSERT INTO t_appointment_request_time
+        (
+        appointment_request_id,
+        possible_time_id
+        )
+        VALUES
+        <foreach collection="possibleTimeIdList" item="possibleTimeId" separator=",">
             (
             #{appointmentRequestId},
             #{possibleTimeId}
-            );
+            )
         </foreach>
     </insert>
 
