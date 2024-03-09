@@ -89,13 +89,41 @@ public class ProfileServiceImpl implements ProfileService{
     }
 
     @Override
-    public String uploadProfileImage(Long userId, MultipartFile multipartFile) {
+    public String updateProfileImage(Long userId, MultipartFile multipartFile) {
+        if(verifyNoImageFile(multipartFile)){
+            return null;
+        }
+
+        deleteExistImageIfUserSelfUploaded(userId);
         String uploadedImageUrl = awsS3Provider.uploadImage(multipartFile);
+
         profileRepository.updateProfileImageUrl(Profile.builder()
                 .userId(userId)
                 .profileImageUrl(uploadedImageUrl)
                 .build());
         return uploadedImageUrl;
+    }
+
+    private void deleteExistImageIfUserSelfUploaded(Long userId) {
+        Profile targetProfile = profileRepository.findByUserId(userId);
+        // 만약 프로필 이미지가 없다면 삭제할 필요가 없다.
+        if(StringUtils.hasText(targetProfile.getProfileImageUrl())){
+            return;
+        }
+        // 만약 프로필 이미지 URL 이 S3에 저장된 이미지 URL이 아니라면(카카오,구글 CDN) 삭제할 필요가 없다.
+        if(!targetProfile.getProfileImageUrl().startsWith(awsS3Provider.getAmazonS3ClientUrlPrefix())){
+            log.info("ProfileService.deleteExistImageIfUserSelfUploaded, S3에 저장된 이미지가 아닙니다. URL: {}",targetProfile.getProfileImageUrl());
+            return;
+        }
+        awsS3Provider.deleteImage(targetProfile.getProfileImageUrl());
+    }
+
+    private boolean verifyNoImageFile(MultipartFile multipartFile) {
+        if(multipartFile.isEmpty()){
+            log.info("ProfileService.checkNoImageFile, 첨부된 이미지 파일이 없습니다.");
+            return true;
+        }
+        return false;
     }
 
     @Override

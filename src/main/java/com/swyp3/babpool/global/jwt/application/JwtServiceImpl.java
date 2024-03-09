@@ -8,11 +8,14 @@ import com.swyp3.babpool.infra.redis.dao.TokenRedisRepository;
 import com.swyp3.babpool.infra.redis.domain.TokenForRedis;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class JwtServiceImpl implements JwtService{
@@ -57,9 +60,11 @@ public class JwtServiceImpl implements JwtService{
 
     @Override
     public void logout(String refreshTokenFromCookie) {
-        tokenRepository.findById(refreshTokenFromCookie)
-                .orElseThrow(() -> new BabpoolJwtException(JwtExceptionErrorCode.REFRESH_TOKEN_NOT_FOUND,
-                "refresh token not found in redis, while logout"));
-        tokenRepository.deleteById(refreshTokenFromCookie);
+        Optional<TokenForRedis> tokenForRedisOptional = tokenRepository.findById(refreshTokenFromCookie);
+        if (tokenForRedisOptional.isPresent()) {
+            tokenRepository.deleteById(refreshTokenFromCookie);
+        }else{
+            log.error("refresh token not found in redis, while logout. token : {}", refreshTokenFromCookie);
+        }
     }
 }
