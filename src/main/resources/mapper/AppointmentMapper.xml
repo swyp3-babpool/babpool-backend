@@ -209,4 +209,15 @@
         </foreach>
     </insert>
 
+    <update id="updateAppointmentReject" parameterType="com.swyp3.babpool.domain.appointment.api.request.AppointmentRefuseRequest">
+        UPDATE t_appointment
+        SET appointment_status='REJECT',
+            appointment_modify_date=CURRENT_TIMESTAMP()
+        WHERE appointment_id=#{appointmentId}
+    </update>
+
+    <insert id="saveRefuseData" parameterType="com.swyp3.babpool.domain.appointment.api.request.AppointmentRefuseRequest">
+        INSERT INTO t_refuse(appointment_id,refuse_type,refuse_cause_content)
+        VALUES ( #{appointmentId}, #{refuseType}, #{refuseMessage} )
+    </insert>
 </mapper>
