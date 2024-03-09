@@ -76,6 +76,6 @@ public class AppointmentApi {
     @PostMapping("/api/appointment/reject")
     public ApiResponse<AppointmentRejectResponse> refuseAppointment(@RequestAttribute(value = "userId", required = false) Long userId,
                                                                     @RequestBody @Valid AppointmentRejectRequest appointmentRejectRequest) {
-        return ApiResponse.ok(appointmentService.rejectAppointment(appointmentRejectRequest));
+        return ApiResponse.ok(appointmentService.rejectAppointment(appointmentRejectRequest,userId));
     }
 }

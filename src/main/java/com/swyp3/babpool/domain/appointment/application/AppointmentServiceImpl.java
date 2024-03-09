@@ -8,7 +8,7 @@ import com.swyp3.babpool.domain.appointment.domain.Appointment;
 import com.swyp3.babpool.domain.appointment.domain.AppointmentRejectMessage;
 import com.swyp3.babpool.domain.appointment.domain.AppointmentRequestMessage;
 import com.swyp3.babpool.domain.appointment.exception.AppointmentException;
-import com.swyp3.babpool.domain.appointment.exception.eoorcode.AppointmentErrorCode;
+import com.swyp3.babpool.domain.appointment.exception.errorcode.AppointmentErrorCode;
 import com.swyp3.babpool.domain.profile.dao.ProfileRepository;
 import com.swyp3.babpool.domain.user.application.UserService;
 import lombok.RequiredArgsConstructor;
@@ -113,13 +113,20 @@ public class AppointmentServiceImpl implements AppointmentService{
 
     @Override
     @Transactional
-    public AppointmentRejectResponse rejectAppointment(AppointmentRejectRequest appointmentRejectRequest) {
+    public AppointmentRejectResponse rejectAppointment(AppointmentRejectRequest appointmentRejectRequest,Long userId) {
         Appointment appointment = appointmentRepository.findByAppointmentId(appointmentRejectRequest.getAppointmentId());
+
+        if(appointment.getAppointmentReceiverUserId()!=userId){
+            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_NOT_RECEIVER,
+                    "밥약 수신자가 아니므로 거절을 할 수 없습니다.");
+        }
+
         if(!appointmentRepository.findByAppointmentId(appointment.getAppointmentId()).getAppointmentStatus()
                 .equals("WAITING")){
             throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_IS_NOT_WAITING,"" +
                     "밥약 요청 상태가 WAITING이 아닙니다.");
         }
+
         appointmentRepository.updateAppointmentReject(appointmentRejectRequest);
         appointmentRepository.saveRejectData(appointmentRejectRequest);
 
