@@ -14,7 +14,6 @@ import java.util.List;
 public class ProfilePagingResponse {
 
     private Long profileId;
-    private Long userId;
     private String profileImageUrl;
     private String profileIntro;
     private String profileContents;
@@ -24,9 +23,8 @@ public class ProfilePagingResponse {
     private String userNickname;
 
     @Builder
-    public ProfilePagingResponse(Long profileId, Long userId, String profileImageUrl, String profileIntro, String profileContents, LocalDateTime profileModifyDate, List<String> keywordNameList, String userGrade, String userNickname) {
+    public ProfilePagingResponse(Long profileId, String profileImageUrl, String profileIntro, String profileContents, LocalDateTime profileModifyDate, List<String> keywordNameList, String userGrade, String userNickname) {
         this.profileId = profileId;
-        this.userId = userId;
         this.profileImageUrl = profileImageUrl;
         this.profileIntro = profileIntro;
         this.profileContents = profileContents;
@@ -39,7 +37,6 @@ public class ProfilePagingResponse {
     public static ProfilePagingResponse of(ProfilePagingDto profilePagingDto) {
         return ProfilePagingResponse.builder()
                 .profileId(profilePagingDto.getProfileId())
-                .userId(profilePagingDto.getUserId())
                 .profileImageUrl(profilePagingDto.getProfileImageUrl())
                 .profileIntro(profilePagingDto.getProfileIntro())
                 .profileContents(profilePagingDto.getProfileContents())
