@@ -35,7 +35,7 @@ public class AppointmentServiceImpl implements AppointmentService{
     public AppointmentCreateResponse makeAppointment(AppointmentCreateRequest appointmentCreateRequest) {
         // 프로필 카드 식별 번호로, 타겟(요청받을) 사용자 내부 식별 값 조회.
         Long targetReceiverUserId = profileRepository.findUserIdByProfileId(appointmentCreateRequest.getTargetProfileId());
-        appointmentCreateRequest.setTargetProfileId(targetReceiverUserId);
+        appointmentCreateRequest.setReceiverUserId(targetReceiverUserId);
         throwExceptionIfOtherAppointmentAlreadyAcceptedAtSameTime(targetReceiverUserId, appointmentCreateRequest.getPossibleTimeIdList());
 
         // t_appointment, t_appointment_request, t_appointment_request_time 테이블에 초기 데이터 저장.

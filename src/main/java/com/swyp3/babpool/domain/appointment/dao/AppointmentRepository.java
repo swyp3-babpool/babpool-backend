@@ -40,6 +40,6 @@ public interface AppointmentRepository {
     int saveAppointmentRequestTime(AppointmentCreateRequest appointmentCreateRequest);
 
     void updateAppointmentReject(AppointmentRejectRequest appointmentRejectRequest);
-
+    int updateExpiredStatus();
     void saveRejectData(AppointmentRejectRequest appointmentRejectRequest);
 }

@@ -16,16 +16,14 @@ public class AppointmentHistoryRefuseResponse {
     private String appointmentReceiverProfileImageUrl;
     private String appointmentStatus;
     private LocalDateTime refuseCreateDate;
-    private String refuseType;
 
     @Builder
-    public AppointmentHistoryRefuseResponse(Long appointmentId, Long appointmentReceiverProfileId, String appointmentReceiverUserNickname, String appointmentReceiverProfileImageUrl, String appointmentStatus, LocalDateTime refuseCreateDate, String refuseType) {
+    public AppointmentHistoryRefuseResponse(Long appointmentId, Long appointmentReceiverProfileId, String appointmentReceiverUserNickname, String appointmentReceiverProfileImageUrl, String appointmentStatus, LocalDateTime refuseCreateDate) {
         this.appointmentId = appointmentId;
         this.appointmentReceiverProfileId = appointmentReceiverProfileId;
         this.appointmentReceiverUserNickname = appointmentReceiverUserNickname;
         this.appointmentReceiverProfileImageUrl = appointmentReceiverProfileImageUrl;
         this.appointmentStatus = appointmentStatus;
         this.refuseCreateDate = refuseCreateDate;
-        this.refuseType = refuseType;
     }
 }
