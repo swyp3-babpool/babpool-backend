@@ -1,6 +1,6 @@
 package com.swyp3.babpool.domain.appointment.exception;
 
-import com.swyp3.babpool.domain.appointment.exception.eoorcode.AppointmentErrorCode;
+import com.swyp3.babpool.domain.appointment.exception.errorcode.AppointmentErrorCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
