@@ -15,16 +15,20 @@
         <result property="userNickname" column="user_nick_name"/>
     </resultMap>
 
-    <select id="findAllByPageable"
-            parameterType="com.swyp3.babpool.global.common.request.PagingRequestList"
-            resultMap="profilePagingDto">
+    <select id="findAllByPageable" parameterType="com.swyp3.babpool.global.common.request.PagingRequestList" resultMap="profilePagingDto">
         SELECT profile.profile_id, profile.user_id, profile.profile_image_url, profile.profile_intro, profile.profile_contents,
-               profile.profile_modify_date,
-            GROUP_CONCAT(k.keyword_name) AS keyword_info, account.user_grade, account.user_nick_name
+        profile.profile_modify_date,
+        (
+        SELECT GROUP_CONCAT(k.keyword_name)
+            FROM t_m_user_keyword muk
+            INNER JOIN t_keyword k ON muk.keyword_id = k.keyword_id
+        WHERE muk.user_id = profile.user_id
+            GROUP BY muk.user_id
+        ) AS keyword_info, account.user_grade, account.user_nick_name
         FROM t_profile as profile
-            inner JOIN t_user_account account ON profile.user_id = account.user_id
-            inner JOIN t_m_user_keyword muk ON profile.user_id = muk.user_id
-            inner JOIN t_keyword k ON muk.keyword_id = k.keyword_id
+            INNER JOIN t_user_account account ON profile.user_id = account.user_id
+            INNER JOIN t_m_user_keyword muk ON profile.user_id = muk.user_id
+            INNER JOIN t_keyword k ON muk.keyword_id = k.keyword_id
         <where>
             <if test="condition.search != null and !condition.search.equals('')">
                 (
@@ -54,6 +58,7 @@
         </if>
         LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
     </select>
+
 
     <select id="countByPageable" parameterType="com.swyp3.babpool.domain.profile.api.request.ProfilePagingConditions"
             resultType="java.lang.Integer">
