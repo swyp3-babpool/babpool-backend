@@ -4,13 +4,13 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-public class AppointmentRefuseMessage {
+public class AppointmentAcceptMessage {
     private Long requestProfileId;
-    private String refuseMessage;
+    private String acceptMessage;
 
     @Builder
-    public AppointmentRefuseMessage(Long requestProfileId, String refuseMessage) {
+    public AppointmentAcceptMessage(Long requestProfileId, String acceptMessage) {
         this.requestProfileId = requestProfileId;
-        this.refuseMessage = refuseMessage;
+        this.acceptMessage = acceptMessage;
     }
 }
