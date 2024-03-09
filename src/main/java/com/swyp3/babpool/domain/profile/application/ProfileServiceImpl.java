@@ -23,6 +23,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -135,6 +136,7 @@ public class ProfileServiceImpl implements ProfileService{
         return profileRepository.findByUserId(userId);
     }
 
+    @Transactional
     @Override
     public ProfileUpdateResponse updateProfileInfo(Long userId, ProfileUpdateRequest profileUpdateRequest) {
         Long profileId = profileRepository.findByUserId(userId).getProfileId();
@@ -146,7 +148,8 @@ public class ProfileServiceImpl implements ProfileService{
         return new ProfileUpdateResponse(profileId);
     }
 
-    private void updatePossibleDateTime(Long profileId, ProfileUpdateRequest profileUpdateRequest) {
+    @Transactional
+    public void updatePossibleDateTime(Long profileId, ProfileUpdateRequest profileUpdateRequest) {
         profileRepository.deletePossibleTimes(profileId);
         profileRepository.deletePossibleDates(profileId);
 
