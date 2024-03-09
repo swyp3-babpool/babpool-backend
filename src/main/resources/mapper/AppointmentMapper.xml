@@ -215,6 +215,17 @@
         WHERE appointment_id=#{appointmentId}
     </update>
 
+    <update id="updateExpiredStatus">
+        <![CDATA[
+        UPDATE t_appointment
+            SET appointment_status='EXPIRE',
+                appointment_modify_date=CURRENT_TIMESTAMP()
+        WHERE
+            appointment_status='WAITING'
+        AND DATE_ADD(appointment_create_date, INTERVAL 1 DAY) < CURRENT_TIMESTAMP();
+        ]]>
+    </update>
+
     <insert id="saveRefuseData" parameterType="com.swyp3.babpool.domain.appointment.api.request.AppointmentRefuseRequest">
         INSERT INTO t_refuse(appointment_id,refuse_type,refuse_cause_content)
         VALUES ( #{appointmentId}, #{refuseType}, #{refuseMessage} )
