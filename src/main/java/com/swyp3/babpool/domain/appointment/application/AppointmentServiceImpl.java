@@ -5,6 +5,7 @@ import com.swyp3.babpool.domain.appointment.api.request.AppointmentRefuseRequest
 import com.swyp3.babpool.domain.appointment.application.response.*;
 import com.swyp3.babpool.domain.appointment.dao.AppointmentRepository;
 import com.swyp3.babpool.domain.appointment.domain.Appointment;
+import com.swyp3.babpool.domain.appointment.domain.AppointmentRefuseMessage;
 import com.swyp3.babpool.domain.appointment.domain.AppointmentRequestMessage;
 import com.swyp3.babpool.domain.appointment.exception.AppointmentException;
 import com.swyp3.babpool.domain.appointment.exception.eoorcode.AppointmentErrorCode;
@@ -130,9 +131,9 @@ public class AppointmentServiceImpl implements AppointmentService{
         Long requesterProfileId = profileRepository.findByUserId(requesterUserId).getProfileId();
 
         simpMessagingTemplate.convertAndSend("/topic/appointment/" + requesterProfileId,
-                AppointmentRequestMessage.builder()
-                        .targetProfileId(requesterProfileId)
-                        .message(HttpStatus.OK.name())
+                AppointmentRefuseMessage.builder()
+                        .requestProfileId(requesterProfileId)
+                        .refuseMessage(HttpStatus.OK.name())
                         .build());
         return new AppointmentRefuseResponse("밥약 거절이 처리되었습니다.");
     }
