@@ -1,10 +1,12 @@
 package com.swyp3.babpool.domain.appointment.application;
 
+import com.swyp3.babpool.domain.appointment.api.request.AppointmentAcceptRequest;
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentRejectRequest;
 import com.swyp3.babpool.domain.appointment.application.response.*;
 import com.swyp3.babpool.domain.appointment.dao.AppointmentRepository;
 import com.swyp3.babpool.domain.appointment.domain.Appointment;
+import com.swyp3.babpool.domain.appointment.domain.AppointmentAcceptMessage;
 import com.swyp3.babpool.domain.appointment.domain.AppointmentRejectMessage;
 import com.swyp3.babpool.domain.appointment.domain.AppointmentRequestMessage;
 import com.swyp3.babpool.domain.appointment.exception.AppointmentException;
@@ -116,16 +118,8 @@ public class AppointmentServiceImpl implements AppointmentService{
     public AppointmentRejectResponse rejectAppointment(AppointmentRejectRequest appointmentRejectRequest,Long userId) {
         Appointment appointment = appointmentRepository.findByAppointmentId(appointmentRejectRequest.getAppointmentId());
 
-        if(appointment.getAppointmentReceiverUserId()!=userId){
-            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_NOT_RECEIVER,
-                    "밥약 수신자가 아니므로 거절을 할 수 없습니다.");
-        }
-
-        if(!appointmentRepository.findByAppointmentId(appointment.getAppointmentId()).getAppointmentStatus()
-                .equals("WAITING")){
-            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_IS_NOT_WAITING,"" +
-                    "밥약 요청 상태가 WAITING이 아닙니다.");
-        }
+        validateReceiver(userId, appointment);
+        validateAppointmentStatus(appointment);
 
         appointmentRepository.updateAppointmentReject(appointmentRejectRequest);
         appointmentRepository.saveRejectData(appointmentRejectRequest);
@@ -141,4 +135,61 @@ public class AppointmentServiceImpl implements AppointmentService{
                         .build());
         return new AppointmentRejectResponse("밥약 거절이 처리되었습니다.");
     }
+
+    @Transactional
+    @Override
+    public AppointmentAcceptResponse acceptAppointment(AppointmentAcceptRequest appointmentAcceptRequest, Long userId) {
+        Appointment appointment = appointmentRepository.findByAppointmentId(appointmentAcceptRequest.getAppointmentId());
+
+        validateReceiver(userId, appointment);
+        validateAppointmentStatus(appointment);
+
+        appointmentRepository.updateAppointment(appointmentAcceptRequest);
+        /*
+        possible_time_id 삭제 관련 논의중
+
+        //t_possible_time에서 possible_time id로부터 possible_date_id 조회
+        Long possibleTimeId = appointmentAcceptRequest.getPossibleTimeId();
+        Long possibleDateId = appointmentRepository.findPossibleDateIdByPossibleTimeId(possibleTimeId);
+
+        //t_appointment_request_time에서 possible_time id에 해당하는 데이터 삭제(외래키 참조 문제)
+
+
+        //t_possible_time에서 possible_time id에 해당하는 데이터 삭제
+        appointmentRepository.deletePossibleTimeById(possibleTimeId);
+
+        //t_possible_time에서 조회한 possible_date_id 외래키를 가지는 데이터가 더 있는지 확인
+        //없으면 t_possible_date에서 해당 possible_date_id에 해당하는 데이터 삭제
+        appointmentRepository.deletePossibleDateIfNoMorePossibleTime(possibleDateId);
+
+         */
+
+        //상대에게 수락 알림 전송.
+        Long requesterUserId = appointment.getAppointmentRequesterUserId();
+        log.info(requesterUserId.toString());
+        Long requesterProfileId = profileRepository.findByUserId(requesterUserId).getProfileId();
+        simpMessagingTemplate.convertAndSend("/topic/appointment/"+ requesterProfileId,
+                AppointmentAcceptMessage.builder()
+                        .requestProfileId(requesterProfileId)
+                        .acceptMessage(HttpStatus.OK.name())
+                        .build());
+        return new AppointmentAcceptResponse("밥약 수락이 처리되었습니다.");
+    }
+
+    private void validateAppointmentStatus(Appointment appointment) {
+        if(!appointmentRepository.findByAppointmentId(appointment.getAppointmentId()).getAppointmentStatus()
+                .equals("WAITING")){
+            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_IS_NOT_WAITING,"" +
+                    "밥약 요청 상태가 WAITING이 아닙니다.");
+        }
+    }
+
+    private void validateReceiver(Long userId, Appointment appointment) {
+        if(appointment.getAppointmentReceiverUserId()!= userId){
+            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_NOT_RECEIVER,
+                    "밥약 수신자가 아니므로 거절을 할 수 없습니다.");
+        }
+    }
+
+
 }

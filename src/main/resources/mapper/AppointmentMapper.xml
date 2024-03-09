@@ -230,4 +230,33 @@
         INSERT INTO t_reject(appointment_id,reject_cause_content)
         VALUES ( #{appointmentId}, #{rejectMessage} )
     </insert>
+
+    <select id="findPossibleDateIdByPossibleTimeId">
+        SELECT possible_date_id
+        FROM t_possible_time
+        WHERE possible_time_id=#{possibleTimeId}
+    </select>
+
+    <delete id="deletePossibleTimeById">
+        DELETE FROM t_possible_time
+        WHERE possible_time_id = #{possibleTimeId}
+    </delete>
+
+
+    <delete id="deletePossibleDateIfNoMorePossibleTime">
+        DELETE FROM t_possible_date
+        WHERE possible_date_id = (
+            SELECT possible_date_id
+            FROM t_possible_time
+            WHERE possible_date_id = #{possibleDateId}
+            )
+    </delete>
+
+    <update id="updateAppointment" parameterType="com.swyp3.babpool.domain.appointment.api.request.AppointmentAcceptRequest">
+        UPDATE t_appointment
+        SET appointment_status = 'ACCEPT',
+            possible_time_id=#{possibleTimeId}
+        WHERE appointment_id=#{appointmentId}
+    </update>
+
 </mapper>

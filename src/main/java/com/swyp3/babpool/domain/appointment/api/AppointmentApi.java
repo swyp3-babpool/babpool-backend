@@ -1,5 +1,6 @@
 package com.swyp3.babpool.domain.appointment.api;
 
+import com.swyp3.babpool.domain.appointment.api.request.AppointmentAcceptRequest;
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentRejectRequest;
 import com.swyp3.babpool.domain.appointment.application.AppointmentService;
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
@@ -78,4 +79,14 @@ public class AppointmentApi {
                                                                     @RequestBody @Valid AppointmentRejectRequest appointmentRejectRequest) {
         return ApiResponse.ok(appointmentService.rejectAppointment(appointmentRejectRequest,userId));
     }
+
+    /**
+     * 밥약 요청 수락 API
+     */
+    @PostMapping("/api/appointment/accept")
+    public ApiResponse<AppointmentAcceptResponse> acceptAppointment(@RequestAttribute(value = "userId", required = false) Long userId,
+                                                                    @RequestBody @Valid AppointmentAcceptRequest appointmentAcceptRequest){
+        return ApiResponse.ok(appointmentService.acceptAppointment(appointmentAcceptRequest,userId));
+    }
+
 }
