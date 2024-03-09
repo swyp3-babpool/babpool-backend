@@ -1,10 +1,10 @@
 package com.swyp3.babpool.domain.appointment.api.request;
 
-import lombok.Builder;
-import lombok.Getter;
+
 
 import java.util.List;
 
+@ToString
 @Getter
 public class AppointmentCreateRequest {
 
@@ -22,6 +22,7 @@ public class AppointmentCreateRequest {
         this.possibleTimeIdList = possibleTimeIdList;
         this.questionContents = questionContents;
     }
+
 
     public void setRequesterUserId(Long userId) {
         this.requesterUserId = userId;

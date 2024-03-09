@@ -5,6 +5,6 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class AppointmentRefuseResponse {
+public class AppointmentRejectResponse {
     private String okMessage;
 }
