@@ -1,6 +1,7 @@
 package com.swyp3.babpool.domain.appointment.dao;
 
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
+import com.swyp3.babpool.domain.appointment.api.request.AppointmentRefuseRequest;
 import com.swyp3.babpool.domain.appointment.application.response.*;
 import com.swyp3.babpool.domain.appointment.domain.Appointment;
 import org.apache.ibatis.annotations.Mapper;
@@ -38,4 +39,10 @@ public interface AppointmentRepository {
     int saveAppointmentRequest(AppointmentCreateRequest appointmentCreateRequest);
 
     int saveAppointmentRequestTime(AppointmentCreateRequest appointmentCreateRequest);
+
+    void updateAppointmentReject(AppointmentRefuseRequest appointmentRefuseRequest);
+
+    void saveRefuseData(AppointmentRefuseRequest appointmentRefuseRequest);
+
+    int updateExpiredStatus();
 }

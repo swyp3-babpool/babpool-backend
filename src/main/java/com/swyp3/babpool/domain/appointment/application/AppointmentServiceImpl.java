@@ -1,9 +1,11 @@
 package com.swyp3.babpool.domain.appointment.application;
 
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
+import com.swyp3.babpool.domain.appointment.api.request.AppointmentRefuseRequest;
 import com.swyp3.babpool.domain.appointment.application.response.*;
 import com.swyp3.babpool.domain.appointment.dao.AppointmentRepository;
 import com.swyp3.babpool.domain.appointment.domain.Appointment;
+import com.swyp3.babpool.domain.appointment.domain.AppointmentRefuseMessage;
 import com.swyp3.babpool.domain.appointment.domain.AppointmentRequestMessage;
 import com.swyp3.babpool.domain.appointment.exception.AppointmentException;
 import com.swyp3.babpool.domain.appointment.exception.eoorcode.AppointmentErrorCode;
@@ -36,7 +38,7 @@ public class AppointmentServiceImpl implements AppointmentService{
     public AppointmentCreateResponse makeAppointment(AppointmentCreateRequest appointmentCreateRequest) {
         // 프로필 카드 식별 번호로, 타겟(요청받을) 사용자 내부 식별 값 조회.
         Long targetReceiverUserId = profileRepository.findUserIdByProfileId(appointmentCreateRequest.getTargetProfileId());
-        appointmentCreateRequest.setTargetProfileId(targetReceiverUserId);
+        appointmentCreateRequest.setReceiverUserId(targetReceiverUserId);
         throwExceptionIfOtherAppointmentAlreadyAcceptedAtSameTime(targetReceiverUserId, appointmentCreateRequest.getPossibleTimeIdList());
 
         // t_appointment, t_appointment_request, t_appointment_request_time 테이블에 초기 데이터 저장.
@@ -112,5 +114,27 @@ public class AppointmentServiceImpl implements AppointmentService{
         return possibleDateTimeResponseList;
     }
 
+    @Override
+    @Transactional
+    public AppointmentRefuseResponse refuseAppointment(AppointmentRefuseRequest appointmentRefuseRequest) {
+        Appointment appointment = appointmentRepository.findByAppointmentId(appointmentRefuseRequest.getAppointmentId());
+        if(!appointmentRepository.findByAppointmentId(appointment.getAppointmentId()).getAppointmentStatus()
+                .equals("WAITING")){
+            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_IS_NOT_WAITING,"" +
+                    "밥약 요청 상태가 WAITING이 아닙니다.");
+        }
+        appointmentRepository.updateAppointmentReject(appointmentRefuseRequest);
+        appointmentRepository.saveRefuseData(appointmentRefuseRequest);
 
+        //상대에게 거절 알림 메시지 전송
+        Long requesterUserId = appointment.getAppointmentRequesterUserId();
+        Long requesterProfileId = profileRepository.findByUserId(requesterUserId).getProfileId();
+
+        simpMessagingTemplate.convertAndSend("/topic/appointment/" + requesterProfileId,
+                AppointmentRefuseMessage.builder()
+                        .requestProfileId(requesterProfileId)
+                        .refuseMessage(HttpStatus.OK.name())
+                        .build());
+        return new AppointmentRefuseResponse("밥약 거절이 처리되었습니다.");
+    }
 }

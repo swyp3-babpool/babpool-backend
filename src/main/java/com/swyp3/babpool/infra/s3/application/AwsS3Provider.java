@@ -92,4 +92,8 @@ public class AwsS3Provider {
         return true;
     }
 
+    public String getAmazonS3ClientUrlPrefix() {
+        // "https://babpool-image-bucket.s3.ap-northeast-2.amazonaws.com/static/"
+        return amazonS3Client.getUrl(bucket, S3_BUCKET_DIRECTORY_NAME).toString();
+    }
 }

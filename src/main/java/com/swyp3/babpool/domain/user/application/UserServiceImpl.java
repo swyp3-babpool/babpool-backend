@@ -28,6 +28,7 @@ import com.swyp3.babpool.infra.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -62,14 +63,10 @@ public class UserServiceImpl implements UserService{
         MyPageUserDaoDto myPageUserDaoDto= userRepository.findMyProfile(userId);
         Profile profile = profileService.getByUserId(userId);
         ReviewCountByTypeResponse reviewCountByType = reviewService.getReviewCountByType(profile.getProfileId());
-        List<AppointmentHistoryDoneResponse> appointmentHistories = getAppointmentHistories(userId);
-        MyPageResponse myPageResponse = new MyPageResponse(myPageUserDaoDto, reviewCountByType, appointmentHistories);
-        return myPageResponse;
-    }
 
-    private List<AppointmentHistoryDoneResponse> getAppointmentHistories(Long userId) {
         List<AppointmentHistoryDoneResponse> doneAppointmentList = appointmentRepository.findDoneAppointmentListByRequesterId(userId);
 
+        log.info("test: " +doneAppointmentList.size());
         // appointmentFixDateTime을 기준으로 내림차순으로 정렬
         Collections.sort(doneAppointmentList, Comparator.comparing(AppointmentHistoryDoneResponse::getAppointmentFixDateTime).reversed());
 
@@ -78,7 +75,8 @@ public class UserServiceImpl implements UserService{
             doneAppointmentList = doneAppointmentList.subList(0, 2);
         }
 
-        return doneAppointmentList;
+        MyPageResponse myPageResponse = new MyPageResponse(myPageUserDaoDto, reviewCountByType, doneAppointmentList);
+        return myPageResponse;
     }
 
     private boolean isAlreadyRegisteredUser(String userUuid) {
@@ -88,7 +86,8 @@ public class UserServiceImpl implements UserService{
         return !findUser.getUserGrade().equals("none");
     }
 
-    private User insertUserExtraInfo(SignUpRequestDTO signUpRequest) {
+    @Transactional
+    public User insertUserExtraInfo(SignUpRequestDTO signUpRequest) {
         Long userId = uuidService.getUserIdByUuid(signUpRequest.getUserUuid());
         userRepository.updateSignUpInfo(userId, signUpRequest.getUserGrade());
 
@@ -140,7 +139,8 @@ public class UserServiceImpl implements UserService{
         return new LoginResponseWithRefreshToken(loginResponseDTO,refreshToken);
     }
 
-    private User createUser(AuthPlatform authPlatform, AuthMemberResponse authMemberResponse) {
+    @Transactional
+    public User createUser(AuthPlatform authPlatform, AuthMemberResponse authMemberResponse) {
         User user = User.builder()
                 .email(authMemberResponse.getEmail())
                 .nickName(authMemberResponse.getNickname())

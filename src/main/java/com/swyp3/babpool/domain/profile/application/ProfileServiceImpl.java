@@ -23,6 +23,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -87,13 +89,41 @@ public class ProfileServiceImpl implements ProfileService{
     }
 
     @Override
-    public String uploadProfileImage(Long userId, MultipartFile multipartFile) {
+    public String updateProfileImage(Long userId, MultipartFile multipartFile) {
+        if(verifyNoImageFile(multipartFile)){
+            return null;
+        }
+
+        deleteExistImageIfUserSelfUploaded(userId);
         String uploadedImageUrl = awsS3Provider.uploadImage(multipartFile);
+
         profileRepository.updateProfileImageUrl(Profile.builder()
                 .userId(userId)
                 .profileImageUrl(uploadedImageUrl)
                 .build());
         return uploadedImageUrl;
+    }
+
+    private void deleteExistImageIfUserSelfUploaded(Long userId) {
+        Profile targetProfile = profileRepository.findByUserId(userId);
+        // 만약 프로필 이미지가 없다면 삭제할 필요가 없다.
+        if(StringUtils.hasText(targetProfile.getProfileImageUrl())){
+            return;
+        }
+        // 만약 프로필 이미지 URL 이 S3에 저장된 이미지 URL이 아니라면(카카오,구글 CDN) 삭제할 필요가 없다.
+        if(!targetProfile.getProfileImageUrl().startsWith(awsS3Provider.getAmazonS3ClientUrlPrefix())){
+            log.info("ProfileService.deleteExistImageIfUserSelfUploaded, S3에 저장된 이미지가 아닙니다. URL: {}",targetProfile.getProfileImageUrl());
+            return;
+        }
+        awsS3Provider.deleteImage(targetProfile.getProfileImageUrl());
+    }
+
+    private boolean verifyNoImageFile(MultipartFile multipartFile) {
+        if(multipartFile.isEmpty()){
+            log.info("ProfileService.checkNoImageFile, 첨부된 이미지 파일이 없습니다.");
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -106,6 +136,7 @@ public class ProfileServiceImpl implements ProfileService{
         return profileRepository.findByUserId(userId);
     }
 
+    @Transactional
     @Override
     public ProfileUpdateResponse updateProfileInfo(Long userId, ProfileUpdateRequest profileUpdateRequest) {
         Long profileId = profileRepository.findByUserId(userId).getProfileId();
@@ -117,7 +148,8 @@ public class ProfileServiceImpl implements ProfileService{
         return new ProfileUpdateResponse(profileId);
     }
 
-    private void updatePossibleDateTime(Long profileId, ProfileUpdateRequest profileUpdateRequest) {
+    @Transactional
+    public void updatePossibleDateTime(Long profileId, ProfileUpdateRequest profileUpdateRequest) {
         profileRepository.deletePossibleTimes(profileId);
         profileRepository.deletePossibleDates(profileId);
 
