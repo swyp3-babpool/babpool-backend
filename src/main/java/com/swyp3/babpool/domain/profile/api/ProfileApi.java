@@ -20,7 +20,7 @@ public class ProfileApi {
     public ApiResponse<ProfileUpdateResponse> updateProfileCard(@RequestAttribute(value = "userId") Long userId,
                                                                 @RequestPart(value = "profileImageFile") MultipartFile multipartFile,
                                                                 @RequestPart(value = "profileInfo") ProfileUpdateRequest profileUpdateRequest) {
-        profileService.uploadProfileImage(userId, multipartFile);
+        profileService.updateProfileImage(userId, multipartFile);
         ProfileUpdateResponse response =  profileService.updateProfileInfo(userId, profileUpdateRequest);
         return ApiResponse.ok(response);
     }
