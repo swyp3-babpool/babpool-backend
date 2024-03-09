@@ -16,7 +16,7 @@ public interface ProfileService {
     void saveProfile(Profile profile);
     Profile getByUserId(Long userId);
     //사용자 지정 이미지로 수정
-    String uploadProfileImage(Long userId, MultipartFile multipartFile);
+    String updateProfileImage(Long userId, MultipartFile multipartFile);
     //사용자가 프로필 카드 업데이트
     ProfileUpdateResponse updateProfileInfo(Long userId, ProfileUpdateRequest profileUpdateRequest);
 
