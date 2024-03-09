@@ -11,5 +11,4 @@ public class AppointmentRefuseRequest {
     private Long appointmentId;
     private String refuseType = "RECEIVER";
     private String refuseMessage;
-    private LocalDateTime modifyDate = LocalDateTime.now();
 }
