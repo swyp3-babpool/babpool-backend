@@ -89,4 +89,14 @@ public class AppointmentApi {
         return ApiResponse.ok(appointmentService.acceptAppointment(appointmentAcceptRequest,userId));
     }
 
+
+    /**
+     * 밥약 상세조회 API
+     */
+    @GetMapping("/api/appointment/detail/{appointmentId}")
+    public ApiResponse<AppointmentDetailResponse> getAppointmentDetail(@RequestAttribute(value="userId", required = false) Long userId,
+                                                                       @PathVariable("appointmentId") Long appointmentId){
+        log.info(appointmentId.toString());
+        return ApiResponse.ok(appointmentService.getAppointmentDetail(userId,appointmentId));
+    }
 }

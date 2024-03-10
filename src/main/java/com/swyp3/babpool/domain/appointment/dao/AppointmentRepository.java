@@ -19,7 +19,7 @@ public interface AppointmentRepository {
 
     List<AppointmentReceiveResponse> findAppointmentListByReceiverId(Long receiverUserId);
 
-    Appointment findByAppointmentId(@Param("appointmentId") Long appointmentId);
+    Appointment findByAppointmentId(Long appointmentId);
 
     List<AppointmentHistoryDoneResponse> findDoneAppointmentListByRequesterId(Long requesterUserId);
 
@@ -46,4 +46,7 @@ public interface AppointmentRepository {
 
 
     void updateAppointment(AppointmentAcceptRequest request);
+
+    List<AppointmentRequesterPossibleDateTimeResponse> findRequesterPossibleTime(Appointment appointment);
+    String findQuestion(Appointment appointment);
 }
