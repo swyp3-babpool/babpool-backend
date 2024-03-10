@@ -38,7 +38,7 @@ public class ProfileApi {
         return ApiResponse.ok(profileDetailResponse);
     }
 
-    @GetMapping("/registration")
+    @GetMapping("/registration/check")
     public ApiResponse<ProfileRegistrationResponse> getProfileisRegistered(@RequestAttribute(value = "userId") Long userId){
         ProfileRegistrationResponse profileRegistrationResponse = profileService.getProfileisRegistered(userId);
         return ApiResponse.ok(profileRegistrationResponse);
