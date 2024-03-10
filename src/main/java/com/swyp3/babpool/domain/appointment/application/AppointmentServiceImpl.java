@@ -13,6 +13,9 @@ import com.swyp3.babpool.domain.appointment.exception.AppointmentException;
 import com.swyp3.babpool.domain.appointment.exception.errorcode.AppointmentErrorCode;
 import com.swyp3.babpool.domain.profile.dao.ProfileRepository;
 import com.swyp3.babpool.domain.user.application.UserService;
+import com.swyp3.babpool.domain.user.application.response.MyPageResponse;
+import com.swyp3.babpool.domain.user.application.response.MyPageUserDaoDto;
+import com.swyp3.babpool.domain.user.dao.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -20,7 +23,11 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -31,7 +38,8 @@ public class AppointmentServiceImpl implements AppointmentService{
     private final AppointmentRepository appointmentRepository;
     private final ProfileRepository profileRepository;
     private final UserService userService;
-    
+    private final UserRepository userRepository;
+
     @Transactional
     @Override
     public AppointmentCreateResponse makeAppointment(AppointmentCreateRequest appointmentCreateRequest) {
@@ -174,6 +182,37 @@ public class AppointmentServiceImpl implements AppointmentService{
                         .acceptMessage(HttpStatus.OK.name())
                         .build());
         return new AppointmentAcceptResponse("밥약 수락이 처리되었습니다.");
+    }
+
+    @Override
+    public AppointmentDetailResponse getAppointmentDetail(Long userId, Long appointmentId) {
+        Appointment appointment = appointmentRepository.findByAppointmentId(appointmentId);
+        log.info("test 1");
+        MyPageUserDaoDto requesterData = userRepository.findMyProfile(appointment.getAppointmentRequesterUserId());
+        log.info("test 2");
+
+        //만료까지 남은 시간 계산
+        Map<String, Long> lastingTime = getLastingTime(appointment);
+        log.info("test 3");
+        //가능한 시간대 정보
+        List<AppointmentRequesterPossibleDateTimeResponse> requesterPossibleTime = appointmentRepository.findRequesterPossibleTime(appointment);
+        log.info("test 4");
+        //질문 정보
+        String question = appointmentRepository.findQuestion(appointment);
+        log.info("test 5");
+
+        return new AppointmentDetailResponse(requesterData,lastingTime,requesterPossibleTime,question);
+    }
+
+    private Map<String, Long> getLastingTime(Appointment appointment) {
+        LocalDateTime expireDate = appointment.getAppointmentCreateDate().plusDays(1);
+        Duration duration = Duration.between(LocalDateTime.now(), expireDate);
+
+        Map<String,Long> lastingTime = new HashMap<>();
+        lastingTime.put("hour", duration.toHours());
+        lastingTime.put("minute", duration.toMinutes()-duration.toHours()*60);
+
+        return lastingTime;
     }
 
     private void validateAppointmentStatus(Appointment appointment) {
