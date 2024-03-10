@@ -1,7 +1,7 @@
 package com.swyp3.babpool.infra.auth.service;
 
 import com.swyp3.babpool.infra.auth.domain.Auth;
-import com.swyp3.babpool.infra.auth.kakao.KakaoMemberProvider;
+import com.swyp3.babpool.infra.auth.kakao.KakaoProvider;
 import com.swyp3.babpool.infra.auth.dao.AuthRepository;
 import com.swyp3.babpool.infra.auth.kakao.KakaoTokenProvider;
 import com.swyp3.babpool.infra.auth.response.AuthMemberResponse;
@@ -15,13 +15,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @RequiredArgsConstructor
 public class AuthService {
-    private final KakaoMemberProvider kakaoMemberProvider;
+    private final KakaoProvider kakaoProvider;
     private final KakaoTokenProvider kakaoTokenProvider;
     private final AuthRepository authRepository;
 
     public AuthMemberResponse getUserDataByCode(String code) {
         String idToken = kakaoTokenProvider.getIdTokenFromKakao(code);
-        AuthMemberResponse kakaoPlatformMember = kakaoMemberProvider.getKakaoPlatformMember(idToken);
+        AuthMemberResponse kakaoPlatformMember = kakaoProvider.getKakaoPlatformMember(idToken);
 
         return kakaoPlatformMember;
     }

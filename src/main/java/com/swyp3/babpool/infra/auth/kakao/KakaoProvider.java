@@ -15,7 +15,7 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-public class KakaoMemberProvider {
+public class KakaoProvider {
     private final AuthJwtParser authJwtParser;
     private final PublicKeyGenerator publicKeyGenerator;
     private final KakaoClient kakaoClient;
