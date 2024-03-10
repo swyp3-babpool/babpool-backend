@@ -21,4 +21,5 @@ public interface UserRepository {
     void saveKeyword(@Param("userId") Long userId, @Param("keywordId") Long keywordId);
 
     MyPageUserDaoDto findMyProfile(Long userId);
+    String findUserGradeById(Long userId);
 }
