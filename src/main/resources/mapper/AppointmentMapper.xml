@@ -154,7 +154,7 @@
         FROM t_possible_date pdate
             INNER JOIN t_possible_time ptime ON pdate.possible_date_id = ptime.possible_date_id
             LEFT JOIN t_appointment appoint ON ptime.possible_time_id = appoint.possible_time_id
-                        AND appoint.appointment_status = 'ACCEPT'
+                        AND appoint.appointment_status IN ('ACCEPT', 'DONE')
         WHERE
             pdate.profile_id = #{profileId}
         AND pdate.possible_date >= DATE_FORMAT(NOW() ,'%Y-%m-01')
