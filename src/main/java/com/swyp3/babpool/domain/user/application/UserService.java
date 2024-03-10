@@ -9,6 +9,9 @@ import com.swyp3.babpool.domain.user.application.response.UserGradeResponse;
 public interface UserService {
     LoginResponseWithRefreshToken login(LoginRequestDTO loginRequest);
     LoginResponseWithRefreshToken signUp(SignUpRequestDTO signUpRequest);
+
+    void signDown(Long userId, String exitReason);
+
     MyPageResponse getMyPage(Long userId);
 
     UserGradeResponse getUserGrade(Long userId);
