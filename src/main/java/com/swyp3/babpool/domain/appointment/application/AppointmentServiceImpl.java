@@ -1,7 +1,7 @@
 package com.swyp3.babpool.domain.appointment.application;
 
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
-import com.swyp3.babpool.domain.appointment.api.request.AppointmentRefuseRequest;
+import com.swyp3.babpool.domain.appointment.api.request.AppointmentRejectRequest;
 import com.swyp3.babpool.domain.appointment.application.response.*;
 import com.swyp3.babpool.domain.appointment.dao.AppointmentRepository;
 import com.swyp3.babpool.domain.appointment.domain.Appointment;
@@ -10,9 +10,7 @@ import com.swyp3.babpool.domain.appointment.domain.AppointmentRequestMessage;
 import com.swyp3.babpool.domain.appointment.exception.AppointmentException;
 import com.swyp3.babpool.domain.appointment.exception.eoorcode.AppointmentErrorCode;
 import com.swyp3.babpool.domain.profile.dao.ProfileRepository;
-import com.swyp3.babpool.domain.profile.domain.Profile;
 import com.swyp3.babpool.domain.user.application.UserService;
-import com.swyp3.babpool.domain.user.application.response.MyPageResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -21,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -116,15 +113,15 @@ public class AppointmentServiceImpl implements AppointmentService{
 
     @Override
     @Transactional
-    public AppointmentRefuseResponse refuseAppointment(AppointmentRefuseRequest appointmentRefuseRequest) {
-        Appointment appointment = appointmentRepository.findByAppointmentId(appointmentRefuseRequest.getAppointmentId());
+    public AppointmentRefuseResponse refuseAppointment(AppointmentRejectRequest appointmentRejectRequest) {
+        Appointment appointment = appointmentRepository.findByAppointmentId(appointmentRejectRequest.getAppointmentId());
         if(!appointmentRepository.findByAppointmentId(appointment.getAppointmentId()).getAppointmentStatus()
                 .equals("WAITING")){
             throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_IS_NOT_WAITING,"" +
                     "밥약 요청 상태가 WAITING이 아닙니다.");
         }
-        appointmentRepository.updateAppointmentReject(appointmentRefuseRequest);
-        appointmentRepository.saveRefuseData(appointmentRefuseRequest);
+        appointmentRepository.updateAppointmentReject(appointmentRejectRequest);
+        appointmentRepository.saveRejectData(appointmentRejectRequest);
 
         //상대에게 거절 알림 메시지 전송
         Long requesterUserId = appointment.getAppointmentRequesterUserId();

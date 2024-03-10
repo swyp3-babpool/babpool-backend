@@ -1,14 +1,13 @@
 package com.swyp3.babpool.domain.appointment.dao;
 
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
-import com.swyp3.babpool.domain.appointment.api.request.AppointmentRefuseRequest;
+import com.swyp3.babpool.domain.appointment.api.request.AppointmentRejectRequest;
 import com.swyp3.babpool.domain.appointment.application.response.*;
 import com.swyp3.babpool.domain.appointment.domain.Appointment;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
-import java.util.Optional;
 
 @Mapper
 public interface AppointmentRepository {
@@ -40,9 +39,9 @@ public interface AppointmentRepository {
 
     int saveAppointmentRequestTime(AppointmentCreateRequest appointmentCreateRequest);
 
-    void updateAppointmentReject(AppointmentRefuseRequest appointmentRefuseRequest);
+    void updateAppointmentReject(AppointmentRejectRequest appointmentRejectRequest);
 
-    void saveRefuseData(AppointmentRefuseRequest appointmentRefuseRequest);
+    void saveRejectData(AppointmentRejectRequest appointmentRejectRequest);
 
     int updateExpiredStatus();
 }
