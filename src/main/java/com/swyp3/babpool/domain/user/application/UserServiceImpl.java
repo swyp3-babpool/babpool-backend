@@ -7,8 +7,7 @@ import com.swyp3.babpool.domain.profile.application.ProfileService;
 import com.swyp3.babpool.domain.profile.domain.Profile;
 import com.swyp3.babpool.domain.review.application.ReviewService;
 import com.swyp3.babpool.domain.review.application.response.ReviewCountByTypeResponse;
-import com.swyp3.babpool.domain.user.application.response.MyPageResponse;
-import com.swyp3.babpool.domain.user.application.response.MyPageUserDaoDto;
+import com.swyp3.babpool.domain.user.application.response.*;
 import com.swyp3.babpool.domain.user.dao.UserRepository;
 import com.swyp3.babpool.domain.user.domain.User;
 import com.swyp3.babpool.domain.user.domain.UserRole;
@@ -22,8 +21,6 @@ import com.swyp3.babpool.infra.auth.domain.Auth;
 import com.swyp3.babpool.domain.user.api.requset.LoginRequestDTO;
 import com.swyp3.babpool.domain.user.api.requset.SignUpRequestDTO;
 import com.swyp3.babpool.infra.auth.response.AuthMemberResponse;
-import com.swyp3.babpool.domain.user.application.response.LoginResponseDTO;
-import com.swyp3.babpool.domain.user.application.response.LoginResponseWithRefreshToken;
 import com.swyp3.babpool.infra.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +32,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
     private final AuthService authService;
@@ -77,6 +75,12 @@ public class UserServiceImpl implements UserService{
 
         MyPageResponse myPageResponse = new MyPageResponse(myPageUserDaoDto, reviewCountByType, doneAppointmentList);
         return myPageResponse;
+    }
+
+    @Override
+    public UserGradeResponse getUserGrade(Long userId) {
+        String userGrade = userRepository.findUserGradeById(userId);
+        return new UserGradeResponse(userGrade);
     }
 
     private boolean isAlreadyRegisteredUser(String userUuid) {

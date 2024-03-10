@@ -152,11 +152,14 @@
             pdate.possible_date AS possibleDate,
             ptime.possible_time_start AS possibleTime
         FROM t_possible_date pdate
-                 INNER JOIN t_possible_time ptime ON pdate.possible_date_id = ptime.possible_date_id
+            INNER JOIN t_possible_time ptime ON pdate.possible_date_id = ptime.possible_date_id
+            LEFT JOIN t_appointment appoint ON ptime.possible_time_id = appoint.possible_time_id
+                        AND appoint.appointment_status IN ('ACCEPT', 'DONE')
         WHERE
             pdate.profile_id = #{profileId}
-          AND pdate.possible_date >= DATE_FORMAT(NOW() ,'%Y-%m-01')
-        ORDER BY pdate.possible_date ASC, ptime.possible_time_start ASC
+        AND pdate.possible_date >= DATE_FORMAT(NOW() ,'%Y-%m-01')
+        AND appoint.appointment_id IS NULL
+        ORDER BY pdate.possible_date ASC, ptime.possible_time_start ASC;
     </select>
 
     <!-- ######################################## INSERT ######################################## -->
@@ -208,7 +211,7 @@
         </foreach>
     </insert>
 
-    <update id="updateAppointmentReject" parameterType="com.swyp3.babpool.domain.appointment.api.request.AppointmentRefuseRequest">
+    <update id="updateAppointmentReject" parameterType="com.swyp3.babpool.domain.appointment.api.request.AppointmentRejectRequest">
         UPDATE t_appointment
         SET appointment_status='REJECT',
             appointment_modify_date=CURRENT_TIMESTAMP()
@@ -226,8 +229,37 @@
         ]]>
     </update>
 
-    <insert id="saveRefuseData" parameterType="com.swyp3.babpool.domain.appointment.api.request.AppointmentRefuseRequest">
-        INSERT INTO t_refuse(appointment_id,refuse_type,refuse_cause_content)
-        VALUES ( #{appointmentId}, #{refuseType}, #{refuseMessage} )
+    <insert id="saveRejectData" parameterType="com.swyp3.babpool.domain.appointment.api.request.AppointmentRejectRequest">
+        INSERT INTO t_reject(appointment_id,reject_cause_content)
+        VALUES ( #{appointmentId}, #{rejectMessage} )
     </insert>
+
+    <select id="findPossibleDateIdByPossibleTimeId">
+        SELECT possible_date_id
+        FROM t_possible_time
+        WHERE possible_time_id=#{possibleTimeId}
+    </select>
+
+    <delete id="deletePossibleTimeById">
+        DELETE FROM t_possible_time
+        WHERE possible_time_id = #{possibleTimeId}
+    </delete>
+
+
+    <delete id="deletePossibleDateIfNoMorePossibleTime">
+        DELETE FROM t_possible_date
+        WHERE possible_date_id = (
+            SELECT possible_date_id
+            FROM t_possible_time
+            WHERE possible_date_id = #{possibleDateId}
+            )
+    </delete>
+
+    <update id="updateAppointment" parameterType="com.swyp3.babpool.domain.appointment.api.request.AppointmentAcceptRequest">
+        UPDATE t_appointment
+        SET appointment_status = 'ACCEPT',
+            possible_time_id=#{possibleTimeId}
+        WHERE appointment_id=#{appointmentId}
+    </update>
+
 </mapper>
