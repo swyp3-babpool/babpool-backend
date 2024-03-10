@@ -2,6 +2,7 @@ package com.swyp3.babpool.domain.user.api;
 
 import com.swyp3.babpool.domain.user.application.response.MyPageResponse;
 import com.swyp3.babpool.domain.user.application.UserService;
+import com.swyp3.babpool.domain.user.application.response.UserGradeResponse;
 import com.swyp3.babpool.global.common.response.ApiResponse;
 import com.swyp3.babpool.global.common.response.ApiResponseWithCookie;
 import com.swyp3.babpool.domain.user.api.requset.LoginRequestDTO;
@@ -47,5 +48,11 @@ public class UserApi {
     public ApiResponse<MyPageResponse> getMyPage(@RequestAttribute(value = "userId") Long userId){
         MyPageResponse myPageResponse = userService.getMyPage(userId);
         return ApiResponse.ok(myPageResponse);
+    }
+
+    @GetMapping("/grade")
+    public ApiResponse<UserGradeResponse> getUserGrade(@RequestAttribute(value = "userId") Long userId){
+        UserGradeResponse userGradeResponse = userService.getUserGrade(userId);
+        return ApiResponse.ok(userGradeResponse);
     }
 }

@@ -52,4 +52,10 @@
             u.user_id
     </select>
 
+    <select id="findUserGradeById">
+        SELECT user_grade AS userGrade
+        FROM t_user_account
+        WHERE user_id=#{userId}
+    </select>
+
 </mapper>
