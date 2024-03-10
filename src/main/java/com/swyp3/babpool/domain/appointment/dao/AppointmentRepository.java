@@ -44,9 +44,6 @@ public interface AppointmentRepository {
     int updateExpiredStatus();
     void saveRejectData(AppointmentRejectRequest appointmentRejectRequest);
 
-    Long findPossibleDateIdByPossibleTimeId(Long possibleTimeId);
-    void deletePossibleTimeById(Long possibleTimeId);
-    void deletePossibleDateIfNoMorePossibleTime(Long possibleDateId);
 
     void updateAppointment(AppointmentAcceptRequest request);
 

@@ -139,7 +139,7 @@ public class AppointmentServiceImpl implements AppointmentService{
         simpMessagingTemplate.convertAndSend("/topic/appointment/" + requesterProfileId,
                 AppointmentRejectMessage.builder()
                         .requestProfileId(requesterProfileId)
-                        .refuseMessage(HttpStatus.OK.name())
+                        .rejectMessage(HttpStatus.OK.name())
                         .build());
         return new AppointmentRejectResponse("밥약 거절이 처리되었습니다.");
     }
