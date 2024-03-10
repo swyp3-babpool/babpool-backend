@@ -65,4 +65,5 @@ public interface ProfileRepository {
     void savePossibleTimes(@Param("possibleTimeStart") Integer possibleTimeStart,@Param("possibleDateId") Long possibleDateId);
     ProfileKeywordsResponse findKeywords(Long profileId);
     ProfileDefault findProfileDefault(Long profileId);
+    Boolean findProfileIsRegistered(Long profileId);
 }

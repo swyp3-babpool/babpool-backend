@@ -4,6 +4,7 @@ import com.swyp3.babpool.domain.profile.api.request.ProfileUpdateRequest;
 import com.swyp3.babpool.domain.profile.application.ProfileService;
 import com.swyp3.babpool.domain.profile.application.response.ProfileDefaultResponse;
 import com.swyp3.babpool.domain.profile.application.response.ProfileDetailResponse;
+import com.swyp3.babpool.domain.profile.application.response.ProfileRegistrationResponse;
 import com.swyp3.babpool.domain.profile.application.response.ProfileUpdateResponse;
 import com.swyp3.babpool.global.common.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -37,5 +38,9 @@ public class ProfileApi {
         return ApiResponse.ok(profileDetailResponse);
     }
 
-
+    @GetMapping("/registration/check")
+    public ApiResponse<ProfileRegistrationResponse> getProfileisRegistered(@RequestAttribute(value = "userId") Long userId){
+        ProfileRegistrationResponse profileRegistrationResponse = profileService.getProfileisRegistered(userId);
+        return ApiResponse.ok(profileRegistrationResponse);
+    }
 }
