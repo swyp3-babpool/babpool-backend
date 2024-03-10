@@ -152,11 +152,14 @@
             pdate.possible_date AS possibleDate,
             ptime.possible_time_start AS possibleTime
         FROM t_possible_date pdate
-                 INNER JOIN t_possible_time ptime ON pdate.possible_date_id = ptime.possible_date_id
+            INNER JOIN t_possible_time ptime ON pdate.possible_date_id = ptime.possible_date_id
+            LEFT JOIN t_appointment appoint ON ptime.possible_time_id = appoint.possible_time_id
+                        AND appoint.appointment_status IN ('ACCEPT', 'DONE')
         WHERE
             pdate.profile_id = #{profileId}
-          AND pdate.possible_date >= DATE_FORMAT(NOW() ,'%Y-%m-01')
-        ORDER BY pdate.possible_date ASC, ptime.possible_time_start ASC
+        AND pdate.possible_date >= DATE_FORMAT(NOW() ,'%Y-%m-01')
+        AND appoint.appointment_id IS NULL
+        ORDER BY pdate.possible_date ASC, ptime.possible_time_start ASC;
     </select>
 
     <!-- ######################################## INSERT ######################################## -->
