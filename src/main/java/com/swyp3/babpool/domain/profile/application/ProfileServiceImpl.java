@@ -32,6 +32,7 @@ import java.util.Map;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class ProfileServiceImpl implements ProfileService{
 
@@ -80,6 +81,14 @@ public class ProfileServiceImpl implements ProfileService{
         ProfileKeywordsResponse keywords = profileRepository.findKeywords(profile.getProfileId());
 
         return new ProfileDefaultResponse(daoResponse,keywords);
+    }
+
+    @Override
+    public ProfileRegistrationResponse getProfileisRegistered(Long userId) {
+        Profile profile = profileRepository.findByUserId(userId);
+        Boolean isRegistered = profileRepository.findProfileIsRegistered(profile.getProfileId());
+
+        return new ProfileRegistrationResponse(isRegistered);
     }
 
     private boolean isExistProfile(Long profileId) {
@@ -136,7 +145,6 @@ public class ProfileServiceImpl implements ProfileService{
         return profileRepository.findByUserId(userId);
     }
 
-    @Transactional
     @Override
     public ProfileUpdateResponse updateProfileInfo(Long userId, ProfileUpdateRequest profileUpdateRequest) {
         Long profileId = profileRepository.findByUserId(userId).getProfileId();
@@ -148,7 +156,6 @@ public class ProfileServiceImpl implements ProfileService{
         return new ProfileUpdateResponse(profileId);
     }
 
-    @Transactional
     public void updatePossibleDateTime(Long profileId, ProfileUpdateRequest profileUpdateRequest) {
         profileRepository.deletePossibleTimes(profileId);
         profileRepository.deletePossibleDates(profileId);

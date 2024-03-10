@@ -229,4 +229,10 @@
         VALUES ( #{possibleTimeStart},#{possibleDateId},1 )
     </insert>
 
+    <select id="findProfileIsRegistered">
+        SELECT profile_active_flag
+        FROM t_profile
+        WHERE profile_id=#{profileId}
+    </select>
+
 </mapper>
