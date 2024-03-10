@@ -75,7 +75,7 @@ public class AppointmentApi {
      * 밥약 요청 거절 API
      */
     @PostMapping("/api/appointment/reject")
-    public ApiResponse<AppointmentRejectResponse> refuseAppointment(@RequestAttribute(value = "userId", required = false) Long userId,
+    public ApiResponse<AppointmentRejectResponse> rejectAppointment(@RequestAttribute(value = "userId", required = false) Long userId,
                                                                     @RequestBody @Valid AppointmentRejectRequest appointmentRejectRequest) {
         return ApiResponse.ok(appointmentService.rejectAppointment(appointmentRejectRequest,userId));
     }
