@@ -8,6 +8,7 @@ import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Arrays;
 import java.util.Optional;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class UserSignOutApi {
@@ -25,6 +27,7 @@ public class UserSignOutApi {
 
     @PostMapping("/api/user/sign/out")
     public ApiResponseWithCookie signOut(HttpServletRequest request){
+        log.info("sign out request start");
         Cookie[] cookies = request.getCookies();
         if(cookies != null){
             Optional<Cookie> optionalCookie = Arrays.stream(cookies)
