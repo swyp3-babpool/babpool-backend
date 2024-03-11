@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.swyp3.babpool.domain.user.dao.ExitInfoRepository">
+
+    <insert id="saveExitInfo" useGeneratedKeys="true" keyProperty="exitInfoId">
+        insert into t_exit_info(user_id,exit_reason,exit_date)
+        values ( #{userId},#{exitReason}, CURRENT_TIMESTAMP() )
+    </insert>
+</mapper>
