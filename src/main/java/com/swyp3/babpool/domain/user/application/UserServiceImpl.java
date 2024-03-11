@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService{
 
     @Transactional
     @Override
-    public void signDown(Long userId, String exitReason) {
+    public void signDown(Long userId, String exitReason, String refreshTokenFromCookie) {
         AuthPlatform authPlatformName = authService.getAuthPlatformByUserId(userId);
         authService.socialServiceDisconnect(userId, authPlatformName);
 
@@ -70,6 +70,7 @@ public class UserServiceImpl implements UserService{
             throw new SignDownException(SignDownExceptionErrorCode.FAILED_TO_UPDATE_USER_STATE, "회원탈퇴에 실패하였습니다");
         }
         exitInfoRepository.saveExitInfo(userId, exitReason);
+        jwtService.logout(refreshTokenFromCookie);
     }
 
     @Override

@@ -17,6 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -80,8 +82,12 @@ public class UserApi {
     }
 
     @PostMapping("/sign/down")
-    public ApiResponse signDown(@RequestAttribute(value = "userId") Long userId, @RequestBody String exitReason){
-        userService.signDown(userId, exitReason);
-        return ApiResponse.ok("회원탈퇴에 성공하였습니다");
+    public ResponseEntity<ApiResponse> signDown(@RequestAttribute(value = "userId") Long userId,
+                                                @CookieValue(value = "refreshToken", required = false) String refreshTokenFromCookie,
+                                                @RequestBody Map<String, Object> data){
+        userService.signDown(userId, data.get("exitReason").toString(), refreshTokenFromCookie);
+        return ResponseEntity.status(HttpStatus.OK)
+                .header(HttpHeaders.SET_COOKIE, CookieProvider.ofRefreshToken("", 0).toString())
+                .body(ApiResponse.ok("sign down success"));
     }
 }

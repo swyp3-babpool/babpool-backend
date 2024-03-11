@@ -10,7 +10,7 @@ public interface UserService {
     LoginResponseWithRefreshToken login(LoginRequestDTO loginRequest);
     LoginResponseWithRefreshToken signUp(SignUpRequestDTO signUpRequest);
 
-    void signDown(Long userId, String exitReason);
+    void signDown(Long userId, String exitReason, String refreshTokenFromCookie);
 
     MyPageResponse getMyPage(Long userId);
 
