@@ -58,4 +58,10 @@
         WHERE user_id=#{userId}
     </select>
 
+    <update id="updateUserStateByUserId">
+        update t_user_account
+        set user_status = #{userStatus}
+        where user_id = #{userId}
+    </update>
+
 </mapper>

@@ -25,5 +25,5 @@ public interface UserRepository {
 
     String findUserGradeById(Long userId);
 
-    int updateUserStateByUserId(Long userId, UserStatus userStatus);
+    int updateUserStateByUserId(@Param("userId") Long userId, @Param("userStatus") UserStatus userStatus);
 }
