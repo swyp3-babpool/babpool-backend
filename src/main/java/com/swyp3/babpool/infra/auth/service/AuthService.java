@@ -41,11 +41,10 @@ public class AuthService {
     }
 
     public void socialServiceSignOut(Long userId, AuthPlatform authPlatform) {
-        log.info("socialServiceSignOut userId : " + userId + " authPlatform : " + authPlatform);
         switch (authPlatform) {
             case KAKAO:
                 authRepository.findByUserId(userId).ifPresent(auth -> {
-                    kakaoProvider.kakaoMemberSignOut(auth.getOauthId());
+                    kakaoProvider.kakaoMemberSignOut(auth.getOauthPlatformId());
                 });
                 break;
             default:
@@ -61,7 +60,7 @@ public class AuthService {
                         () -> new AuthException(AuthExceptionErrorCode.AUTH_INFO_NOT_FOUND,
                                 "해당 사용자의 소셜로그인 정보가 존재하지 않습니다.")
                 );
-                kakaoProvider.kakaoMemberDisconnect(auth.getOauthId());
+                kakaoProvider.kakaoMemberDisconnect(auth.getOauthPlatformId());
                 break;
             default:
                 throw new AuthException(AuthExceptionErrorCode.NOT_SUPPORTED_AUTH_PLATFORM,
