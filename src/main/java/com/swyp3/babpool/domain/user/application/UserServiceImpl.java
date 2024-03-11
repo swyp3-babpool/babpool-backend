@@ -1,6 +1,5 @@
 package com.swyp3.babpool.domain.user.application;
 
-import com.swyp3.babpool.domain.appointment.application.AppointmentService;
 import com.swyp3.babpool.domain.appointment.application.response.AppointmentHistoryDoneResponse;
 import com.swyp3.babpool.domain.appointment.dao.AppointmentRepository;
 import com.swyp3.babpool.domain.profile.application.ProfileService;
@@ -8,10 +7,14 @@ import com.swyp3.babpool.domain.profile.domain.Profile;
 import com.swyp3.babpool.domain.review.application.ReviewService;
 import com.swyp3.babpool.domain.review.application.response.ReviewCountByTypeResponse;
 import com.swyp3.babpool.domain.user.application.response.*;
+import com.swyp3.babpool.domain.user.dao.ExitInfoRepository;
 import com.swyp3.babpool.domain.user.dao.UserRepository;
 import com.swyp3.babpool.domain.user.domain.User;
 import com.swyp3.babpool.domain.user.domain.UserRole;
+import com.swyp3.babpool.domain.user.domain.UserStatus;
+import com.swyp3.babpool.domain.user.exception.SignDownException;
 import com.swyp3.babpool.domain.user.exception.SignUpException;
+import com.swyp3.babpool.domain.user.exception.errorcode.SignDownExceptionErrorCode;
 import com.swyp3.babpool.domain.user.exception.errorcode.SignUpExceptionErrorCode;
 import com.swyp3.babpool.global.jwt.application.JwtService;
 import com.swyp3.babpool.global.jwt.application.response.JwtPairDto;
@@ -28,7 +31,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -42,6 +44,7 @@ public class UserServiceImpl implements UserService{
     private final ProfileService profileService;
     private final ReviewService reviewService;
     private final AppointmentRepository appointmentRepository;
+    private final ExitInfoRepository exitInfoRepository;
 
     public LoginResponseWithRefreshToken login(LoginRequestDTO loginRequest) {
         AuthMemberResponse kakaoPlatformMember = authService.getUserDataByCode(loginRequest.getCode());
@@ -54,6 +57,20 @@ public class UserServiceImpl implements UserService{
                     "이미 데이터베이스에 등록된 사용자이므로 새로운 회원가입을 진행할 수 없습니다.");
         User user = insertUserExtraInfo(signUpRequest);
         return getLoginResponse(user);
+    }
+
+    @Transactional
+    @Override
+    public void signDown(Long userId, String exitReason, String refreshTokenFromCookie) {
+        AuthPlatform authPlatformName = authService.getAuthPlatformByUserId(userId);
+        authService.socialServiceDisconnect(userId, authPlatformName);
+
+        int updatedRows = userRepository.updateUserStateByUserId(userId, UserStatus.EXIT);
+        if(updatedRows!=1){
+            throw new SignDownException(SignDownExceptionErrorCode.FAILED_TO_UPDATE_USER_STATE, "회원탈퇴에 실패하였습니다");
+        }
+        exitInfoRepository.saveExitInfo(userId, exitReason);
+        jwtService.logout(refreshTokenFromCookie);
     }
 
     @Override
