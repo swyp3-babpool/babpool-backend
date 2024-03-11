@@ -16,6 +16,6 @@ public class ProfileUpdateRequest {
     private String profileContents;
     private String profileContactPhone;
     private String profileContactChat;
-    private List<String> keywords;
+    private List<Integer> keywords;
     private Map<String, List<Integer>> possibleDate;
 }
