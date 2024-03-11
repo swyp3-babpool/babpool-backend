@@ -19,7 +19,7 @@ public class ProfileApi {
 
     @PostMapping("/update")
     public ApiResponse<ProfileUpdateResponse> updateProfileCard(@RequestAttribute(value = "userId") Long userId,
-                                                                @RequestPart(value = "profileImageFile") MultipartFile multipartFile,
+                                                                @RequestPart(value = "profileImageFile", required = false) MultipartFile multipartFile,
                                                                 @RequestPart(value = "profileInfo") ProfileUpdateRequest profileUpdateRequest) {
         profileService.updateProfileImage(userId, multipartFile);
         ProfileUpdateResponse response =  profileService.updateProfileInfo(userId, profileUpdateRequest);

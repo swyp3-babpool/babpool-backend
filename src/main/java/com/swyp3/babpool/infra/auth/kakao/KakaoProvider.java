@@ -1,5 +1,7 @@
 package com.swyp3.babpool.infra.auth.kakao;
 
+import com.swyp3.babpool.domain.user.exception.SignDownException;
+import com.swyp3.babpool.domain.user.exception.errorcode.SignDownExceptionErrorCode;
 import com.swyp3.babpool.infra.auth.AuthJwtParser;
 import com.swyp3.babpool.infra.auth.PublicKeyGenerator;
 import com.swyp3.babpool.infra.auth.exception.AuthException;
@@ -13,6 +15,9 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -51,35 +56,55 @@ public class KakaoProvider {
         }
     }
 
-    public void kakaoMemberSignOut(Long userId) {
+    public void kakaoMemberSignOut(Long oauthId) {
         WebClient webClient = WebClient.builder()
                 .baseUrl("https://kauth.kakao.com")
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .build();
 
-        JSONObject response = webClient.post()
-                .uri(uriBuilder -> uriBuilder.path("/v1/user/logout").build())
-                .header("Authorization", "KakaoAK " + clientId)
-                .retrieve().bodyToMono(JSONObject.class).block();
+        MultiValueMap<String , String> params = new LinkedMultiValueMap<>();
+        params.add("target_id_type","user_id");
+        params.add("target_id",oauthId.toString());
 
-        log.info("kakaoMemberSignOut response: " + response.toString());
+        String responseJson = webClient.post()
+                .uri(uriBuilder -> uriBuilder.path("/v1/user/logout").build())
+                .header("Authorization", "KakaoAK " + KAKAO_SERVICE_APP_ADMIN_KEY)
+                .body(BodyInserters.fromFormData(params))
+                .retrieve()
+                .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                        clientResponse -> clientResponse.bodyToMono(String.class)
+                                .map(body -> new AuthException(AuthExceptionErrorCode.AUTH_SIGN_OUT_KAKAO_FAIL, body)))
+                .bodyToMono(String.class)
+                .doOnNext(response -> log.info("kakaoMemberSignOut response: " + response))
+                .block();
+
+        log.info("kakaoMemberSignOut responseJson: " + responseJson);
+
     }
 
     public void kakaoMemberDisconnect(Long oauthId) {
         WebClient webClient = WebClient.builder()
                 .baseUrl("https://kapi.kakao.com")
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .build();
 
-        JSONObject response = webClient.post()
+        MultiValueMap<String , String> params = new LinkedMultiValueMap<>();
+        params.add("target_id_type","user_id");
+        params.add("target_id",oauthId.toString());
+
+        String responseJson = webClient.post()
                 .uri(uriBuilder -> uriBuilder.path("/v1/user/unlink").build())
                 .header("Authorization", "KakaoAK " + KAKAO_SERVICE_APP_ADMIN_KEY)
-                .body(Mono.just(
-                        Map.of("target_id_type", "user_id",
-                                "target_id", oauthId)), JSONObject.class)
-                .retrieve().bodyToMono(JSONObject.class).block();
+                .body(BodyInserters.fromFormData(params))
+                .retrieve()
+                .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                        clientResponse -> clientResponse.bodyToMono(String.class)
+                                .map(body -> new AuthException(AuthExceptionErrorCode.AUTH_DISCONNECT_KAKAO_FAIL,body)))
+                .bodyToMono(String.class)
+                .doOnNext(response -> log.info("kakaoMemberSignOut response: " + response))
+                .block();
 
-        log.info("kakaoMemberDisconnect response: " + response.toString());
+        log.info("kakaoMemberDisconnect responseJson: " + responseJson);
 
     }
 

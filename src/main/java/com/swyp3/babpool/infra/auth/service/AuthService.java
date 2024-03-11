@@ -43,7 +43,9 @@ public class AuthService {
     public void socialServiceSignOut(Long userId, AuthPlatform authPlatform) {
         switch (authPlatform) {
             case KAKAO:
-                kakaoProvider.kakaoMemberSignOut(userId);
+                authRepository.findByUserId(userId).ifPresent(auth -> {
+                    kakaoProvider.kakaoMemberSignOut(auth.getOauthId());
+                });
                 break;
             default:
                 throw new AuthException(AuthExceptionErrorCode.NOT_SUPPORTED_AUTH_PLATFORM,
