@@ -59,10 +59,11 @@ public class UserServiceImpl implements UserService{
         return getLoginResponse(user);
     }
 
+    @Transactional
     @Override
     public void signDown(Long userId, String exitReason) {
-        AuthPlatform authPlatform = authService.getAuthPlatformByUserId(userId);
-        authService.socialServiceDisconnect(userId, authPlatform);
+        AuthPlatform authPlatformName = authService.getAuthPlatformByUserId(userId);
+        authService.socialServiceDisconnect(userId, authPlatformName);
 
         int updatedRows = userRepository.updateUserStateByUserId(userId, UserStatus.EXIT);
         if(updatedRows!=1){

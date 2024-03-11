@@ -51,8 +51,8 @@ public class AuthService {
         }
     }
 
-    public void socialServiceDisconnect(Long userId, AuthPlatform authPlatform) {
-        switch (authPlatform) {
+    public void socialServiceDisconnect(Long userId, AuthPlatform authPlatformName) {
+        switch (authPlatformName) {
             case KAKAO:
                 Auth auth = authRepository.findByUserId(userId).orElseThrow(
                         () -> new AuthException(AuthExceptionErrorCode.AUTH_INFO_NOT_FOUND,
