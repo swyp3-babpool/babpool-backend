@@ -55,4 +55,10 @@ public class UserApi {
         UserGradeResponse userGradeResponse = userService.getUserGrade(userId);
         return ApiResponse.ok(userGradeResponse);
     }
+
+    @PostMapping("/sign/down")
+    public ApiResponse signDown(@RequestAttribute(value = "userId") Long userId, @RequestBody String exitReason){
+        userService.signDown(userId, exitReason);
+        return ApiResponse.ok("회원탈퇴에 성공하였습니다");
+    }
 }
