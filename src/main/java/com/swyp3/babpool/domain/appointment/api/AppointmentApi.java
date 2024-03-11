@@ -75,7 +75,7 @@ public class AppointmentApi {
      * 밥약 요청 거절 API
      */
     @PostMapping("/api/appointment/reject")
-    public ApiResponse<AppointmentRejectResponse> refuseAppointment(@RequestAttribute(value = "userId", required = false) Long userId,
+    public ApiResponse<AppointmentRejectResponse> rejectAppointment(@RequestAttribute(value = "userId", required = false) Long userId,
                                                                     @RequestBody @Valid AppointmentRejectRequest appointmentRejectRequest) {
         return ApiResponse.ok(appointmentService.rejectAppointment(appointmentRejectRequest,userId));
     }
@@ -89,4 +89,14 @@ public class AppointmentApi {
         return ApiResponse.ok(appointmentService.acceptAppointment(appointmentAcceptRequest,userId));
     }
 
+
+    /**
+     * 밥약 상세조회 API
+     */
+    @GetMapping("/api/appointment/detail/{appointmentId}")
+    public ApiResponse<AppointmentDetailResponse> getAppointmentDetail(@RequestAttribute(value="userId", required = false) Long userId,
+                                                                       @PathVariable("appointmentId") Long appointmentId){
+        log.info(appointmentId.toString());
+        return ApiResponse.ok(appointmentService.getAppointmentDetail(userId,appointmentId));
+    }
 }

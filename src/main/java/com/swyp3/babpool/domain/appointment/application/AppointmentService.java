@@ -20,9 +20,9 @@ public interface AppointmentService {
 
     List<AppointmentPossibleDateTimeResponse> getAppointmentPossibleDateTime(Long profileId);
 
-    AppointmentRejectResponse rejectAppointment(AppointmentRejectRequest appointmentRejectRequest,Long userId);
+    AppointmentRejectResponse rejectAppointment(AppointmentRejectRequest appointmentRejectRequest, Long userId);
 
     AppointmentAcceptResponse acceptAppointment(AppointmentAcceptRequest appointmentAcceptRequest, Long userId);
 
-
+    AppointmentDetailResponse getAppointmentDetail(Long userId, Long appointmentId);
 }

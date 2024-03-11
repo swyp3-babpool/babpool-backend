@@ -58,11 +58,12 @@ public interface ProfileRepository {
     void updateUserAccount(@Param("userId") Long userId,@Param("request") ProfileUpdateRequest profileUpdateRequest);
     void updateProfile(@Param("profileId") Long profileId,@Param("request") ProfileUpdateRequest profileUpdateRequest);
     void deleteUserKeywords(Long userId);
-    void saveUserKeywords(@Param("userId")Long userId,@Param("keywords") List<String> keywords);
+    void saveUserKeywords(@Param("userId")Long userId,@Param("keywords") List<Integer> keywords);
     void deletePossibleDates(Long profileId);
     void savePossibleDates(PossibleDate possibleDate);
     void deletePossibleTimes(Long profileId);
     void savePossibleTimes(@Param("possibleTimeStart") Integer possibleTimeStart,@Param("possibleDateId") Long possibleDateId);
     ProfileKeywordsResponse findKeywords(Long profileId);
     ProfileDefault findProfileDefault(Long profileId);
+    Boolean findProfileIsRegistered(Long profileId);
 }

@@ -234,32 +234,32 @@
         VALUES ( #{appointmentId}, #{rejectMessage} )
     </insert>
 
-    <select id="findPossibleDateIdByPossibleTimeId">
-        SELECT possible_date_id
-        FROM t_possible_time
-        WHERE possible_time_id=#{possibleTimeId}
-    </select>
-
-    <delete id="deletePossibleTimeById">
-        DELETE FROM t_possible_time
-        WHERE possible_time_id = #{possibleTimeId}
-    </delete>
-
-
-    <delete id="deletePossibleDateIfNoMorePossibleTime">
-        DELETE FROM t_possible_date
-        WHERE possible_date_id = (
-            SELECT possible_date_id
-            FROM t_possible_time
-            WHERE possible_date_id = #{possibleDateId}
-            )
-    </delete>
-
     <update id="updateAppointment" parameterType="com.swyp3.babpool.domain.appointment.api.request.AppointmentAcceptRequest">
         UPDATE t_appointment
         SET appointment_status = 'ACCEPT',
             possible_time_id=#{possibleTimeId}
         WHERE appointment_id=#{appointmentId}
     </update>
+
+
+    <select id="findRequesterPossibleTime" parameterType="com.swyp3.babpool.domain.appointment.domain.Appointment"
+        resultType="com.swyp3.babpool.domain.appointment.application.response.AppointmentRequesterPossibleDateTimeResponse">
+        SELECT pd.possible_date_id AS possibleDateId,
+               pt.possible_time_id AS possibleTimeId,
+               pd.possible_date AS possibleDate,
+               pt.possible_time_start AS possibleTimeStart
+        FROM t_appointment a
+                INNER JOIN t_appointment_request ar ON a.appointment_id = ar.appointment_id
+                INNER JOIN t_appointment_request_time art ON ar.appointment_request_id = art.appointment_request_id
+                INNER JOIN t_possible_time pt ON pt.possible_time_id = art.possible_time_id
+                INNER JOIN t_possible_date pd ON pd.possible_date_id = pt.possible_date_id
+        WHERE a.appointment_id = #{appointmentId}
+    </select>
+
+    <select id="findQuestion">
+        SELECT appointment_question
+        FROM t_appointment_request
+        WHERE appointment_id = #{appointmentId}
+    </select>
 
 </mapper>

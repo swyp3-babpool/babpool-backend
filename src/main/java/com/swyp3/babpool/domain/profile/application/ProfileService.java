@@ -25,4 +25,6 @@ public interface ProfileService {
     ProfileDetailResponse getProfileDetail(Long targetProfileId);
 
     ProfileDefaultResponse getProfileDefault(Long userId);
+
+    ProfileRegistrationResponse getProfileisRegistered(Long userId);
 }
