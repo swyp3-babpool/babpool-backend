@@ -41,6 +41,7 @@ public class AuthService {
     }
 
     public void socialServiceSignOut(Long userId, AuthPlatform authPlatform) {
+        log.info("socialServiceSignOut userId : " + userId + " authPlatform : " + authPlatform);
         switch (authPlatform) {
             case KAKAO:
                 authRepository.findByUserId(userId).ifPresent(auth -> {
