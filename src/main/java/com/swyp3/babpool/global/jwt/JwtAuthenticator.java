@@ -28,4 +28,12 @@ public class JwtAuthenticator {
                             "Not found user id with uuid, while JwtAuthenticator request to UserUuidRepository"))
                 .getUserId();
     }
+
+    public Long jwtRefreshTokenToUserIdResolver(String refreshToken) {
+        Claims claims = jwtTokenizer.parseRefreshToken(refreshToken);
+        return jwtTokenUserIdResolver(claims.getSubject());
+    }
+
+
+
 }

@@ -1,13 +1,16 @@
 package com.swyp3.babpool.infra.health.api;
 
 import com.swyp3.babpool.domain.user.domain.UserRole;
+import com.swyp3.babpool.global.common.response.ApiResponse;
 import com.swyp3.babpool.global.common.response.ApiResponseWithCookie;
+import com.swyp3.babpool.global.common.response.CookieProvider;
 import com.swyp3.babpool.global.jwt.application.JwtService;
 import com.swyp3.babpool.global.jwt.application.response.JwtPairDto;
 import com.swyp3.babpool.global.uuid.application.UuidService;
 import com.swyp3.babpool.infra.health.application.HealthCheckService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -73,8 +76,11 @@ public class HealthCheckApi {
     }
 
     @GetMapping("/api/test/cookie")
-    public ApiResponseWithCookie<String> testCookie() {
-        return ApiResponseWithCookie.ofRefreshToken(HttpStatus.OK, "success", "data", "refreshToken1234");
+    public ResponseEntity<ApiResponse<String>> testCookie() {
+//        return ApiResponseWithCookie.ofRefreshToken(HttpStatus.OK, "success", "data", "refreshToken1234");
+        return ResponseEntity.status(HttpStatus.OK)
+                .header(HttpHeaders.SET_COOKIE, CookieProvider.ofRefreshToken("refreshToken1234", 1).toString())
+                .body(ApiResponse.ok("data"));
     }
 
 }

@@ -3,6 +3,10 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.swyp3.babpool.infra.auth.dao.AuthRepository">
 
+    <select id="findByUserId" parameterType="long" resultType="com.swyp3.babpool.infra.auth.domain.Auth">
+        select * from t_oauth where user_id = #{userId}
+    </select>
+
     <insert id="save" useGeneratedKeys="true" keyProperty="oauthId">
         insert into t_oauth(user_id,oauth_platform_name,oauth_platform_id)
         values ( #{userId},#{oauthPlatformName},#{oauthPlatformId} )

@@ -5,7 +5,11 @@ import com.swyp3.babpool.infra.auth.domain.Auth;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Optional;
+
 @Mapper
 public interface AuthRepository {
     void save(Auth oauth);
+
+    Optional<Auth> findByUserId(Long userId);
 }
