@@ -8,6 +8,7 @@ import org.springframework.http.ResponseCookie;
 
 import java.time.LocalDateTime;
 
+@Deprecated
 @Getter
 public class ApiResponseWithCookie<T> {
 
