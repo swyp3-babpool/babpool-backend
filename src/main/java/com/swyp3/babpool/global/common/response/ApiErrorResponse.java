@@ -27,4 +27,12 @@ public class ApiErrorResponse {
         );
     }
 
+    public static ApiErrorResponse of(CustomErrorCode errorCode, String message) {
+        return new ApiErrorResponse(
+                errorCode.getHttpStatus().value(),
+                errorCode.getHttpStatus().name(),
+                message
+        );
+    }
+
 }
