@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+//@Deprecated
 //@Slf4j
 //@RestControllerAdvice
 //public class BaseExceptionHandler {
