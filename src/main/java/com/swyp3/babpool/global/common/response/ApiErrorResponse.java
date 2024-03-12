@@ -11,14 +11,14 @@ import java.time.LocalDateTime;
 public class ApiErrorResponse {
 
     private final LocalDateTime timestamp = LocalDateTime.now();
-    private final int statusCode;
-    private final String statusDescription;
+    private final int code;
+    private final String status;
     private final String message;
 
     @Builder
-    public ApiErrorResponse(int statusCode, String statusDescription, String message) {
-        this.statusCode = statusCode;
-        this.statusDescription = statusDescription;
+    public ApiErrorResponse(int code, String status, String message) {
+        this.code = code;
+        this.status = status;
         this.message = message;
     }
 
