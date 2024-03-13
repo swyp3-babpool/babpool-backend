@@ -147,6 +147,7 @@ public class ProfileServiceImpl implements ProfileService{
 
     @Override
     public ProfileUpdateResponse updateProfileInfo(Long userId, ProfileUpdateRequest profileUpdateRequest) {
+        validateRequestPossibleDateTime(profileUpdateRequest.getPossibleDate().get("possibleDate"));
         Long profileId = profileRepository.findByUserId(userId).getProfileId();
         profileRepository.updateUserAccount(userId,profileUpdateRequest);
         profileRepository.updateProfile(profileId,profileUpdateRequest);
@@ -154,6 +155,19 @@ public class ProfileServiceImpl implements ProfileService{
         profileRepository.saveUserKeywords(userId,profileUpdateRequest.getKeywords());
         updatePossibleDateTime(profileId,profileUpdateRequest);
         return new ProfileUpdateResponse(profileId);
+    }
+
+    private void validateRequestPossibleDateTime(List<Integer> possibleTimeList) {
+        if(possibleTimeList.size() < 1){
+            throw new ProfileException(ProfileErrorCode.PROFILE_POSSIBLE_DATE_ERROR,"가능한 날짜와 시간을 최소 1개 이상 선택해주세요.");
+        }
+        // time : 8 ~ 22 only
+        possibleTimeList.stream()
+                .filter(time -> time < 8 || time > 22)
+                .findAny()
+                .ifPresent(time -> {
+                    throw new ProfileException(ProfileErrorCode.PROFILE_POSSIBLE_DATE_ERROR,"가능한 시간은 8시부터 22시까지만 선택 가능합니다.");
+                });
     }
 
     public void updatePossibleDateTime(Long profileId, ProfileUpdateRequest profileUpdateRequest) {
