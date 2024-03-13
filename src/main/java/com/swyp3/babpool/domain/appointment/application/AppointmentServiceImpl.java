@@ -200,6 +200,23 @@ public class AppointmentServiceImpl implements AppointmentService{
         return new AppointmentDetailResponse(requesterData,lastingTime,requesterPossibleTime,question);
     }
 
+    @Override
+    public AppointmentCancelResponse cancelAppointmentRequested(Long userId, Long appointmentId) {
+        Appointment appointment = appointmentRepository.findByAppointmentId(appointmentId);
+
+        validateRequester(userId, appointment);
+        validateAppointmentStatus(appointment);
+
+        int updatedRows = appointmentRepository.updateAppointmentCancel(appointmentId);
+        if(updatedRows != 1){
+            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_CANCEL_FAILED, "밥약 요청 취소에 실패하였습니다.");
+        }
+        return AppointmentCancelResponse.builder()
+                .appointmentId(appointmentId)
+                .appointmentCancelResult("밥약 요청이 취소되었습니다.")
+                .build();
+    }
+
     private Map<String, Long> getLastingTime(Appointment appointment) {
         LocalDateTime expireDate = appointment.getAppointmentCreateDate().plusDays(1);
         Duration duration = Duration.between(LocalDateTime.now(), expireDate);
@@ -223,6 +240,13 @@ public class AppointmentServiceImpl implements AppointmentService{
         if(appointment.getAppointmentReceiverUserId()!= userId){
             throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_NOT_RECEIVER,
                     "밥약 수신자가 아니므로 거절을 할 수 없습니다.");
+        }
+    }
+
+    private void validateRequester(Long userId, Appointment appointment) {
+        if(appointment.getAppointmentRequesterUserId()!= userId){
+            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_NOT_REQUESTER,
+                    "밥약 요청자가 아니므로 취소를 할 수 없습니다.");
         }
     }
 

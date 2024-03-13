@@ -105,4 +105,13 @@ public class AppointmentApi {
         log.info(appointmentId.toString());
         return ApiResponse.ok(appointmentService.getAppointmentDetail(userId,appointmentId));
     }
+
+    /**
+     * 밥약 요청 취소 API
+     */
+    @PostMapping("/api/appointment/cancel/{appointmentId}")
+    public ApiResponse<AppointmentCancelResponse> cancelAppointment(@RequestAttribute(value="userId", required = false) Long userId,
+                                                                   @PathVariable("appointmentId") Long appointmentId){
+        return ApiResponse.ok(appointmentService.cancelAppointmentRequested(userId,appointmentId));
+    }
 }
