@@ -16,7 +16,9 @@ public enum AppointmentErrorCode implements CustomErrorCode {
     APPOINTMENT_REFUSE_NOT_FOUND(HttpStatus.NOT_FOUND, "거절된 밥약이 존재하지 않습니다."),
     APPOINTMENT_POSSIBLE_DATETIME_NOT_FOUND(HttpStatus.NOT_FOUND, "밥약 가능 시간이 존재하지 않습니다."),
     APPOINTMENT_IS_NOT_WAITING(HttpStatus.BAD_REQUEST, "대기 중인 밥약 요청이 아닙니다."),
-    APPOINTMENT_NOT_RECEIVER(HttpStatus.BAD_REQUEST,"밥약 요청을 거절할 권한이 없습니다.");
+    APPOINTMENT_NOT_RECEIVER(HttpStatus.BAD_REQUEST,"밥약 요청을 거절할 권한이 없습니다."),
+    PROFILE_ACTIVE_FLAG_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "프로필 활성화 상태 변경에 실패하였습니다."),
+    ;
     private final HttpStatus httpStatus;
     private final String message;
 }
