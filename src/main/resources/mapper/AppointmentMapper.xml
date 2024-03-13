@@ -262,4 +262,23 @@
         WHERE appointment_id = #{appointmentId}
     </select>
 
+    <select id="findAcceptAppointment" resultType="com.swyp3.babpool.domain.appointment.application.response.AppointmentAcceptResponse">
+        SELECT ua.user_nick_name AS requesterNickName,
+               p.profile_image_url AS requesterProfileImageUrl,
+               ua.user_grade AS requesterGrade,
+               p.profile_intro AS requesterIntro,
+               pd.possible_date AS date,
+               pt.possible_time_start AS time,
+               p.profile_contact_phone AS requesterContactPhone,
+               p.profile_contact_chat AS requesterContactChat,
+               ar.appointment_question AS question
+        FROM t_appointment a
+                 INNER JOIN t_appointment_request ar ON a.appointment_id = ar.appointment_id
+                 INNER JOIN t_possible_time pt ON pt.possible_time_id = a.possible_time_id
+                 INNER JOIN t_possible_date pd ON pd.possible_date_id = pt.possible_date_id
+                 INNER JOIN t_user_account ua ON a.appointment_requester_id = ua.user_id
+                 INNER JOIN t_profile p ON p.user_id = ua.user_id
+        WHERE a.appointment_id = 62
+    </select>
+
 </mapper>
