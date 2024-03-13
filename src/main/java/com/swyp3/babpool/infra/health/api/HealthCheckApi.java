@@ -2,7 +2,6 @@ package com.swyp3.babpool.infra.health.api;
 
 import com.swyp3.babpool.domain.user.domain.UserRole;
 import com.swyp3.babpool.global.common.response.ApiResponse;
-import com.swyp3.babpool.global.common.response.ApiResponseWithCookie;
 import com.swyp3.babpool.global.common.response.CookieProvider;
 import com.swyp3.babpool.global.jwt.application.JwtService;
 import com.swyp3.babpool.global.jwt.application.response.JwtPairDto;
