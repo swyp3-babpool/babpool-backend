@@ -49,4 +49,6 @@ public interface AppointmentRepository {
 
     List<AppointmentRequesterPossibleDateTimeResponse> findRequesterPossibleTime(Appointment appointment);
     String findQuestion(Appointment appointment);
+
+    int updateAppointmentCancel(Long appointmentId);
 }

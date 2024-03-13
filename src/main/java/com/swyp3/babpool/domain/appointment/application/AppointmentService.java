@@ -25,4 +25,6 @@ public interface AppointmentService {
     AppointmentAcceptResponse acceptAppointment(AppointmentAcceptRequest appointmentAcceptRequest, Long userId);
 
     AppointmentDetailResponse getAppointmentDetail(Long userId, Long appointmentId);
+
+    AppointmentCancelResponse cancelAppointmentRequested(Long userId, Long appointmentId);
 }
