@@ -8,13 +8,11 @@ import java.util.List;
 import java.util.Map;
 
 @Getter
-public class AcceptAppointmentDetailResponse extends AppointmentDetailResponse{
-    private String contactChat;
-    private String contactPhone;
+public class AppointmentReceiveWaitingDetailResponse extends AppointmentDetailResponse {
+    private Map<String,Long> lastingTime;
 
-    public AcceptAppointmentDetailResponse(MyPageUserDto userData, List<AppointmentRequesterPossibleDateTimeResponse> requesterPossibleTime, String question) {
+    public AppointmentReceiveWaitingDetailResponse(MyPageUserDto userData, Map<String, Long> lastingTime, List<AppointmentRequesterPossibleDateTimeResponse> requesterPossibleTime, String question) {
         super(userData,requesterPossibleTime,question);
-        this.contactChat= userData.getContactChat();
-        this.contactPhone=userData.getContactPhone();
+        this.lastingTime=lastingTime;
     }
 }

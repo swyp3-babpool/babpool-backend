@@ -8,11 +8,15 @@ import java.util.List;
 import java.util.Map;
 
 @Getter
-public class ReceiveWaitingAppointmentDetailResponse extends AppointmentDetailResponse {
+public class AppointmentSendWaitingDetailResponse extends AppointmentDetailResponse {
     private Map<String,Long> lastingTime;
+    private String contactChat;
+    private String contactPhone;
 
-    public ReceiveWaitingAppointmentDetailResponse(MyPageUserDto userData, Map<String, Long> lastingTime, List<AppointmentRequesterPossibleDateTimeResponse> requesterPossibleTime, String question) {
+    public AppointmentSendWaitingDetailResponse(MyPageUserDto userData, Map<String, Long> lastingTime, List<AppointmentRequesterPossibleDateTimeResponse> requesterPossibleTime, String question) {
         super(userData,requesterPossibleTime,question);
         this.lastingTime=lastingTime;
+        this.contactChat=userData.getContactChat();
+        this.contactPhone=userData.getContactPhone();
     }
 }

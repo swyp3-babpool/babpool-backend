@@ -4,10 +4,10 @@ import com.swyp3.babpool.domain.appointment.api.request.AppointmentAcceptRequest
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentRejectRequest;
 import com.swyp3.babpool.domain.appointment.application.response.*;
-import com.swyp3.babpool.domain.appointment.application.response.appointmentdetail.AcceptAppointmentDetailResponse;
+import com.swyp3.babpool.domain.appointment.application.response.appointmentdetail.AppointmentAcceptDetailResponse;
 import com.swyp3.babpool.domain.appointment.application.response.appointmentdetail.AppointmentDetailResponse;
-import com.swyp3.babpool.domain.appointment.application.response.appointmentdetail.ReceiveWaitingAppointmentDetailResponse;
-import com.swyp3.babpool.domain.appointment.application.response.appointmentdetail.SendWaitingAppointmentDetailResponse;
+import com.swyp3.babpool.domain.appointment.application.response.appointmentdetail.AppointmentReceiveWaitingDetailResponse;
+import com.swyp3.babpool.domain.appointment.application.response.appointmentdetail.AppointmentSendWaitingDetailResponse;
 import com.swyp3.babpool.domain.appointment.dao.AppointmentRepository;
 import com.swyp3.babpool.domain.appointment.domain.Appointment;
 import com.swyp3.babpool.domain.appointment.domain.AppointmentAcceptMessage;
@@ -197,15 +197,15 @@ public class AppointmentServiceImpl implements AppointmentService{
 
         //대기 중인 보낸 밥약 - 만료 시간, 연락처
         if(appointment.getAppointmentStatus().equals("WAITING") && appointment.getAppointmentRequesterUserId()==userId){
-            return new SendWaitingAppointmentDetailResponse(userData,lastingTime,requesterPossibleTime,question);
+            return new AppointmentSendWaitingDetailResponse(userData,lastingTime,requesterPossibleTime,question);
         }
         //대기 중인 받은 밥약 - 만료 시간
         if(appointment.getAppointmentStatus().equals("WAITING") && appointment.getAppointmentReceiverUserId()==userId){
-            return new ReceiveWaitingAppointmentDetailResponse(userData,lastingTime,requesterPossibleTime,question);
+            return new AppointmentReceiveWaitingDetailResponse(userData,lastingTime,requesterPossibleTime,question);
         }
         //수락된 밥약 - 연락처
         if(appointment.getAppointmentStatus().equals("ACCEPT")){
-            return new AcceptAppointmentDetailResponse(userData,requesterPossibleTime,question);
+            return new AppointmentAcceptDetailResponse(userData,requesterPossibleTime,question);
         }
         throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_DETAIL_ERROR,"대기중 혹은 수락된 밥약이 아닙니다.");
     }

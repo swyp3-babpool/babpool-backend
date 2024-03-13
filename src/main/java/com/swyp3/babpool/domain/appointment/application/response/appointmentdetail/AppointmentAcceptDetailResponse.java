@@ -5,18 +5,15 @@ import com.swyp3.babpool.domain.user.application.response.MyPageUserDto;
 import lombok.Getter;
 
 import java.util.List;
-import java.util.Map;
 
 @Getter
-public class SendWaitingAppointmentDetailResponse extends AppointmentDetailResponse {
-    private Map<String,Long> lastingTime;
+public class AppointmentAcceptDetailResponse extends AppointmentDetailResponse{
     private String contactChat;
     private String contactPhone;
 
-    public SendWaitingAppointmentDetailResponse(MyPageUserDto userData, Map<String, Long> lastingTime, List<AppointmentRequesterPossibleDateTimeResponse> requesterPossibleTime, String question) {
+    public AppointmentAcceptDetailResponse(MyPageUserDto userData, List<AppointmentRequesterPossibleDateTimeResponse> requesterPossibleTime, String question) {
         super(userData,requesterPossibleTime,question);
-        this.lastingTime=lastingTime;
-        this.contactChat=userData.getContactChat();
+        this.contactChat= userData.getContactChat();
         this.contactPhone=userData.getContactPhone();
     }
 }
