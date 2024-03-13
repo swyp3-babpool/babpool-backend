@@ -63,8 +63,8 @@ class AppointmentApiTest {
                 .content(dto))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.statusCode").value(400))
-                .andExpect(jsonPath("$.statusDescription").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
                 .andExpect(jsonPath("$.message").value("Validation error: questionContents: 질문 내용이 비어있습니다."))
                 .andDo(print());
     }
