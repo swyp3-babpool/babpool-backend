@@ -33,14 +33,16 @@
         values ( #{userId},#{keywordId})
     </insert>
 
-    <select id="findMyProfile" resultType="com.swyp3.babpool.domain.user.application.response.MyPageUserDaoDto">
+    <select id="findMyProfile" resultType="com.swyp3.babpool.domain.user.application.response.MyPageUserDto">
         SELECT
             p.profile_id AS profileId,
             u.user_nick_name AS name,
             p.profile_image_url AS profileImg,
             u.user_grade AS grade,
             p.profile_intro AS intro,
-            GROUP_CONCAT(k.keyword_name) AS keywords
+            GROUP_CONCAT(k.keyword_name) AS keywords,
+            p.profile_contact_phone AS contactPhone,
+            p.profile_contact_chat AS contactChat
         FROM
             t_user_account u
                 INNER JOIN t_profile p ON u.user_id = p.user_id
