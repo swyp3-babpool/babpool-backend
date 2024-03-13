@@ -156,20 +156,20 @@ public class AppointmentServiceImpl implements AppointmentService{
         validateAppointmentStatus(appointment);
 
         appointmentRepository.updateAppointment(appointmentAcceptRequest);
+        AppointmentAcceptResponse response = appointmentRepository.findAcceptAppointment(appointment.getAppointmentId());
 
-        //상대에게 수락 알림 전송.
+      //상대에게 수락 알림 전송.
         Long requesterUserId = appointment.getAppointmentRequesterUserId();
-        log.info(requesterUserId.toString());
         Long requesterProfileId = profileRepository.findByUserId(requesterUserId).getProfileId();
+
         simpMessagingTemplate.convertAndSend("/topic/appointment/"+ requesterProfileId,
                 AppointmentAcceptMessage.builder()
                         .requestProfileId(requesterProfileId)
                         .acceptMessage(HttpStatus.OK.name())
                         .build());
-
+        
         updateProfileActiveFlagIfPossibleDateNoExistAnymore(appointment);
-
-        return new AppointmentAcceptResponse("밥약 수락이 처리되었습니다.");
+        return response;
     }
 
     private void updateProfileActiveFlagIfPossibleDateNoExistAnymore(Appointment appointment) {
