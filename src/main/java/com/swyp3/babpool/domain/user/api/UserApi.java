@@ -48,7 +48,7 @@ public class UserApi {
                     .body(ApiResponse.ok(loginResponseData.getLoginResponseDTO()));
         }
         return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
+                .status(HttpStatus.OK)
                 .body(ApiResponse.of(HttpStatus.UNAUTHORIZED, loginResponseData.getLoginResponseDTO()));
     }
 
