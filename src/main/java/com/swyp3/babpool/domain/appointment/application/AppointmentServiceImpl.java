@@ -4,6 +4,10 @@ import com.swyp3.babpool.domain.appointment.api.request.AppointmentAcceptRequest
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentRejectRequest;
 import com.swyp3.babpool.domain.appointment.application.response.*;
+import com.swyp3.babpool.domain.appointment.application.response.appointmentdetail.AppointmentAcceptDetailResponse;
+import com.swyp3.babpool.domain.appointment.application.response.appointmentdetail.AppointmentDetailResponse;
+import com.swyp3.babpool.domain.appointment.application.response.appointmentdetail.AppointmentReceiveWaitingDetailResponse;
+import com.swyp3.babpool.domain.appointment.application.response.appointmentdetail.AppointmentSendWaitingDetailResponse;
 import com.swyp3.babpool.domain.appointment.dao.AppointmentRepository;
 import com.swyp3.babpool.domain.appointment.domain.Appointment;
 import com.swyp3.babpool.domain.appointment.domain.AppointmentAcceptMessage;
@@ -13,8 +17,7 @@ import com.swyp3.babpool.domain.appointment.exception.AppointmentException;
 import com.swyp3.babpool.domain.appointment.exception.errorcode.AppointmentErrorCode;
 import com.swyp3.babpool.domain.profile.dao.ProfileRepository;
 import com.swyp3.babpool.domain.user.application.UserService;
-import com.swyp3.babpool.domain.user.application.response.MyPageResponse;
-import com.swyp3.babpool.domain.user.application.response.MyPageUserDaoDto;
+import com.swyp3.babpool.domain.user.application.response.MyPageUserDto;
 import com.swyp3.babpool.domain.user.dao.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -153,27 +156,9 @@ public class AppointmentServiceImpl implements AppointmentService{
         validateAppointmentStatus(appointment);
 
         appointmentRepository.updateAppointment(appointmentAcceptRequest);
-        /*
-        possible_time_id 삭제 관련 논의중
-
-        //t_possible_time에서 possible_time id로부터 possible_date_id 조회
-        Long possibleTimeId = appointmentAcceptRequest.getPossibleTimeId();
-        Long possibleDateId = appointmentRepository.findPossibleDateIdByPossibleTimeId(possibleTimeId);
-
-        //t_appointment_request_time에서 possible_time id에 해당하는 데이터 삭제(외래키 참조 문제)
-
-
-        //t_possible_time에서 possible_time id에 해당하는 데이터 삭제
-        appointmentRepository.deletePossibleTimeById(possibleTimeId);
-
-        //t_possible_time에서 조회한 possible_date_id 외래키를 가지는 데이터가 더 있는지 확인
-        //없으면 t_possible_date에서 해당 possible_date_id에 해당하는 데이터 삭제
-        appointmentRepository.deletePossibleDateIfNoMorePossibleTime(possibleDateId);
-
-         */
         AppointmentAcceptResponse response = appointmentRepository.findAcceptAppointment(appointment.getAppointmentId());
 
-        //상대에게 수락 알림 전송.
+      //상대에게 수락 알림 전송.
         Long requesterUserId = appointment.getAppointmentRequesterUserId();
         Long requesterProfileId = profileRepository.findByUserId(requesterUserId).getProfileId();
 
@@ -182,27 +167,64 @@ public class AppointmentServiceImpl implements AppointmentService{
                         .requestProfileId(requesterProfileId)
                         .acceptMessage(HttpStatus.OK.name())
                         .build());
+        
+        updateProfileActiveFlagIfPossibleDateNoExistAnymore(appointment);
         return response;
+    }
+
+    private void updateProfileActiveFlagIfPossibleDateNoExistAnymore(Appointment appointment) {
+        // 해당 사용자의 활성화된 시간을 확인 후, 활성화된 시간이 없으면
+        if(appointmentRepository.findAppointmentPossibleDateTimeByProfileId(appointment.getAppointmentRequesterUserId()).isEmpty()){
+            // 해당 사용자의 profile_active_flag 값을 0으로 변경
+            int updatedRows = profileRepository.updateProfileActiveFlag(appointment.getAppointmentRequesterUserId(), false);
+            if(updatedRows == 0){
+                throw new AppointmentException(AppointmentErrorCode.PROFILE_ACTIVE_FLAG_UPDATE_FAILED, "프로필 활성화 상태 변경에 실패했습니다.");
+            }
+        }
     }
 
     @Override
     public AppointmentDetailResponse getAppointmentDetail(Long userId, Long appointmentId) {
         Appointment appointment = appointmentRepository.findByAppointmentId(appointmentId);
-        log.info("test 1");
-        MyPageUserDaoDto requesterData = userRepository.findMyProfile(appointment.getAppointmentRequesterUserId());
-        log.info("test 2");
+        MyPageUserDto userData = userRepository.findMyProfile(appointment.getAppointmentRequesterUserId());
 
         //만료까지 남은 시간 계산
         Map<String, Long> lastingTime = getLastingTime(appointment);
-        log.info("test 3");
         //가능한 시간대 정보
         List<AppointmentRequesterPossibleDateTimeResponse> requesterPossibleTime = appointmentRepository.findRequesterPossibleTime(appointment);
-        log.info("test 4");
         //질문 정보
         String question = appointmentRepository.findQuestion(appointment);
-        log.info("test 5");
 
-        return new AppointmentDetailResponse(requesterData,lastingTime,requesterPossibleTime,question);
+        //대기 중인 보낸 밥약 - 만료 시간, 연락처
+        if(appointment.getAppointmentStatus().equals("WAITING") && appointment.getAppointmentRequesterUserId()==userId){
+            return new AppointmentSendWaitingDetailResponse(userData,lastingTime,requesterPossibleTime,question);
+        }
+        //대기 중인 받은 밥약 - 만료 시간
+        if(appointment.getAppointmentStatus().equals("WAITING") && appointment.getAppointmentReceiverUserId()==userId){
+            return new AppointmentReceiveWaitingDetailResponse(userData,lastingTime,requesterPossibleTime,question);
+        }
+        //수락된 밥약 - 연락처
+        if(appointment.getAppointmentStatus().equals("ACCEPT")){
+            return new AppointmentAcceptDetailResponse(userData,requesterPossibleTime,question);
+        }
+        throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_DETAIL_ERROR,"대기중 혹은 수락된 밥약이 아닙니다.");
+    }
+
+    @Override
+    public AppointmentCancelResponse cancelAppointmentRequested(Long userId, Long appointmentId) {
+        Appointment appointment = appointmentRepository.findByAppointmentId(appointmentId);
+
+        validateRequester(userId, appointment);
+        validateAppointmentStatus(appointment);
+
+        int updatedRows = appointmentRepository.updateAppointmentCancel(appointmentId);
+        if(updatedRows != 1){
+            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_CANCEL_FAILED, "밥약 요청 취소에 실패하였습니다.");
+        }
+        return AppointmentCancelResponse.builder()
+                .appointmentId(appointmentId)
+                .appointmentCancelResult("밥약 요청이 취소되었습니다.")
+                .build();
     }
 
     private Map<String, Long> getLastingTime(Appointment appointment) {
@@ -228,6 +250,13 @@ public class AppointmentServiceImpl implements AppointmentService{
         if(appointment.getAppointmentReceiverUserId()!= userId){
             throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_NOT_RECEIVER,
                     "밥약 수신자가 아니므로 거절을 할 수 없습니다.");
+        }
+    }
+
+    private void validateRequester(Long userId, Appointment appointment) {
+        if(appointment.getAppointmentRequesterUserId()!= userId){
+            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_NOT_REQUESTER,
+                    "밥약 요청자가 아니므로 취소를 할 수 없습니다.");
         }
     }
 

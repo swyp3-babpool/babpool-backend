@@ -162,6 +162,26 @@
         ORDER BY pdate.possible_date ASC, ptime.possible_time_start ASC;
     </select>
 
+    <select id="findRequesterPossibleTime" parameterType="com.swyp3.babpool.domain.appointment.domain.Appointment"
+            resultType="com.swyp3.babpool.domain.appointment.application.response.AppointmentRequesterPossibleDateTimeResponse">
+        SELECT pd.possible_date_id AS possibleDateId,
+               pt.possible_time_id AS possibleTimeId,
+               pd.possible_date AS possibleDate,
+               pt.possible_time_start AS possibleTimeStart
+        FROM t_appointment a
+                 INNER JOIN t_appointment_request ar ON a.appointment_id = ar.appointment_id
+                 INNER JOIN t_appointment_request_time art ON ar.appointment_request_id = art.appointment_request_id
+                 INNER JOIN t_possible_time pt ON pt.possible_time_id = art.possible_time_id
+                 INNER JOIN t_possible_date pd ON pd.possible_date_id = pt.possible_date_id
+        WHERE a.appointment_id = #{appointmentId}
+    </select>
+
+    <select id="findQuestion">
+        SELECT appointment_question
+        FROM t_appointment_request
+        WHERE appointment_id = #{appointmentId}
+    </select>
+
     <!-- ######################################## INSERT ######################################## -->
 
     <insert id="saveAppointment" parameterType="com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest"
@@ -211,6 +231,13 @@
         </foreach>
     </insert>
 
+    <insert id="saveRejectData" parameterType="com.swyp3.babpool.domain.appointment.api.request.AppointmentRejectRequest">
+        INSERT INTO t_reject(appointment_id,reject_cause_content)
+        VALUES ( #{appointmentId}, #{rejectMessage} )
+    </insert>
+
+    <!-- ######################################## UPDATE ######################################## -->
+
     <update id="updateAppointmentReject" parameterType="com.swyp3.babpool.domain.appointment.api.request.AppointmentRejectRequest">
         UPDATE t_appointment
         SET appointment_status='REJECT',
@@ -229,11 +256,6 @@
         ]]>
     </update>
 
-    <insert id="saveRejectData" parameterType="com.swyp3.babpool.domain.appointment.api.request.AppointmentRejectRequest">
-        INSERT INTO t_reject(appointment_id,reject_cause_content)
-        VALUES ( #{appointmentId}, #{rejectMessage} )
-    </insert>
-
     <update id="updateAppointment" parameterType="com.swyp3.babpool.domain.appointment.api.request.AppointmentAcceptRequest">
         UPDATE t_appointment
         SET appointment_status = 'ACCEPT',
@@ -241,26 +263,12 @@
         WHERE appointment_id=#{appointmentId}
     </update>
 
-
-    <select id="findRequesterPossibleTime" parameterType="com.swyp3.babpool.domain.appointment.domain.Appointment"
-        resultType="com.swyp3.babpool.domain.appointment.application.response.AppointmentRequesterPossibleDateTimeResponse">
-        SELECT pd.possible_date_id AS possibleDateId,
-               pt.possible_time_id AS possibleTimeId,
-               pd.possible_date AS possibleDate,
-               pt.possible_time_start AS possibleTimeStart
-        FROM t_appointment a
-                INNER JOIN t_appointment_request ar ON a.appointment_id = ar.appointment_id
-                INNER JOIN t_appointment_request_time art ON ar.appointment_request_id = art.appointment_request_id
-                INNER JOIN t_possible_time pt ON pt.possible_time_id = art.possible_time_id
-                INNER JOIN t_possible_date pd ON pd.possible_date_id = pt.possible_date_id
-        WHERE a.appointment_id = #{appointmentId}
-    </select>
-
-    <select id="findQuestion">
-        SELECT appointment_question
-        FROM t_appointment_request
-        WHERE appointment_id = #{appointmentId}
-    </select>
+    <update id="updateAppointmentCancel">
+        UPDATE t_appointment
+        SET appointment_status='CANCEL',
+            appointment_modify_date=CURRENT_TIMESTAMP()
+        WHERE appointment_id=#{appointmentId}
+    </update>
 
     <select id="findAcceptAppointment" resultType="com.swyp3.babpool.domain.appointment.application.response.AppointmentAcceptResponse">
         SELECT ua.user_nick_name AS requesterNickName,
