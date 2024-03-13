@@ -153,24 +153,6 @@ public class AppointmentServiceImpl implements AppointmentService{
         validateAppointmentStatus(appointment);
 
         appointmentRepository.updateAppointment(appointmentAcceptRequest);
-        /*
-        possible_time_id 삭제 관련 논의중
-
-        //t_possible_time에서 possible_time id로부터 possible_date_id 조회
-        Long possibleTimeId = appointmentAcceptRequest.getPossibleTimeId();
-        Long possibleDateId = appointmentRepository.findPossibleDateIdByPossibleTimeId(possibleTimeId);
-
-        //t_appointment_request_time에서 possible_time id에 해당하는 데이터 삭제(외래키 참조 문제)
-
-
-        //t_possible_time에서 possible_time id에 해당하는 데이터 삭제
-        appointmentRepository.deletePossibleTimeById(possibleTimeId);
-
-        //t_possible_time에서 조회한 possible_date_id 외래키를 가지는 데이터가 더 있는지 확인
-        //없으면 t_possible_date에서 해당 possible_date_id에 해당하는 데이터 삭제
-        appointmentRepository.deletePossibleDateIfNoMorePossibleTime(possibleDateId);
-
-         */
 
         //상대에게 수락 알림 전송.
         Long requesterUserId = appointment.getAppointmentRequesterUserId();
@@ -181,7 +163,21 @@ public class AppointmentServiceImpl implements AppointmentService{
                         .requestProfileId(requesterProfileId)
                         .acceptMessage(HttpStatus.OK.name())
                         .build());
+
+        updateProfileActiveFlagIfPossibleDateNoExistAnymore(appointment);
+
         return new AppointmentAcceptResponse("밥약 수락이 처리되었습니다.");
+    }
+
+    private void updateProfileActiveFlagIfPossibleDateNoExistAnymore(Appointment appointment) {
+        // 해당 사용자의 활성화된 시간을 확인 후, 활성화된 시간이 없으면
+        if(appointmentRepository.findAppointmentPossibleDateTimeByProfileId(appointment.getAppointmentRequesterUserId()).isEmpty()){
+            // 해당 사용자의 profile_active_flag 값을 0으로 변경
+            int updatedRows = profileRepository.updateProfileActiveFlag(appointment.getAppointmentRequesterUserId(), false);
+            if(updatedRows == 0){
+                throw new AppointmentException(AppointmentErrorCode.PROFILE_ACTIVE_FLAG_UPDATE_FAILED, "프로필 활성화 상태 변경에 실패했습니다.");
+            }
+        }
     }
 
     @Override
