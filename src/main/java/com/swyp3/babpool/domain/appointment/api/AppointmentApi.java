@@ -7,13 +7,19 @@ import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest
 import com.swyp3.babpool.domain.appointment.application.response.*;
 import com.swyp3.babpool.global.common.response.ApiResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @Slf4j
+@Validated
 @RequiredArgsConstructor
 @RestController
 public class AppointmentApi {
@@ -25,7 +31,7 @@ public class AppointmentApi {
      */
     @PostMapping("/api/appointment")
     public ApiResponse<AppointmentCreateResponse> makeAppointment(@RequestAttribute(value = "userId", required = false) Long userId,
-                                                                  @RequestBody AppointmentCreateRequest appointmentCreateRequest) {
+                                                                  @RequestBody @Valid AppointmentCreateRequest appointmentCreateRequest) {
         appointmentCreateRequest.setRequesterUserId(userId);
         return ApiResponse.ok(appointmentService.makeAppointment(appointmentCreateRequest));
     }
@@ -67,7 +73,7 @@ public class AppointmentApi {
      * @param profileId
      */
     @GetMapping("/api/appointment/{profileId}/datetime")
-    public ApiResponse<List<AppointmentPossibleDateTimeResponse>> getAppointmentPossibleDateTime(@PathVariable Long profileId) {
+    public ApiResponse<List<AppointmentPossibleDateTimeResponse>> getAppointmentPossibleDateTime(@PathVariable @Positive(message = "Must be positive") Long profileId) {
         return ApiResponse.ok(appointmentService.getAppointmentPossibleDateTime(profileId));
     }
 

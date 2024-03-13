@@ -128,7 +128,7 @@ public class ProfileServiceImpl implements ProfileService{
     }
 
     private boolean verifyNoImageFile(MultipartFile multipartFile) {
-        if(multipartFile.isEmpty()){
+        if(multipartFile == null || multipartFile.isEmpty()){
             log.info("ProfileService.checkNoImageFile, 첨부된 이미지 파일이 없습니다.");
             return true;
         }
