@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -63,7 +64,7 @@ public class AwsS3Provider {
     }
 
     private String generateFileName(String originalFileName) {
-        return S3_BUCKET_DIRECTORY_NAME + "/" + Generators.timeBasedEpochGenerator().generate() + "." + originalFileName;
+        return S3_BUCKET_DIRECTORY_NAME + "/" + Generators.timeBasedEpochGenerator().generate() + "." + StringUtils.getFilenameExtension(originalFileName);
     }
 
     private void validateImageFileType(String targetContentType) {
