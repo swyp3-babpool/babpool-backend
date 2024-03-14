@@ -235,4 +235,10 @@
         WHERE profile_id=#{profileId}
     </select>
 
+    <update id="updateProfileActiveFlag">
+        UPDATE t_profile
+        SET profile_active_flag = #{activeFlag}
+        WHERE user_id = #{userId}
+    </update>
+
 </mapper>

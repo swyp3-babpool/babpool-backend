@@ -67,5 +67,5 @@ public interface ProfileRepository {
     ProfileDefault findProfileDefault(Long profileId);
     Boolean findProfileIsRegistered(Long profileId);
 
-    int updateProfileActiveFlag(Long appointmentRequesterUserId, Boolean activeFlag);
+    int updateProfileActiveFlag(@Param("userId") Long userId, @Param("activeFlag") Boolean activeFlag);
 }
