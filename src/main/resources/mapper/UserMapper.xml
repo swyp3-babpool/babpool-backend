@@ -24,7 +24,8 @@
     <update id="updateSignUpInfo">
         update t_user_account
         set user_grade = #{userGrade},
-            user_modify_date = CURRENT_TIMESTAMP()
+            user_modify_date = CURRENT_TIMESTAMP(),
+            user_status = "ACTIVE"
         where user_id = #{userId}
     </update>
 
