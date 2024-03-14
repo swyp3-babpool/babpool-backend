@@ -147,7 +147,7 @@ public class ProfileServiceImpl implements ProfileService{
 
     @Override
     public ProfileUpdateResponse updateProfileInfo(Long userId, ProfileUpdateRequest profileUpdateRequest) {
-        validateRequestPossibleDateTime(profileUpdateRequest.getPossibleDate().get("possibleDate"));
+        validateRequestPossibleDateTime(profileUpdateRequest.getPossibleDate());
         Long profileId = profileRepository.findByUserId(userId).getProfileId();
         profileRepository.updateUserAccount(userId,profileUpdateRequest);
         profileRepository.updateProfile(profileId,profileUpdateRequest);
@@ -157,16 +157,17 @@ public class ProfileServiceImpl implements ProfileService{
         return new ProfileUpdateResponse(profileId);
     }
 
-    private void validateRequestPossibleDateTime(List<Integer> possibleTimeList) {
-        if(possibleTimeList.size() < 1){
+    private void validateRequestPossibleDateTime(Map<String, List<Integer>> possibleDateMap) {
+        if(possibleDateMap.isEmpty()){
             throw new ProfileException(ProfileErrorCode.PROFILE_POSSIBLE_DATE_ERROR,"가능한 날짜와 시간을 최소 1개 이상 선택해주세요.");
         }
         // time : 8 ~ 22 only
-        possibleTimeList.stream()
-                .filter(time -> time < 8 || time > 22)
-                .findAny()
-                .ifPresent(time -> {
-                    throw new ProfileException(ProfileErrorCode.PROFILE_POSSIBLE_DATE_ERROR,"가능한 시간은 8시부터 22시까지만 선택 가능합니다.");
+        possibleDateMap.values().stream()
+                .flatMap(List::stream)
+                .forEach(time -> {
+                    if(time < 8 || time > 22){
+                        throw new ProfileException(ProfileErrorCode.PROFILE_POSSIBLE_DATE_ERROR,"가능한 시간은 8시부터 22시까지만 선택 가능합니다.");
+                    }
                 });
     }
 

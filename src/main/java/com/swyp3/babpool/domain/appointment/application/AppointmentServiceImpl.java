@@ -4,6 +4,10 @@ import com.swyp3.babpool.domain.appointment.api.request.AppointmentAcceptRequest
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentRejectRequest;
 import com.swyp3.babpool.domain.appointment.application.response.*;
+import com.swyp3.babpool.domain.appointment.application.response.appointmentdetail.AppointmentAcceptDetailResponse;
+import com.swyp3.babpool.domain.appointment.application.response.appointmentdetail.AppointmentDetailResponse;
+import com.swyp3.babpool.domain.appointment.application.response.appointmentdetail.AppointmentReceiveWaitingDetailResponse;
+import com.swyp3.babpool.domain.appointment.application.response.appointmentdetail.AppointmentSendWaitingDetailResponse;
 import com.swyp3.babpool.domain.appointment.dao.AppointmentRepository;
 import com.swyp3.babpool.domain.appointment.domain.Appointment;
 import com.swyp3.babpool.domain.appointment.domain.AppointmentAcceptMessage;
@@ -13,8 +17,7 @@ import com.swyp3.babpool.domain.appointment.exception.AppointmentException;
 import com.swyp3.babpool.domain.appointment.exception.errorcode.AppointmentErrorCode;
 import com.swyp3.babpool.domain.profile.dao.ProfileRepository;
 import com.swyp3.babpool.domain.user.application.UserService;
-import com.swyp3.babpool.domain.user.application.response.MyPageResponse;
-import com.swyp3.babpool.domain.user.application.response.MyPageUserDaoDto;
+import com.swyp3.babpool.domain.user.application.response.MyPageUserDto;
 import com.swyp3.babpool.domain.user.dao.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -153,20 +156,20 @@ public class AppointmentServiceImpl implements AppointmentService{
         validateAppointmentStatus(appointment);
 
         appointmentRepository.updateAppointment(appointmentAcceptRequest);
+        AppointmentAcceptResponse response = appointmentRepository.findAcceptAppointment(appointment.getAppointmentId());
 
-        //상대에게 수락 알림 전송.
+      //상대에게 수락 알림 전송.
         Long requesterUserId = appointment.getAppointmentRequesterUserId();
-        log.info(requesterUserId.toString());
         Long requesterProfileId = profileRepository.findByUserId(requesterUserId).getProfileId();
+
         simpMessagingTemplate.convertAndSend("/topic/appointment/"+ requesterProfileId,
                 AppointmentAcceptMessage.builder()
                         .requestProfileId(requesterProfileId)
                         .acceptMessage(HttpStatus.OK.name())
                         .build());
-
+        
         updateProfileActiveFlagIfPossibleDateNoExistAnymore(appointment);
-
-        return new AppointmentAcceptResponse("밥약 수락이 처리되었습니다.");
+        return response;
     }
 
     private void updateProfileActiveFlagIfPossibleDateNoExistAnymore(Appointment appointment) {
@@ -183,21 +186,28 @@ public class AppointmentServiceImpl implements AppointmentService{
     @Override
     public AppointmentDetailResponse getAppointmentDetail(Long userId, Long appointmentId) {
         Appointment appointment = appointmentRepository.findByAppointmentId(appointmentId);
-        log.info("test 1");
-        MyPageUserDaoDto requesterData = userRepository.findMyProfile(appointment.getAppointmentRequesterUserId());
-        log.info("test 2");
+        MyPageUserDto userData = userRepository.findMyProfile(appointment.getAppointmentRequesterUserId());
 
         //만료까지 남은 시간 계산
         Map<String, Long> lastingTime = getLastingTime(appointment);
-        log.info("test 3");
         //가능한 시간대 정보
         List<AppointmentRequesterPossibleDateTimeResponse> requesterPossibleTime = appointmentRepository.findRequesterPossibleTime(appointment);
-        log.info("test 4");
         //질문 정보
         String question = appointmentRepository.findQuestion(appointment);
-        log.info("test 5");
 
-        return new AppointmentDetailResponse(requesterData,lastingTime,requesterPossibleTime,question);
+        //대기 중인 보낸 밥약 - 만료 시간, 연락처
+        if(appointment.getAppointmentStatus().equals("WAITING") && appointment.getAppointmentRequesterUserId()==userId){
+            return new AppointmentSendWaitingDetailResponse(userData,lastingTime,requesterPossibleTime,question);
+        }
+        //대기 중인 받은 밥약 - 만료 시간
+        if(appointment.getAppointmentStatus().equals("WAITING") && appointment.getAppointmentReceiverUserId()==userId){
+            return new AppointmentReceiveWaitingDetailResponse(userData,lastingTime,requesterPossibleTime,question);
+        }
+        //수락된 밥약 - 연락처
+        if(appointment.getAppointmentStatus().equals("ACCEPT")){
+            return new AppointmentAcceptDetailResponse(userData,requesterPossibleTime,question);
+        }
+        throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_DETAIL_ERROR,"대기중 혹은 수락된 밥약이 아닙니다.");
     }
 
     @Override

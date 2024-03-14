@@ -6,7 +6,7 @@ import com.swyp3.babpool.domain.user.application.response.UserGradeResponse;
 import com.swyp3.babpool.global.common.response.ApiResponse;
 import com.swyp3.babpool.domain.user.api.requset.LoginRequestDTO;
 import com.swyp3.babpool.domain.user.api.requset.SignUpRequestDTO;
-import com.swyp3.babpool.domain.user.application.response.LoginResponseDTO;
+import com.swyp3.babpool.domain.user.application.response.LoginResponse;
 import com.swyp3.babpool.domain.user.application.response.LoginResponseWithRefreshToken;
 import com.swyp3.babpool.global.common.response.CookieProvider;
 import jakarta.validation.Valid;
@@ -32,26 +32,26 @@ public class UserApi {
     @PostMapping("/sign/in")
     public ResponseEntity<ApiResponse<LoginResponseDTO>> login(@RequestBody @Valid LoginRequestDTO loginRequest){
         LoginResponseWithRefreshToken loginResponseData = userService.login(loginRequest);
-        Boolean isRegistered = loginResponseData.getLoginResponseDTO().getIsRegistered();
+        Boolean isRegistered = loginResponseData.getLoginResponse().getIsRegistered();
 
         //로그인 성공한 경우
         if(isRegistered) {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .header(HttpHeaders.SET_COOKIE, CookieProvider.ofRefreshToken(loginResponseData.getRefreshToken()).toString())
-                    .body(ApiResponse.ok(loginResponseData.getLoginResponseDTO()));
+                    .body(ApiResponse.ok(loginResponseData.getLoginResponse()));
         }
         //추가정보 입력이 필요한 경우
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(ApiResponse.of(HttpStatus.UNAUTHORIZED, loginResponseData.getLoginResponseDTO()));
+                .body(ApiResponse.of(HttpStatus.UNAUTHORIZED, loginResponseData.getLoginResponse()));
     }
 
     /**
      * 회원가입 요청 api
      */
     @PostMapping("/sign/up")
-    public ResponseEntity<ApiResponse<LoginResponseDTO>> signUp(@RequestBody @Valid SignUpRequestDTO signUpRequest){
+    public ResponseEntity<ApiResponse<LoginResponse>> signUp(@RequestBody @Valid SignUpRequestDTO signUpRequest){
     LoginResponseWithRefreshToken loginResponseData = userService.signUp(signUpRequest);
 
     return ResponseEntity
@@ -63,6 +63,7 @@ public class UserApi {
     /**
      * 마이프로필 조회 api
      */
+
     @GetMapping("/mypage")
     public ApiResponse<MyPageResponse> getMyPage(@RequestAttribute(value = "userId") Long userId){
         MyPageResponse myPageResponse = userService.getMyPage(userId);

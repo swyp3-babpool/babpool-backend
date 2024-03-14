@@ -20,13 +20,13 @@ public class MyPageResponse {
     private Map<String,Long> reviewCount;
     private List<AppointmentHistoryDoneResponse> histories;
 
-    public MyPageResponse(MyPageUserDaoDto myPageUserDaoDto, ReviewCountByTypeResponse reviewCount, List<AppointmentHistoryDoneResponse> histories) {
-        this.profileId = myPageUserDaoDto.getProfileId();
-        this.name=myPageUserDaoDto.getName();
-        this.profileImg= myPageUserDaoDto.getProfileImg();
-        this.grade= myPageUserDaoDto.getGrade();
-        this.intro= myPageUserDaoDto.getIntro();
-        this.keywords= myPageUserDaoDto.getKeywords();
+    public MyPageResponse(MyPageUserDto myPageUserDto, ReviewCountByTypeResponse reviewCount, List<AppointmentHistoryDoneResponse> histories) {
+        this.profileId = myPageUserDto.getProfileId();
+        this.name= myPageUserDto.getName();
+        this.profileImg= myPageUserDto.getProfileImg();
+        this.grade= myPageUserDto.getGrade();
+        this.intro= myPageUserDto.getIntro();
+        this.keywords= myPageUserDto.getKeywords();
 
         Map<String, Long> reviewCountMap = new HashMap<>();
         reviewCountMap.put("best",reviewCount.getBestCount());

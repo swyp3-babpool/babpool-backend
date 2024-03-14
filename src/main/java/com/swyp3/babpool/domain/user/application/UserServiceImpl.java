@@ -78,7 +78,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public MyPageResponse getMyPage(Long userId) {
-        MyPageUserDaoDto myPageUserDaoDto= userRepository.findMyProfile(userId);
+        MyPageUserDto myPageUserDto = userRepository.findMyProfile(userId);
         Profile profile = profileService.getByUserId(userId);
         ReviewCountByTypeResponse reviewCountByType = reviewService.getReviewCountByType(profile.getProfileId());
 
@@ -92,7 +92,7 @@ public class UserServiceImpl implements UserService{
             doneAppointmentList = doneAppointmentList.subList(0, 2);
         }
 
-        MyPageResponse myPageResponse = new MyPageResponse(myPageUserDaoDto, reviewCountByType, doneAppointmentList);
+        MyPageResponse myPageResponse = new MyPageResponse(myPageUserDto, reviewCountByType, doneAppointmentList);
         return myPageResponse;
     }
 
@@ -143,8 +143,8 @@ public class UserServiceImpl implements UserService{
 
     private LoginResponseWithRefreshToken getLoginResponseNeedSignUp(User user) {
         String userUuid = String.valueOf(uuidService.getUuidByUserId(user.getUserId()));
-        LoginResponseDTO loginResponseDTO = new LoginResponseDTO(userUuid, null,null,false);
-        return new LoginResponseWithRefreshToken(loginResponseDTO,null);
+        LoginResponse loginResponse = new LoginResponse(userUuid, null,null,false);
+        return new LoginResponseWithRefreshToken(loginResponse,null);
     }
 
     private LoginResponseWithRefreshToken getLoginResponse(User user) {
@@ -154,9 +154,9 @@ public class UserServiceImpl implements UserService{
         String accessToken = jwtPair.getAccessToken();
         String refreshToken = jwtPair.getRefreshToken();
 
-        LoginResponseDTO loginResponseDTO = new LoginResponseDTO(userUuid, user.getUserGrade(), accessToken,true);
+        LoginResponse loginResponse = new LoginResponse(userUuid, user.getUserGrade(), accessToken,true);
 
-        return new LoginResponseWithRefreshToken(loginResponseDTO,refreshToken);
+        return new LoginResponseWithRefreshToken(loginResponse,refreshToken);
     }
 
     @Transactional
