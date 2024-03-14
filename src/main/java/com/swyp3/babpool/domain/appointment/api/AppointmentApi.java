@@ -6,7 +6,6 @@ import com.swyp3.babpool.domain.appointment.application.AppointmentService;
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
 import com.swyp3.babpool.domain.appointment.application.response.*;
 import com.swyp3.babpool.domain.appointment.application.response.appointmentdetail.AppointmentDetailResponse;
-import com.swyp3.babpool.domain.appointment.application.response.appointmentdetail.ReceiveWaitingAppointmentDetailResponse;
 import com.swyp3.babpool.global.common.response.ApiResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -69,7 +68,7 @@ public class AppointmentApi {
 
     /**
      * 특정 프로필 카드가 활성화 해둔, 밥약 가능한 possibleTimeId와 식별값에 따른 날짜 및 시간 조회 API
-     * @param profileId
+     * @param profileId 프로필 식별값
      */
     @GetMapping("/api/appointment/{profileId}/datetime")
     public ApiResponse<List<AppointmentPossibleDateTimeResponse>> getAppointmentPossibleDateTime(@PathVariable @Positive(message = "Must be positive") Long profileId) {
