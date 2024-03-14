@@ -26,19 +26,13 @@ import java.util.Map;
 public class UserApi {
     private final UserService userService;
 
+    /**
+     * 로그인 요청 api
+     */
     @PostMapping("/sign/in")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody @Valid LoginRequestDTO loginRequest){
-//    public ApiResponseWithCookie<LoginResponseDTO> login(@RequestBody @Valid LoginRequestDTO loginRequest){ // 변경 전
+    public ResponseEntity<ApiResponse<LoginResponseDTO>> login(@RequestBody @Valid LoginRequestDTO loginRequest){
         LoginResponseWithRefreshToken loginResponseData = userService.login(loginRequest);
         Boolean isRegistered = loginResponseData.getLoginResponse().getIsRegistered();
-
-        //로그인 성공한 경우 - 변경 전
-//        if(isRegistered)
-//            return ApiResponseWithCookie.ofRefreshToken(HttpStatus.OK,"로그인에 성공하였습니다",
-//                    loginResponseData.getLoginResponseDTO(), loginResponseData.getRefreshToken());
-//        //추가정보 입력이 필요한 경우
-//        return ApiResponseWithCookie.ofRefreshToken(HttpStatus.UNAUTHORIZED,"추가정보 입력이 필요한 사용자입니다",
-//                loginResponseData.getLoginResponseDTO(), loginResponseData.getRefreshToken());
 
         //로그인 성공한 경우
         if(isRegistered) {
@@ -47,19 +41,15 @@ public class UserApi {
                     .header(HttpHeaders.SET_COOKIE, CookieProvider.ofRefreshToken(loginResponseData.getRefreshToken()).toString())
                     .body(ApiResponse.ok(loginResponseData.getLoginResponse()));
         }
+        //추가정보 입력이 필요한 경우
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(ApiResponse.of(HttpStatus.UNAUTHORIZED, loginResponseData.getLoginResponse()));
     }
 
-//    @PostMapping("/sign/up")
-//    public ApiResponseWithCookie<LoginResponseDTO> signUp(@RequestBody @Valid SignUpRequestDTO signUpRequest){
-//        LoginResponseWithRefreshToken loginResponseData = userService.signUp(signUpRequest);
-//
-//        return ApiResponseWithCookie.ofRefreshToken(HttpStatus.OK,"회원가입에 성공하였습니다",
-//                loginResponseData.getLoginResponseDTO(), loginResponseData.getRefreshToken());
-//    }
-
+    /**
+     * 회원가입 요청 api
+     */
     @PostMapping("/sign/up")
     public ResponseEntity<ApiResponse<LoginResponse>> signUp(@RequestBody @Valid SignUpRequestDTO signUpRequest){
     LoginResponseWithRefreshToken loginResponseData = userService.signUp(signUpRequest);
@@ -67,20 +57,31 @@ public class UserApi {
     return ResponseEntity
             .status(HttpStatus.OK)
             .header(HttpHeaders.SET_COOKIE, CookieProvider.ofRefreshToken(loginResponseData.getRefreshToken()).toString())
-            .body(ApiResponse.ok(loginResponseData.getLoginResponse()));
-}
+            .body(ApiResponse.ok(loginResponseData.getLoginResponseDTO()));
+    }
+
+    /**
+     * 마이프로필 조회 api
+     */
+
     @GetMapping("/mypage")
     public ApiResponse<MyPageResponse> getMyPage(@RequestAttribute(value = "userId") Long userId){
         MyPageResponse myPageResponse = userService.getMyPage(userId);
         return ApiResponse.ok(myPageResponse);
     }
 
+    /**
+     * 사용자 구분 데이터 조회 api
+     */
     @GetMapping("/grade")
     public ApiResponse<UserGradeResponse> getUserGrade(@RequestAttribute(value = "userId") Long userId){
         UserGradeResponse userGradeResponse = userService.getUserGrade(userId);
         return ApiResponse.ok(userGradeResponse);
     }
 
+    /**
+     * 회원탈퇴 api
+     */
     @PostMapping("/sign/down")
     public ResponseEntity<ApiResponse> signDown(@RequestAttribute(value = "userId") Long userId,
                                                 @CookieValue(value = "refreshToken", required = false) String refreshTokenFromCookie,

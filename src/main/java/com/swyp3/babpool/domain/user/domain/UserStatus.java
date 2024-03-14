@@ -6,5 +6,6 @@ import lombok.Getter;
 public enum UserStatus {
     EXIT,
     ACTIVE,
+    PREACTIVE,
     BAN
 }

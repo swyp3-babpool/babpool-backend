@@ -23,7 +23,7 @@ public class User {
     @Builder
     public User(String email, String nickName) {
         this.userEmail= email;
-        this.userStatus = UserStatus.ACTIVE;
+        this.userStatus = UserStatus.PREACTIVE;
         this.userRole = UserRole.USER;
         this.userGrade = "none";
         this.userNickName = nickName;

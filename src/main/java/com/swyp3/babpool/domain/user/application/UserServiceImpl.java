@@ -46,15 +46,18 @@ public class UserServiceImpl implements UserService{
     private final AppointmentRepository appointmentRepository;
     private final ExitInfoRepository exitInfoRepository;
 
+    @Override
     public LoginResponseWithRefreshToken login(LoginRequestDTO loginRequest) {
         AuthMemberResponse kakaoPlatformMember = authService.getUserDataByCode(loginRequest.getCode());
         return generateLoginResponse(AuthPlatform.KAKAO,kakaoPlatformMember);
     }
 
+    @Override
     public LoginResponseWithRefreshToken signUp(SignUpRequestDTO signUpRequest) {
-        if(isAlreadyRegisteredUser(signUpRequest.getUserUuid()))
+        if(getUserStatus(signUpRequest.getUserUuid()).equals(UserStatus.ACTIVE))
             throw new SignUpException(SignUpExceptionErrorCode.IS_ALREADY_REGISTERED,
                     "이미 데이터베이스에 등록된 사용자이므로 새로운 회원가입을 진행할 수 없습니다.");
+
         User user = insertUserExtraInfo(signUpRequest);
         return getLoginResponse(user);
     }
@@ -81,7 +84,6 @@ public class UserServiceImpl implements UserService{
 
         List<AppointmentHistoryDoneResponse> doneAppointmentList = appointmentRepository.findDoneAppointmentListByRequesterId(userId);
 
-        log.info("test: " +doneAppointmentList.size());
         // appointmentFixDateTime을 기준으로 내림차순으로 정렬
         Collections.sort(doneAppointmentList, Comparator.comparing(AppointmentHistoryDoneResponse::getAppointmentFixDateTime).reversed());
 
@@ -100,11 +102,11 @@ public class UserServiceImpl implements UserService{
         return new UserGradeResponse(userGrade);
     }
 
-    private boolean isAlreadyRegisteredUser(String userUuid) {
+    private UserStatus getUserStatus(String userUuid) {
         Long userId = uuidService.getUserIdByUuid(userUuid);
         User findUser = userRepository.findById(userId);
 
-        return !findUser.getUserGrade().equals("none");
+        return findUser.getUserStatus();
     }
 
     @Transactional
@@ -125,11 +127,15 @@ public class UserServiceImpl implements UserService{
         //회원테이블에 id Token 정보가 저장되어있는 경우
         if(findUserId!=null) {
             User findUser = userRepository.findById(findUserId);
-            if(isNeedMoreInfo(findUser))
+            if(findUser.getUserStatus().equals(UserStatus.PREACTIVE))
                 return getLoginResponseNeedSignUp(findUser);// (회원가입이 완료된 경우) 사용자 추가정보 입력 필요
+            if(findUser.getUserStatus().equals(UserStatus.EXIT)){
+                //회원탈퇴했던 사용자도 사용자 생성부터 시작
+                User createdUser = createUser(authPlatform, authMemberResponse);
+                return getLoginResponseNeedSignUp(createdUser);
+            }
             return getLoginResponse(findUser);
         }
-
         //회원테이블에 아무 정보도 없는 경우
         User createdUser = createUser(authPlatform, authMemberResponse);
         return getLoginResponseNeedSignUp(createdUser);
@@ -139,13 +145,6 @@ public class UserServiceImpl implements UserService{
         String userUuid = String.valueOf(uuidService.getUuidByUserId(user.getUserId()));
         LoginResponse loginResponse = new LoginResponse(userUuid, null,null,false);
         return new LoginResponseWithRefreshToken(loginResponse,null);
-    }
-
-    private boolean isNeedMoreInfo(User targetUser){
-        if(targetUser.getUserGrade().equals("none")){
-            return true;
-        }
-        return false;
     }
 
     private LoginResponseWithRefreshToken getLoginResponse(User user) {
