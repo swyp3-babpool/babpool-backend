@@ -6,7 +6,6 @@ import com.swyp3.babpool.domain.appointment.application.AppointmentService;
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
 import com.swyp3.babpool.domain.appointment.application.response.*;
 import com.swyp3.babpool.domain.appointment.application.response.appointmentdetail.AppointmentDetailResponse;
-import com.swyp3.babpool.domain.appointment.application.response.appointmentdetail.ReceiveWaitingAppointmentDetailResponse;
 import com.swyp3.babpool.global.common.response.ApiResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;

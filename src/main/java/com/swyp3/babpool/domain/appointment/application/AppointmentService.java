@@ -5,7 +5,6 @@ import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentRejectRequest;
 import com.swyp3.babpool.domain.appointment.application.response.*;
 import com.swyp3.babpool.domain.appointment.application.response.appointmentdetail.AppointmentDetailResponse;
-import com.swyp3.babpool.domain.appointment.application.response.appointmentdetail.ReceiveWaitingAppointmentDetailResponse;
 
 import java.util.List;
 
