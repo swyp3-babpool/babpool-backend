@@ -1,5 +1,7 @@
 package com.swyp3.babpool.infra.auth.service;
 
+import com.swyp3.babpool.domain.user.exception.SignDownException;
+import com.swyp3.babpool.domain.user.exception.errorcode.SignDownExceptionErrorCode;
 import com.swyp3.babpool.infra.auth.AuthPlatform;
 import com.swyp3.babpool.infra.auth.domain.Auth;
 import com.swyp3.babpool.infra.auth.exception.AuthException;
@@ -65,6 +67,13 @@ public class AuthService {
             default:
                 throw new AuthException(AuthExceptionErrorCode.NOT_SUPPORTED_AUTH_PLATFORM,
                         "지원하지 않는 소셜로그인 플랫폼입니다.");
+        }
+    }
+
+    public void updateOAuthPlatformId(Long userId) {
+        int updatedRows = authRepository.updateOauthPlatformId(userId);
+        if (updatedRows == 0) {
+            throw new SignDownException(SignDownExceptionErrorCode.FAILED_TO_UPDATE_AUTH, "회원탈퇴에 실패하였습니다");
         }
     }
 }

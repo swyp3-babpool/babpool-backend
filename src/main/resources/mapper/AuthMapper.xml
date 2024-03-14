@@ -12,4 +12,8 @@
         values ( #{userId},#{oauthPlatformName},#{oauthPlatformId} )
     </insert>
 
+    <update id="updateOauthPlatformId" parameterType="long">
+        update t_oauth set oauth_platform_id = '-1' where user_id = #{userId}
+    </update>
+
 </mapper>
