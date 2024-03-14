@@ -1,4 +1,4 @@
-name: Spring Boot Gradle CICD (version 0.0.14)
+name: Spring Boot Gradle CICD (version 0.0.15)
 
 on:
   push:
