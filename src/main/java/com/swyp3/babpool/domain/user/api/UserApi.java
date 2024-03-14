@@ -30,7 +30,7 @@ public class UserApi {
      * 로그인 요청 api
      */
     @PostMapping("/sign/in")
-    public ResponseEntity<ApiResponse<LoginResponseDTO>> login(@RequestBody @Valid LoginRequestDTO loginRequest){
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody @Valid LoginRequestDTO loginRequest){
         LoginResponseWithRefreshToken loginResponseData = userService.login(loginRequest);
         Boolean isRegistered = loginResponseData.getLoginResponse().getIsRegistered();
 
@@ -57,7 +57,7 @@ public class UserApi {
     return ResponseEntity
             .status(HttpStatus.OK)
             .header(HttpHeaders.SET_COOKIE, CookieProvider.ofRefreshToken(loginResponseData.getRefreshToken()).toString())
-            .body(ApiResponse.ok(loginResponseData.getLoginResponseDTO()));
+            .body(ApiResponse.ok(loginResponseData.getLoginResponse()));
     }
 
     /**

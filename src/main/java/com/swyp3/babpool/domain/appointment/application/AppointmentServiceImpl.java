@@ -173,10 +173,10 @@ public class AppointmentServiceImpl implements AppointmentService{
     }
 
     private void updateProfileActiveFlagIfPossibleDateNoExistAnymore(Appointment appointment) {
-        // 해당 사용자의 활성화된 시간을 확인 후, 활성화된 시간이 없으면
-        if(appointmentRepository.findAppointmentPossibleDateTimeByProfileId(appointment.getAppointmentRequesterUserId()).isEmpty()){
+        // 해당 사용자(수락자)의 활성화된 시간을 확인 후, 활성화된 시간이 없으면
+        if(appointmentRepository.findAppointmentPossibleDateTimeByProfileId(appointment.getAppointmentReceiverUserId()).isEmpty()){
             // 해당 사용자의 profile_active_flag 값을 0으로 변경
-            int updatedRows = profileRepository.updateProfileActiveFlag(appointment.getAppointmentRequesterUserId(), false);
+            int updatedRows = profileRepository.updateProfileActiveFlag(appointment.getAppointmentReceiverUserId(), false);
             if(updatedRows == 0){
                 throw new AppointmentException(AppointmentErrorCode.PROFILE_ACTIVE_FLAG_UPDATE_FAILED, "프로필 활성화 상태 변경에 실패했습니다.");
             }
