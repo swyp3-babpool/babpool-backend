@@ -41,12 +41,18 @@ public interface AppointmentRepository {
     int saveAppointmentRequestTime(AppointmentCreateRequest appointmentCreateRequest);
 
     void updateAppointmentReject(AppointmentRejectRequest appointmentRejectRequest);
+  
     int updateExpiredStatus();
+  
     void saveRejectData(AppointmentRejectRequest appointmentRejectRequest);
-
 
     void updateAppointment(AppointmentAcceptRequest request);
 
     List<AppointmentRequesterPossibleDateTimeResponse> findRequesterPossibleTime(Appointment appointment);
+  
     String findQuestion(Appointment appointment);
+
+    AppointmentAcceptResponse findAcceptAppointment(Long appointmentId);
+
+    int updateAppointmentCancel(Long appointmentId);
 }

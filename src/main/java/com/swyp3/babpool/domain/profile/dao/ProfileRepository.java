@@ -66,4 +66,6 @@ public interface ProfileRepository {
     ProfileKeywordsResponse findKeywords(Long profileId);
     ProfileDefault findProfileDefault(Long profileId);
     Boolean findProfileIsRegistered(Long profileId);
+
+    int updateProfileActiveFlag(Long appointmentRequesterUserId, Boolean activeFlag);
 }
