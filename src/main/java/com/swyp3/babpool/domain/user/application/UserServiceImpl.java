@@ -58,13 +58,7 @@ public class UserServiceImpl implements UserService{
             throw new SignUpException(SignUpExceptionErrorCode.IS_ALREADY_REGISTERED,
                     "이미 데이터베이스에 등록된 사용자이므로 새로운 회원가입을 진행할 수 없습니다.");
 
-        User user;
-        if(getUserStatus(signUpRequest.getUserUuid()).equals(UserStatus.EXIT)){
-            user = updateUserExtraInfo(signUpRequest);
-        }
-        else
-           user = insertUserExtraInfo(signUpRequest);
-
+        User user = insertUserExtraInfo(signUpRequest);
         return getLoginResponse(user);
     }
 
@@ -90,7 +84,6 @@ public class UserServiceImpl implements UserService{
 
         List<AppointmentHistoryDoneResponse> doneAppointmentList = appointmentRepository.findDoneAppointmentListByRequesterId(userId);
 
-        log.info("test: " +doneAppointmentList.size());
         // appointmentFixDateTime을 기준으로 내림차순으로 정렬
         Collections.sort(doneAppointmentList, Comparator.comparing(AppointmentHistoryDoneResponse::getAppointmentFixDateTime).reversed());
 
@@ -128,22 +121,21 @@ public class UserServiceImpl implements UserService{
         return userRepository.findById(userId);
     }
 
-    private User updateUserExtraInfo(SignUpRequestDTO signUpRequest) {
-        //TODO 회원탈퇴 후 다시 회원가입 했을 때 남아있는 데이터는 어떻게 해야할지 의논 필요!
-        return null;
-    }
-
     private LoginResponseWithRefreshToken generateLoginResponse(AuthPlatform authPlatform, AuthMemberResponse authMemberResponse) {
         Long findUserId = userRepository.findUserIdByPlatformAndPlatformId(authPlatform, authMemberResponse.getPlatformId());
 
         //회원테이블에 id Token 정보가 저장되어있는 경우
         if(findUserId!=null) {
             User findUser = userRepository.findById(findUserId);
-            if(!findUser.getUserStatus().equals(UserStatus.ACTIVE))
+            if(findUser.getUserStatus().equals(UserStatus.PREACTIVE))
                 return getLoginResponseNeedSignUp(findUser);// (회원가입이 완료된 경우) 사용자 추가정보 입력 필요
+            if(findUser.getUserStatus().equals(UserStatus.EXIT)){
+                //회원탈퇴했던 사용자도 사용자 생성부터 시작
+                User createdUser = createUser(authPlatform, authMemberResponse);
+                return getLoginResponseNeedSignUp(createdUser);
+            }
             return getLoginResponse(findUser);
         }
-
         //회원테이블에 아무 정보도 없는 경우
         User createdUser = createUser(authPlatform, authMemberResponse);
         return getLoginResponseNeedSignUp(createdUser);
