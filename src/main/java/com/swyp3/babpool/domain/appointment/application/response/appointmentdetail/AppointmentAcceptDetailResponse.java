@@ -10,10 +10,13 @@ import java.util.List;
 public class AppointmentAcceptDetailResponse extends AppointmentDetailResponse{
     private String contactChat;
     private String contactPhone;
+    private Long fixedDateTimeId;
 
-    public AppointmentAcceptDetailResponse(MyPageUserDto userData, List<AppointmentRequesterPossibleDateTimeResponse> requesterPossibleTime, String question) {
+    public AppointmentAcceptDetailResponse(MyPageUserDto userData, List<AppointmentRequesterPossibleDateTimeResponse> requesterPossibleTime,
+                                           String question,Long fixedDateTimeId) {
         super(userData,requesterPossibleTime,question);
         this.contactChat= userData.getContactChat();
         this.contactPhone=userData.getContactPhone();
+        this.fixedDateTimeId=fixedDateTimeId;
     }
 }
