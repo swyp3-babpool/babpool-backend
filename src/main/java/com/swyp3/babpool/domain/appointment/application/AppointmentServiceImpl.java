@@ -205,7 +205,7 @@ public class AppointmentServiceImpl implements AppointmentService{
         }
         //수락된 밥약 - 연락처
         if(appointment.getAppointmentStatus().equals("ACCEPT")){
-            return new AppointmentAcceptDetailResponse(userData,requesterPossibleTime,question);
+            return new AppointmentAcceptDetailResponse(userData,requesterPossibleTime,question,appointment.getAppointmentFixTimeId());
         }
         throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_DETAIL_ERROR,"대기중 혹은 수락된 밥약이 아닙니다.");
     }

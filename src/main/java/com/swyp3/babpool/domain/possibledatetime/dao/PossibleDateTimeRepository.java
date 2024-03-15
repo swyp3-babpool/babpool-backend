@@ -20,4 +20,8 @@ public interface PossibleDateTimeRepository {
     void insertPossibleTime(@Param("dateId") Long dateId,@Param("profileId") Long profileId,@Param("timeList") List<Integer> timeList);
 
     boolean checkReferenceInAppointmentRequestDate(Long possibleDateId);
+
+    boolean checkExistPossibleDate(Long profileId, String possibleDate);
+
+    boolean checkExistPossibleTime(Long profileId, String possibleDate, Integer possibleTimeStart);
 }
