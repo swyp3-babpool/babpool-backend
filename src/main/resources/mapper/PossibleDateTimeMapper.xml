@@ -3,27 +3,27 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.swyp3.babpool.domain.possibledatetime.dao.PossibleDateTimeRepository">
 
-    <resultMap id="possibleDateAndTime" type="com.swyp3.babpool.domain.profile.domain.PossibleDateAndTime">
-        <result property="possibleDateId" column="possible_date_id"/>
-        <result property="possibleDate" column="possible_date"/>
-        <result property="possibleTimeIdList" column="possible_time_id_list"/>
-        <result property="possibleTimeList" column="possible_time_list"/>
-    </resultMap>
+    <!--    <resultMap id="possibleDateAndTime" type="com.swyp3.babpool.domain.profile.domain.PossibleDateAndTime">-->
+    <!--        <result property="possibleDateId" column="possible_date_id"/>-->
+    <!--        <result property="possibleDate" column="possible_date"/>-->
+    <!--        <result property="possibleTimeIdList" column="possible_time_id_list"/>-->
+    <!--        <result property="possibleTimeList" column="possible_time_list"/>-->
+    <!--    </resultMap>-->
 
-    <select id="findAllPossibleDateAndTimeByProfileIdAndNowDateWithoutAcceptOrDone" parameterType="long" resultMap="possibleDateAndTime">
+    <select id="findAllPossibleDateAndTimeByProfileIdAndNowDateWithoutAcceptOrDone" parameterType="long" resultType="com.swyp3.babpool.domain.profile.domain.PossibleDateAndTime">
         SELECT
-            pdate.possible_date_id,
-            pdate.possible_date,
-            GROUP_CONCAT(ptime.possible_time_id) AS possible_time_id_list,
-            GROUP_CONCAT(ptime.possible_time_start) AS possible_time_list
+            pdate.possible_date_id AS possibleDateId,
+            pdate.possible_date AS possibleDate,
+            GROUP_CONCAT(ptime.possible_time_id) AS possibleTimeIdGroupConcat,
+            GROUP_CONCAT(ptime.possible_time_start) AS possibleTimeGroupConcat
         FROM t_possible_date pdate
-            INNER JOIN t_possible_time ptime ON pdate.possible_date_id = ptime.possible_date_id
-            LEFT JOIN t_appointment appoint ON ptime.possible_time_id = appoint.possible_time_id
-                AND appoint.appointment_status IN ('ACCEPT', 'DONE')
+                 INNER JOIN t_possible_time ptime ON pdate.possible_date_id = ptime.possible_date_id
+                 LEFT JOIN t_appointment appoint ON ptime.possible_time_id = appoint.possible_time_id
+            AND appoint.appointment_status IN ('ACCEPT', 'DONE')
         WHERE
             pdate.profile_id = #{profileId}
-            AND pdate.possible_date >= DATE_FORMAT(NOW() ,'%Y-%m-%d')
-            AND appoint.appointment_id IS NULL
+          AND pdate.possible_date >= DATE_FORMAT(NOW() ,'%Y-%m-%d')
+          AND appoint.appointment_id IS NULL
         GROUP BY pdate.possible_date
         ORDER BY pdate.possible_date ASC;
     </select>
