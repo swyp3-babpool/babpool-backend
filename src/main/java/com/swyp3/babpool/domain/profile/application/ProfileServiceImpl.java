@@ -3,6 +3,7 @@ package com.swyp3.babpool.domain.profile.application;
 import com.swyp3.babpool.domain.appointment.application.AppointmentService;
 import com.swyp3.babpool.domain.appointment.dao.AppointmentRepository;
 import com.swyp3.babpool.domain.possibledatetime.dao.PossibleDateTimeRepository;
+import com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateInsertDto;
 import com.swyp3.babpool.domain.profile.api.request.ProfilePagingConditions;
 import com.swyp3.babpool.domain.profile.api.request.ProfileUpdateRequest;
 import com.swyp3.babpool.domain.profile.application.response.*;
@@ -27,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -295,15 +297,21 @@ public class ProfileServiceImpl implements ProfileService{
                     log.info("ProfileServiceImpl.updatePossibleDateTime, 이미 존재하는 가능한 날짜입니다. {}", date);
                     return;
                 }
-                possibleDateTimeRepository.insertPossibleDate(profileId, date);
-
+                PossibleDateInsertDto possibleDateInsertDto = null;
+                try {
+                    possibleDateInsertDto = new PossibleDateInsertDto(profileId, date);
+                } catch (ParseException e) {
+                    throw new ProfileException(ProfileErrorCode.PROFILE_UPDATE_PARSE_ERROR,
+                            "가능한 시간대 insert 과정에서 Date 타입으로 파싱하는 중에 문제가 발생했습니다.");
+                }
+                possibleDateTimeRepository.insertPossibleDate(possibleDateInsertDto);
                 for (Integer time : timeList) {
                     boolean isAlreadyExistTime = possibleDateTimeRepository.checkExistPossibleTime(profileId, date, time);
                     if (isAlreadyExistTime) {
                         log.info("ProfileServiceImpl.updatePossibleDateTime, 이미 존재하는 가능한 시간입니다. {}", time);
                         continue;
                     }
-                    possibleDateTimeRepository.insertPossibleTime(profileId, time);
+                    possibleDateTimeRepository.insertPossibleTime(possibleDateInsertDto.getPossibleDateId(), profileId, time);
                 }
             });
         }
