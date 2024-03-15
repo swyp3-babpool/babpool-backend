@@ -14,7 +14,7 @@ public class PossibleDateAndTime {
 
     private Long possibleDateId;
     private String possibleDate;
-    private List<Integer> possibleTimeIdList;
+    private List<Long> possibleTimeIdList;
     private List<Integer> possibleTimeList;
 
     @Builder
@@ -22,11 +22,19 @@ public class PossibleDateAndTime {
         this.possibleDateId = possibleDateId;
         this.possibleDate = possibleDate;
         this.possibleTimeIdList = Arrays.stream(possibleTimeIdList.split(","))
-                                        .mapToInt(Integer::parseInt)
-                                        .boxed().collect(Collectors.toList());
+                                        .map(Long::valueOf)
+                                        .collect(Collectors.toList());
         this.possibleTimeList = Arrays.stream(possibleTimeList.split(","))
                                       .mapToInt(Integer::parseInt)
                                       .boxed().collect(Collectors.toList());
+    }
+
+    @Builder
+    public PossibleDateAndTime(Long possibleDateId, String possibleDate, List<Long> possibleTimeIdList, List<Integer> possibleTimeList) {
+        this.possibleDateId = possibleDateId;
+        this.possibleDate = possibleDate;
+        this.possibleTimeIdList = possibleTimeIdList;
+        this.possibleTimeList = possibleTimeList;
     }
 
 }

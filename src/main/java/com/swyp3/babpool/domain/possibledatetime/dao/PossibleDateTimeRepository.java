@@ -9,9 +9,9 @@ import java.util.List;
 public interface PossibleDateTimeRepository {
     List<PossibleDateAndTime> findAllPossibleDateAndTimeByProfileIdAndNowDateWithoutAcceptOrDone(Long profileId);
 
-    void deletePossibleDate(Long profileId, String date);
+    void deletePossibleDate(Long profileId, Long dateId);
 
-    void deletePossibleTime(Long profileId, List<Integer> timeList);
+    void deletePossibleTime(Long profileId, Long timeId);
 
     void insertPossibleDate(Long profileId, String date);
 

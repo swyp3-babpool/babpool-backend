@@ -26,6 +26,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -201,35 +202,39 @@ public class ProfileServiceImpl implements ProfileService{
         Map<String, List<Integer>> requestPossibleDateTime = profileUpdateRequest.getPossibleDate();
 
         // Map<"2024-03-15", [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]>
-        Map<String, List<Integer>> deleteTarget = new HashMap<>(); // existPossibleDateTimeLists 에는 있지만 requestPossibleDateTime 에는 없는 것
-        Map<String, List<Integer>> insertTarget = new HashMap<>(); // requestPossibleDateTime 에는 있지만 existPossibleDateTimeLists 에는 없는 것
+        List<PossibleDateAndTime> deleteTargets = new ArrayList<>(); // existPossibleDateTimeLists 에는 있지만 requestPossibleDateTime 에는 없는 것
+        Map<String, List<Integer>> insertTargets = new HashMap<>(); // requestPossibleDateTime 에는 있지만 existPossibleDateTimeLists 에는 없는 것
 
-        // existPossibleDateTimeLists 을 기준으로 순회하며 삭제 대상과 추가 대상을 구분
-        for (PossibleDateAndTime existPossibleDateTimeList : existPossibleDateTimeLists) {
-            String existPossibleDate = existPossibleDateTimeList.getPossibleDate();
-            List<Integer> existPossibleTimeList = existPossibleDateTimeList.getPossibleTimeList();
+        for (PossibleDateAndTime exist : existPossibleDateTimeLists) {
+            String existDate = exist.getPossibleDate();
+            List<Integer> existTimes = exist.getPossibleTimeList();
 
-            if (requestPossibleDateTime.containsKey(existPossibleDate)) { // 날짜는 같은데
-                List<Integer> requestPossibleTime = requestPossibleDateTime.get(existPossibleDate);
+            if (requestPossibleDateTime.containsKey(existDate)) {
+                List<Integer> requestTimes = requestPossibleDateTime.get(existDate);
+
+
                 // requestPossibleTime 에는 있지만 existPossibleTimeList 에는 없는 것 : 추가 대상
                 List<Integer> insertTimeList = new ArrayList<>();
-                for (Integer time : requestPossibleTime) {
-                    if (!existPossibleTimeList.contains(time)) {
+                for (Integer time : requestTimes) {
+                    if (!existTimes.contains(time)) {
                         insertTimeList.add(time);
                     }
                 }
-                insertTarget.put(existPossibleDate, insertTimeList);
-                // existPossibleTimeList 에는 있지만 requestPossibleTime 에는 없는 것 : 삭제 대상
-                List<Integer> deleteTimeList = new ArrayList<>();
-                for (Integer time : existPossibleTimeList) {
-                    if (!requestPossibleTime.contains(time)) {
-                        deleteTimeList.add(time);
-                    }
-                }
-                deleteTarget.put(existPossibleDate, deleteTimeList);
+                insertTargets.put(existDate, insertTimeList);
 
-            } else { // 요청 받은 날짜에 기존에 존재하던 날짜가 없어졌다면 삭제 대상
-                deleteTarget.put(existPossibleDate, existPossibleTimeList);
+                // Determine times to delete: exist in existTimes but not in requestTimes
+                List<Integer> timesToDelete = existTimes.stream()
+                        .filter(time -> !requestTimes.contains(time))
+                        .collect(Collectors.toList());
+
+                if (!timesToDelete.isEmpty()) {
+                    // Filter possibleTimeIdList based on timesToDelete for accurate ID mapping
+                    List<Long> timeIdsToDelete = filterTimeIds(exist.getPossibleTimeIdList(), existTimes, timesToDelete);
+                    deleteTargets.add(new PossibleDateAndTime(exist.getPossibleDateId(), existDate, timeIdsToDelete, timesToDelete));
+                }
+            } else {
+                // The entire date is missing in the request, mark all times for deletion
+                deleteTargets.add(exist);
             }
         }
 
@@ -242,29 +247,46 @@ public class ProfileServiceImpl implements ProfileService{
             if(existPossibleDateTimeLists.stream().noneMatch(
                     existPossibleDateTimeList -> existPossibleDateTimeList.getPossibleDate().equals(requestPossibleDate))
             ){
-                insertTarget.put(requestPossibleDate, requestPossibleTime);
+                insertTargets.put(requestPossibleDate, requestPossibleTime);
             }
         }
 
         // 삭제 대상이 비어있지 않다면 삭제
-        if(!deleteTarget.isEmpty()){
+        if(!deleteTargets.isEmpty()){
             // Map 순회하며 삭제 : 삭제할 때는 시간 먼저 삭제
-            deleteTarget.forEach((date, timeList) -> {
-                possibleDateTimeRepository.deletePossibleTime(profileId, timeList);
-                possibleDateTimeRepository.deletePossibleDate(profileId, date);
+            deleteTargets.forEach((possibleDateAndTime) -> {
+                try {
+                    for (Long timeId : possibleDateAndTime.getPossibleTimeIdList()) {
+                        possibleDateTimeRepository.deletePossibleTime(profileId, timeId);
+                    }
+                    possibleDateTimeRepository.deletePossibleDate(profileId, possibleDateAndTime.getPossibleDateId());
+                } catch (Exception e) {
+                    log.info("ProfileServiceImpl.updatePossibleDateTime, 가능한 날짜와 시간 삭제 중 오류 발생. {}", e.getMessage());
+                    log.info("참조키 오류 발생 무시 : {}", possibleDateAndTime);
+                }
             });
 
         }
 
         // 추가 대상이 비어있지 않다면 추가
-        if(!insertTarget.isEmpty()){
+        if(!insertTargets.isEmpty()){
             // Map 순회하며 추가 : 추가할 때는 날짜 먼저 추가
-            insertTarget.forEach((date, timeList) -> {
+            insertTargets.forEach((date, timeList) -> {
                 possibleDateTimeRepository.insertPossibleDate(profileId, date);
                 possibleDateTimeRepository.insertPossibleTime(profileId, timeList);
             });
         }
 
+    }
+
+    private List<Long> filterTimeIds(List<Long> timeIds, List<Integer> existTimes, List<Integer> timesToDelete) {
+        List<Long> filteredTimeIds = new ArrayList<>();
+        for (int i = 0; i < existTimes.size(); i++) {
+            if (timesToDelete.contains(existTimes.get(i))) {
+                filteredTimeIds.add(timeIds.get(i));
+            }
+        }
+        return filteredTimeIds;
     }
 
 }
