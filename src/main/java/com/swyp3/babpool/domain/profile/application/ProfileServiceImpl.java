@@ -205,14 +205,14 @@ public class ProfileServiceImpl implements ProfileService{
         List<PossibleDateAndTime> deleteTargets = new ArrayList<>(); // existPossibleDateTimeLists 에는 있지만 requestPossibleDateTime 에는 없는 것
         Map<String, List<Integer>> insertTargets = new HashMap<>(); // requestPossibleDateTime 에는 있지만 existPossibleDateTimeLists 에는 없는 것
 
+        // existPossibleDateTimeLists 을 기준으로 순회하며 삭제 대상과 추가 대상을 구분
         for (PossibleDateAndTime exist : existPossibleDateTimeLists) {
             String existDate = exist.getPossibleDate();
             List<Integer> existTimes = exist.getPossibleTimeList();
 
-            if (requestPossibleDateTime.containsKey(existDate)) {
+            if (requestPossibleDateTime.containsKey(existDate)) { // 날짜는 같은데
                 List<Integer> requestTimes = requestPossibleDateTime.get(existDate);
-
-
+                
                 // requestPossibleTime 에는 있지만 existPossibleTimeList 에는 없는 것 : 추가 대상
                 List<Integer> insertTimeList = new ArrayList<>();
                 for (Integer time : requestTimes) {
@@ -222,18 +222,18 @@ public class ProfileServiceImpl implements ProfileService{
                 }
                 insertTargets.put(existDate, insertTimeList);
 
-                // Determine times to delete: exist in existTimes but not in requestTimes
+                // existTimes 에는 있지만 requestTimes 에는 없는 것 : 삭제 대상
                 List<Integer> timesToDelete = existTimes.stream()
                         .filter(time -> !requestTimes.contains(time))
                         .collect(Collectors.toList());
 
+                // 삭제할 시간이 존재한다면, 해당 시간에 대한 ID를 찾아서 삭제 대상에 추가
                 if (!timesToDelete.isEmpty()) {
-                    // Filter possibleTimeIdList based on timesToDelete for accurate ID mapping
                     List<Long> timeIdsToDelete = filterTimeIds(exist.getPossibleTimeIdList(), existTimes, timesToDelete);
                     deleteTargets.add(new PossibleDateAndTime(exist.getPossibleDateId(), existDate, timeIdsToDelete, timesToDelete));
                 }
             } else {
-                // The entire date is missing in the request, mark all times for deletion
+                // 요청 받은 날짜에 기존에 존재하던 날짜가 없어졌다면 삭제 대상
                 deleteTargets.add(exist);
             }
         }
