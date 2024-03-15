@@ -1,6 +1,5 @@
 package com.swyp3.babpool.domain.profile.application;
 
-import com.swyp3.babpool.domain.appointment.application.AppointmentService;
 import com.swyp3.babpool.domain.appointment.dao.AppointmentRepository;
 import com.swyp3.babpool.domain.possibledatetime.dao.PossibleDateTimeRepository;
 import com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateInsertDto;
@@ -271,7 +270,7 @@ public class ProfileServiceImpl implements ProfileService{
                             log.info("ProfileServiceImpl.updatePossibleDateTime, 참조키가 존재하여 삭제하지 않음. {}", timeId);
                             continue;
                         }
-                        possibleDateTimeRepository.deletePossibleTime(profileId, timeId);
+                        possibleDateTimeRepository.deletePossibleTime(possibleDateAndTime.getPossibleDateId(), timeId);
                     }
                     boolean isReferenced = possibleDateTimeRepository.checkReferenceInAppointmentRequestDate(possibleDateAndTime.getPossibleDateId());
                     if (isReferenced) {
@@ -297,13 +296,11 @@ public class ProfileServiceImpl implements ProfileService{
                     log.info("ProfileServiceImpl.updatePossibleDateTime, 이미 존재하는 가능한 날짜입니다. {}", date);
                     return;
                 }
-                PossibleDateInsertDto possibleDateInsertDto = null;
-                try {
-                    possibleDateInsertDto = new PossibleDateInsertDto(profileId, date);
-                } catch (ParseException e) {
-                    throw new ProfileException(ProfileErrorCode.PROFILE_UPDATE_PARSE_ERROR,
-                            "가능한 시간대 insert 과정에서 Date 타입으로 파싱하는 중에 문제가 발생했습니다.");
-                }
+                PossibleDateInsertDto possibleDateInsertDto = PossibleDateInsertDto.builder()
+                        .profileId(profileId)
+                        .date(date)
+                        .build();
+
                 possibleDateTimeRepository.insertPossibleDate(possibleDateInsertDto);
                 for (Integer time : timeList) {
                     boolean isAlreadyExistTime = possibleDateTimeRepository.checkExistPossibleTime(profileId, date, time);
@@ -311,7 +308,7 @@ public class ProfileServiceImpl implements ProfileService{
                         log.info("ProfileServiceImpl.updatePossibleDateTime, 이미 존재하는 가능한 시간입니다. {}", time);
                         continue;
                     }
-                    possibleDateTimeRepository.insertPossibleTime(possibleDateInsertDto.getPossibleDateId(), profileId, time);
+                    possibleDateTimeRepository.insertPossibleTime(possibleDateInsertDto.getPossibleDateId(), time);
                 }
             });
         }

@@ -11,13 +11,13 @@ import java.util.List;
 public interface PossibleDateTimeRepository {
     List<PossibleDateAndTime> findAllPossibleDateAndTimeByProfileIdAndNowDateWithoutAcceptOrDone(Long profileId);
 
-    void deletePossibleDate(@Param("profileId") Long profileId,@Param("dateId") Long dateId);
+    void deletePossibleDate(@Param("profileId") Long profileId, @Param("dateId") Long dateId);
 
-    void deletePossibleTime(@Param("profileId") Long profileId,@Param("timeId") Long timeId);
+    void deletePossibleTime(@Param("dateId") Long dateId, @Param("timeId") Long timeId);
 
     void insertPossibleDate(PossibleDateInsertDto possibleDateInsertDto);
 
-    void insertPossibleTime(@Param("dateId") Long dateId,@Param("profileId") Long profileId,@Param("time") Integer time);
+    void insertPossibleTime(@Param("dateId") Long dateId, @Param("time") Integer time);
 
     boolean checkReferenceInAppointmentRequestDate(Long possibleDateId);
 
