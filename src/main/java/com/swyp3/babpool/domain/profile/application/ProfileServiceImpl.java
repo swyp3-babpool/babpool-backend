@@ -193,9 +193,8 @@ public class ProfileServiceImpl implements ProfileService{
     @Transactional
     @Override
     public void updatePossibleDateTime(Long userId, Long profileId, ProfileUpdateRequest profileUpdateRequest) {
-        // TODO : possibleDateTimeRepository 에 findAllPossibleDateAndTimeByProfileIdAndNowDateWithoutAcceptOrDone 메서드+쿼리 추가
-        // TODO : possibleDateTimeRepository 에 deletePossibleDateTime 메서드+쿼리 추가
-        // TODO : possibleDateTimeRepository 에 insertPossibleDateTime 메서드+쿼리 추가
+        // TODO : possibleDateTimeRepository 의 deletePossibleDate, deletePossibleTime 쿼리 추가
+        // TODO : possibleDateTimeRepository 의 insertPossibleDate, insertPossibleTime 쿼리 추가
 
         // 특정 프로필이 활성화한 가능한 날짜와 시간 리스트를 조회 (오늘 날짜를 포함한 미래의 가능한 날짜와 시간 리스트만 조회)
         List<PossibleDateAndTime> existPossibleDateTimeLists = possibleDateTimeRepository.findAllPossibleDateAndTimeByProfileIdAndNowDateWithoutAcceptOrDone(profileId);
