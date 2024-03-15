@@ -55,4 +55,6 @@ public interface AppointmentRepository {
     AppointmentAcceptResponse findAcceptAppointment(Long appointmentId);
 
     int updateAppointmentCancel(Long appointmentId);
+
+    boolean checkReferenceInAppointmentRequestTime(@Param("appointmentRequestId") Long appointmentRequestId);
 }
