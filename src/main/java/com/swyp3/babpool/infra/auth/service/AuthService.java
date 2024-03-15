@@ -73,7 +73,7 @@ public class AuthService {
     public void updateOAuthPlatformId(Long userId) {
         int updatedRows = authRepository.updateOauthPlatformId(userId);
         if (updatedRows == 0) {
-            throw new SignDownException(SignDownExceptionErrorCode.FAILED_TO_UPDATE_AUTH, "회원탈퇴에 실패하였습니다");
+            throw new SignDownException(SignDownExceptionErrorCode.FAILED_TO_UPDATE_AUTH_VALUE, "회원탈퇴에 실패하였습니다");
         }
     }
 }
