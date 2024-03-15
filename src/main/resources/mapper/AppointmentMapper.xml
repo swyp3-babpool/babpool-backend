@@ -279,7 +279,8 @@
     </update>
 
     <select id="findAcceptAppointment" resultType="com.swyp3.babpool.domain.appointment.application.response.AppointmentAcceptResponse">
-        SELECT ua.user_nick_name AS requesterNickName,
+        SELECT a.appointment_id AS appointmentId,
+               ua.user_nick_name AS requesterNickName,
                p.profile_image_url AS requesterProfileImageUrl,
                ua.user_grade AS requesterGrade,
                p.profile_intro AS requesterIntro,
