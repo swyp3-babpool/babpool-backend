@@ -18,15 +18,15 @@ public class PossibleDateAndTime {
     private List<Integer> possibleTimeList;
 
     @Builder
-    public PossibleDateAndTime(Long possibleDateId, String possibleDate, String possibleTimeIdList, String possibleTimeList) {
+    public PossibleDateAndTime(Long possibleDateId, String possibleDate, String possibleTimeIdGroupConcat, String possibleTimeGroupConcat) {
         this.possibleDateId = possibleDateId;
         this.possibleDate = possibleDate;
-        this.possibleTimeIdList = Arrays.stream(possibleTimeIdList.split(","))
-                                        .map(Long::valueOf)
-                                        .collect(Collectors.toList());
-        this.possibleTimeList = Arrays.stream(possibleTimeList.split(","))
-                                      .mapToInt(Integer::parseInt)
-                                      .boxed().collect(Collectors.toList());
+        this.possibleTimeIdList = Arrays.stream(possibleTimeIdGroupConcat.split(","))
+                .map(Long::valueOf)
+                .collect(Collectors.toList());
+        this.possibleTimeList = Arrays.stream(possibleTimeGroupConcat.split(","))
+                .mapToInt(Integer::parseInt)
+                .boxed().collect(Collectors.toList());
     }
 
     @Builder

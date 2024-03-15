@@ -182,6 +182,14 @@
         WHERE appointment_id = #{appointmentId}
     </select>
 
+    <select id="checkReferenceInAppointmentRequestTime" resultType="boolean" parameterType="long">
+        SELECT EXISTS(
+            SELECT 1
+            FROM t_appointment_request_time
+            WHERE appointment_request_id = #{appointmentRequestId}
+        )
+    </select>
+
     <!-- ######################################## INSERT ######################################## -->
 
     <insert id="saveAppointment" parameterType="com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest"
