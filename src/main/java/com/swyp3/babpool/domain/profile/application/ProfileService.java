@@ -7,6 +7,7 @@ import com.swyp3.babpool.domain.profile.domain.Profile;
 import com.swyp3.babpool.domain.profile.application.response.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 
@@ -27,4 +28,6 @@ public interface ProfileService {
     ProfileDefaultResponse getProfileDefault(Long userId);
 
     ProfileRegistrationResponse getProfileisRegistered(Long userId);
+
+    void updatePossibleDateTime(Long userId, Long profileId, ProfileUpdateRequest profileUpdateRequest);
 }
