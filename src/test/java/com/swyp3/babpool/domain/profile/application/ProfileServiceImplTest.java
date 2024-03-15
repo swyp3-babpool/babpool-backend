@@ -18,21 +18,21 @@ class ProfileServiceImplTest {
                 PossibleDateAndTime.builder()
                         .possibleDateId(1L)
                         .possibleDate("2024-03-14")
-                        .possibleTimeIdList(List.of(111, 222, 333))
-                        .possibleTimeList(List.of(1, 2, 3))
+                        .possibleTimeIdList("111,222,333")
+                        .possibleTimeList("1,2,3")
                         .build(),
                 PossibleDateAndTime.builder()
                         .possibleDateId(1L)
                         .possibleDate("2024-03-15")
-                        .possibleTimeIdList(List.of(444, 555, 666))
-                        .possibleTimeList(List.of(1, 2, 3, 7))
+                        .possibleTimeIdList("444,555,666")
+                        .possibleTimeList("1,2,3,7")
                         .build()
                         ,
                 PossibleDateAndTime.builder()
                         .possibleDateId(1L)
                         .possibleDate("2024-03-16")
-                        .possibleTimeIdList(List.of(777))
-                        .possibleTimeList(List.of(7))
+                        .possibleTimeIdList("777")
+                        .possibleTimeList("7")
                         .build()
         );
         Map<String, List<Integer>> requestPossibleDateTime = Map.of(
