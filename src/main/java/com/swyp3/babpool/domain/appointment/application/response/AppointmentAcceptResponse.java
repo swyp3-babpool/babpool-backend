@@ -7,7 +7,6 @@ import java.sql.Date;
 
 @Getter
 public class AppointmentAcceptResponse {
-    private Long appointmentId;
     private String requesterNickName;
     private String requesterProfileImageUrl;
     private String requesterGrade;
@@ -17,5 +16,6 @@ public class AppointmentAcceptResponse {
     private String requesterContactPhone;
     private String requesterContactChat;
     private String question;
+
 
 }
