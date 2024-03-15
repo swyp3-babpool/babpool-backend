@@ -21,7 +21,7 @@ public interface PossibleDateTimeRepository {
 
     boolean checkReferenceInAppointmentRequestDate(Long possibleDateId);
 
-    boolean checkExistPossibleDate(Long profileId, String possibleDate);
+    Long checkExistPossibleDate(Long profileId, String possibleDate);
 
     boolean checkExistPossibleTime(Long profileId, String possibleDate, Integer possibleTimeStart);
 }
