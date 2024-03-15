@@ -23,7 +23,7 @@ public interface ProfileService {
 
     Page<ProfilePagingResponse> getProfileListWithPageable(ProfilePagingConditions profilePagingConditions, Pageable pageable);
 
-    ProfileDetailResponse getProfileDetail(Long targetProfileId);
+    ProfileDetailResponse getProfileDetail(Long userId, Long targetProfileId);
 
     ProfileDefaultResponse getProfileDefault(Long userId);
 

@@ -65,7 +65,7 @@ public class ProfileServiceImpl implements ProfileService{
     }
 
     @Override
-    public ProfileDetailResponse getProfileDetail(Long targetProfileId) {
+    public ProfileDetailResponse getProfileDetail(Long userId, Long targetProfileId) {
         if(!isExistProfile(targetProfileId)){
             throw new ProfileException(ProfileErrorCode.PROFILE_TARGET_PROFILE_ERROR,"존재하지 않는 프로필을 조회하였습니다.");
         }
@@ -73,6 +73,10 @@ public class ProfileServiceImpl implements ProfileService{
         ReviewCountByTypeResponse reviewCountByType = reviewService.getReviewCountByType(targetProfileId);
         List<ReviewPagingResponse> reviewListForProfileDetail = reviewService.getReviewListForProfileDetail(targetProfileId, 3);
         ProfileDetailResponse profileDetailResponse = new ProfileDetailResponse(profileDetail, reviewCountByType,reviewListForProfileDetail);
+
+        if(userId.equals(profileRepository.findUserIdByProfileId(targetProfileId))){
+            profileDetailResponse.setApiRequesterSameAsProfileOwner(true);
+        }
         return profileDetailResponse;
     }
 
@@ -286,8 +290,21 @@ public class ProfileServiceImpl implements ProfileService{
         if(!insertTargets.isEmpty()){
             // Map 순회하며 추가 : 추가할 때는 날짜 먼저 추가
             insertTargets.forEach((date, timeList) -> {
+                boolean isAlreadyExistDate = possibleDateTimeRepository.checkExistPossibleDate(profileId, date);
+                if (isAlreadyExistDate) {
+                    log.info("ProfileServiceImpl.updatePossibleDateTime, 이미 존재하는 가능한 날짜입니다. {}", date);
+                    return;
+                }
                 possibleDateTimeRepository.insertPossibleDate(profileId, date);
-                possibleDateTimeRepository.insertPossibleTime(profileId, timeList);
+
+                for (Integer time : timeList) {
+                    boolean isAlreadyExistTime = possibleDateTimeRepository.checkExistPossibleTime(profileId, date, time);
+                    if (isAlreadyExistTime) {
+                        log.info("ProfileServiceImpl.updatePossibleDateTime, 이미 존재하는 가능한 시간입니다. {}", time);
+                        continue;
+                    }
+                    possibleDateTimeRepository.insertPossibleTime(profileId, time);
+                }
             });
         }
 

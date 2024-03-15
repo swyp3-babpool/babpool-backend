@@ -15,7 +15,11 @@ public interface PossibleDateTimeRepository {
 
     void insertPossibleDate(Long profileId, String date);
 
-    void insertPossibleTime(Long profileId, List<Integer> timeList);
+    void insertPossibleTime(Long profileId, Integer time);
 
     boolean checkReferenceInAppointmentRequestDate(Long possibleDateId);
+
+    boolean checkExistPossibleDate(Long profileId, String possibleDate);
+
+    boolean checkExistPossibleTime(Long profileId, String possibleDate, Integer possibleTimeStart);
 }
