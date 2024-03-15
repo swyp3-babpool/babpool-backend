@@ -75,10 +75,7 @@
 
     <insert id="insertPossibleTime" parameterType="map">
         INSERT INTO t_possible_time (possible_date_id,profile_id, possible_time_start, possible_time_range)
-        VALUES
-        <foreach collection="timeList" item="time" separator=",">
-            (#{dateId}, #{profileId}, #{time}, 1)
-        </foreach>
+        VALUES (#{dateId}, #{profileId}, #{time}, 1)
     </insert>
 
 </mapper>

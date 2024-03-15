@@ -17,7 +17,7 @@ public interface PossibleDateTimeRepository {
 
     void insertPossibleDate(PossibleDateInsertDto possibleDateInsertDto);
 
-    void insertPossibleTime(@Param("dateId") Long dateId,@Param("profileId") Long profileId,@Param("timeList") List<Integer> timeList);
+    void insertPossibleTime(@Param("dateId") Long dateId,@Param("profileId") Long profileId,@Param("time") Integer time);
 
     boolean checkReferenceInAppointmentRequestDate(Long possibleDateId);
 
