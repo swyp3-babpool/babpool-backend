@@ -110,7 +110,7 @@ public class AppointmentServiceImpl implements AppointmentService{
     public List<AppointmentHistoryRefuseResponse> getRefuseAppointmentList(Long receiverUserId) {
         List<AppointmentHistoryRefuseResponse> historyRefuseResponseList = appointmentRepository.findRefuseAppointmentListByReceiverId(receiverUserId);
         if (historyRefuseResponseList.isEmpty()) {
-            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_REFUSE_NOT_FOUND, "거절된 밥약이 존재하지 않습니다.");
+            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_REFUSE_NOT_FOUND, "거절당한 밥약이 존재하지 않습니다.");
         }
         return historyRefuseResponseList;
     }
