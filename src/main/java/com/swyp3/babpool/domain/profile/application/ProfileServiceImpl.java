@@ -1,15 +1,13 @@
 package com.swyp3.babpool.domain.profile.application;
 
+import com.swyp3.babpool.domain.possibledatetime.dao.PossibleDateTimeRepository;
 import com.swyp3.babpool.domain.profile.api.request.ProfilePagingConditions;
 import com.swyp3.babpool.domain.profile.api.request.ProfileUpdateRequest;
 import com.swyp3.babpool.domain.profile.application.response.*;
-import com.swyp3.babpool.domain.profile.domain.ProfileDefault;
-import com.swyp3.babpool.domain.profile.domain.ProfileDetail;
+import com.swyp3.babpool.domain.profile.domain.*;
 import com.swyp3.babpool.domain.profile.application.response.ProfilePagingDto;
 import com.swyp3.babpool.domain.profile.application.response.ProfilePagingResponse;
 import com.swyp3.babpool.domain.profile.dao.ProfileRepository;
-import com.swyp3.babpool.domain.profile.domain.PossibleDate;
-import com.swyp3.babpool.domain.profile.domain.Profile;
 import com.swyp3.babpool.domain.profile.exception.ProfileException;
 import com.swyp3.babpool.domain.profile.exception.errorcode.ProfileErrorCode;
 import com.swyp3.babpool.domain.review.application.ReviewService;
@@ -27,8 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -38,6 +35,7 @@ public class ProfileServiceImpl implements ProfileService{
 
     private final AwsS3Provider awsS3Provider;
     private final ProfileRepository profileRepository;
+    private final PossibleDateTimeRepository possibleDateTimeRepository;
     private final ReviewService reviewService;
     @Override
     public Page<ProfilePagingResponse> getProfileListWithPageable(ProfilePagingConditions profilePagingConditions, Pageable pageable) {
@@ -153,7 +151,7 @@ public class ProfileServiceImpl implements ProfileService{
         profileRepository.updateProfile(profileId,profileUpdateRequest);
         profileRepository.deleteUserKeywords(userId);
         profileRepository.saveUserKeywords(userId,profileUpdateRequest.getKeywords());
-        updatePossibleDateTime(profileId,profileUpdateRequest);
+        updatePossibleDateTime(userId, profileId,profileUpdateRequest);
         return new ProfileUpdateResponse(profileId);
     }
 
@@ -171,24 +169,103 @@ public class ProfileServiceImpl implements ProfileService{
                 });
     }
 
-    public void updatePossibleDateTime(Long profileId, ProfileUpdateRequest profileUpdateRequest) {
-        profileRepository.deletePossibleTimes(profileId);
-        profileRepository.deletePossibleDates(profileId);
+//    public void updatePossibleDateTime(Long profileId, ProfileUpdateRequest profileUpdateRequest) {
+//        profileRepository.deletePossibleTimes(profileId);
+//        profileRepository.deletePossibleDates(profileId);
+//
+//        for (Map.Entry<String, List<Integer>> entry : profileUpdateRequest.getPossibleDate().entrySet()) {
+//            String date = entry.getKey();
+//
+//            PossibleDate possibleDate = PossibleDate.builder()
+//                    .possible_date(date)
+//                    .profile_id(profileId)
+//                    .build();
+//            profileRepository.savePossibleDates(possibleDate);
+//
+//            List<Integer> times = entry.getValue();
+//
+//            for (Integer time : times) {
+//                profileRepository.savePossibleTimes(time, possibleDate.getId());
+//            }
+//        }
+//    }
 
-        for (Map.Entry<String, List<Integer>> entry : profileUpdateRequest.getPossibleDate().entrySet()) {
-            String date = entry.getKey();
+    @Transactional
+    @Override
+    public void updatePossibleDateTime(Long userId, Long profileId, ProfileUpdateRequest profileUpdateRequest) {
+        // TODO : possibleDateTimeRepository 에 findAllPossibleDateAndTimeByProfileIdAndNowDateWithoutAcceptOrDone 메서드+쿼리 추가
+        // TODO : possibleDateTimeRepository 에 deletePossibleDateTime 메서드+쿼리 추가
+        // TODO : possibleDateTimeRepository 에 insertPossibleDateTime 메서드+쿼리 추가
 
-            PossibleDate possibleDate = PossibleDate.builder()
-                    .possible_date(date)
-                    .profile_id(profileId)
-                    .build();
-            profileRepository.savePossibleDates(possibleDate);
+        // 특정 프로필이 활성화한 가능한 날짜와 시간 리스트를 조회 (오늘 날짜를 포함한 미래의 가능한 날짜와 시간 리스트만 조회)
+        List<PossibleDateAndTime> existPossibleDateTimeLists = possibleDateTimeRepository.findAllPossibleDateAndTimeByProfileIdAndNowDateWithoutAcceptOrDone(profileId);
+        Map<String, List<Integer>> requestPossibleDateTime = profileUpdateRequest.getPossibleDate();
 
-            List<Integer> times = entry.getValue();
+        // Map<"2024-03-15", [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]>
+        Map<String, List<Integer>> deleteTarget = new HashMap<>(); // existPossibleDateTimeLists 에는 있지만 requestPossibleDateTime 에는 없는 것
+        Map<String, List<Integer>> insertTarget = new HashMap<>(); // requestPossibleDateTime 에는 있지만 existPossibleDateTimeLists 에는 없는 것
 
-            for (Integer time : times) {
-                profileRepository.savePossibleTimes(time, possibleDate.getId());
+        // existPossibleDateTimeLists 을 기준으로 순회하며 삭제 대상과 추가 대상을 구분
+        for (PossibleDateAndTime existPossibleDateTimeList : existPossibleDateTimeLists) {
+            String existPossibleDate = existPossibleDateTimeList.getPossibleDate();
+            List<Integer> existPossibleTimeList = existPossibleDateTimeList.getPossibleTimeList();
+
+            if (requestPossibleDateTime.containsKey(existPossibleDate)) { // 날짜는 같은데
+                List<Integer> requestPossibleTime = requestPossibleDateTime.get(existPossibleDate);
+                // requestPossibleTime 에는 있지만 existPossibleTimeList 에는 없는 것 : 추가 대상
+                List<Integer> insertTimeList = new ArrayList<>();
+                for (Integer time : requestPossibleTime) {
+                    if (!existPossibleTimeList.contains(time)) {
+                        insertTimeList.add(time);
+                    }
+                }
+                insertTarget.put(existPossibleDate, insertTimeList);
+                // existPossibleTimeList 에는 있지만 requestPossibleTime 에는 없는 것 : 삭제 대상
+                List<Integer> deleteTimeList = new ArrayList<>();
+                for (Integer time : existPossibleTimeList) {
+                    if (!requestPossibleTime.contains(time)) {
+                        deleteTimeList.add(time);
+                    }
+                }
+                deleteTarget.put(existPossibleDate, deleteTimeList);
+
+            } else { // 요청 받은 날짜에 기존에 존재하던 날짜가 없어졌다면 삭제 대상
+                deleteTarget.put(existPossibleDate, existPossibleTimeList);
             }
         }
+
+        // requestPossibleDateTime 을 기준으로 순회하며 추가 대상을 구분
+        for (Map.Entry<String, List<Integer>> entry : requestPossibleDateTime.entrySet()) {
+            String requestPossibleDate = entry.getKey();
+            List<Integer> requestPossibleTime = entry.getValue();
+
+            // existPossibleDateTimeLists 에는 없는 날짜(requestPossibleDate)는 추가 대상
+            if(existPossibleDateTimeLists.stream().noneMatch(
+                    existPossibleDateTimeList -> existPossibleDateTimeList.getPossibleDate().equals(requestPossibleDate))
+            ){
+                insertTarget.put(requestPossibleDate, requestPossibleTime);
+            }
+        }
+
+        // 삭제 대상이 비어있지 않다면 삭제
+        if(!deleteTarget.isEmpty()){
+            // Map 순회하며 삭제 : 삭제할 때는 시간 먼저 삭제
+            deleteTarget.forEach((date, timeList) -> {
+                possibleDateTimeRepository.deletePossibleTime(profileId, timeList);
+                possibleDateTimeRepository.deletePossibleDate(profileId, date);
+            });
+
+        }
+
+        // 추가 대상이 비어있지 않다면 추가
+        if(!insertTarget.isEmpty()){
+            // Map 순회하며 추가 : 추가할 때는 날짜 먼저 추가
+            insertTarget.forEach((date, timeList) -> {
+                possibleDateTimeRepository.insertPossibleDate(profileId, date);
+                possibleDateTimeRepository.insertPossibleTime(profileId, timeList);
+            });
+        }
+
     }
+
 }
