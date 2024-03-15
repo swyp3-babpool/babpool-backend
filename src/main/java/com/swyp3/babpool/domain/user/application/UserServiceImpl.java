@@ -67,6 +67,7 @@ public class UserServiceImpl implements UserService{
     public void signDown(Long userId, String exitReason, String refreshTokenFromCookie) {
         AuthPlatform authPlatformName = authService.getAuthPlatformByUserId(userId);
         authService.socialServiceDisconnect(userId, authPlatformName);
+        authService.updateOAuthPlatformId(userId);
 
         int updatedRows = userRepository.updateUserStateByUserId(userId, UserStatus.EXIT);
         if(updatedRows!=1){

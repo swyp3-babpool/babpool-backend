@@ -12,4 +12,6 @@ public interface AuthRepository {
     void save(Auth oauth);
 
     Optional<Auth> findByUserId(Long userId);
+
+    int updateOauthPlatformId(@Param("userId") Long userId);
 }
