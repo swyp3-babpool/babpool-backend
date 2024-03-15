@@ -291,17 +291,19 @@ public class ProfileServiceImpl implements ProfileService{
         if(!insertTargets.isEmpty()){
             // Map 순회하며 추가 : 추가할 때는 날짜 먼저 추가
             insertTargets.forEach((date, timeList) -> {
-                boolean isAlreadyExistDate = possibleDateTimeRepository.checkExistPossibleDate(profileId, date);
-                if (isAlreadyExistDate) {
-                    log.info("ProfileServiceImpl.updatePossibleDateTime, 이미 존재하는 가능한 날짜입니다. {}", date);
-                    return;
-                }
                 PossibleDateInsertDto possibleDateInsertDto = PossibleDateInsertDto.builder()
                         .profileId(profileId)
                         .date(date)
                         .build();
+                // 이미 존재하는 날짜라면 날짜를 추가하지는 않음.
+                boolean isAlreadyExistDate = possibleDateTimeRepository.checkExistPossibleDate(profileId, date);
+                if (!isAlreadyExistDate) {
+                    possibleDateTimeRepository.insertPossibleDate(possibleDateInsertDto);
+                }else{
+                    log.info("ProfileServiceImpl.updatePossibleDateTime, 이미 존재하는 가능한 날짜입니다. {}", date);
+                }
 
-                possibleDateTimeRepository.insertPossibleDate(possibleDateInsertDto);
+                // 추가 대상인 시간을 순회하면서
                 for (Integer time : timeList) {
                     boolean isAlreadyExistTime = possibleDateTimeRepository.checkExistPossibleTime(profileId, date, time);
                     if (isAlreadyExistTime) {
