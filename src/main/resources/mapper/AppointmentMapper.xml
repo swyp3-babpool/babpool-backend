@@ -140,7 +140,7 @@
                 inner join t_profile profile on appoint.appointment_requester_id = profile.user_id
                 inner join t_user_account account on appoint.appointment_requester_id = account.user_id
                 left join t_reject reject on appoint.appointment_id = reject.appointment_id
-          where appoint.appointment_requester_id = #{receiverUserId}
+          where appoint.appointment_receiver_id = #{receiverUserId}
              and appoint.appointment_status IN ('REJECT', 'EXPIRE')
     </select>
 
