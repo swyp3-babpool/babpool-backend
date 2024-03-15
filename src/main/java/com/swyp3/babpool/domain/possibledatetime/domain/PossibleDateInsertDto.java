@@ -1,5 +1,6 @@
 package com.swyp3.babpool.domain.possibledatetime.domain;
 
+import lombok.Builder;
 import lombok.Getter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -9,11 +10,17 @@ import java.util.Date;
 public class PossibleDateInsertDto {
     private Long possibleDateId;
     private Long profileId;
-    private Date date;
+    private String date;
 
-    public PossibleDateInsertDto(Long profileId, String date) throws ParseException {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        this.date = sdf.parse(date);
-        this.profileId=profileId;
+
+    @Builder
+    public PossibleDateInsertDto(Long possibleDateId, Long profileId, String date) {
+        this.possibleDateId = possibleDateId;
+        this.profileId = profileId;
+        this.date = date;
+    }
+
+    public void setPossibleDateId(Long possibleDateId) {
+        this.possibleDateId = possibleDateId;
     }
 }
