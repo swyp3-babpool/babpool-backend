@@ -20,6 +20,7 @@ public class ProfileDetailResponse {
     private String[] keywords;
     private Map<String,Long> reviewCount;
     private List<ReviewPagingResponse> reviews;
+    private Boolean isApiRequesterSameAsProfileOwner = false;
 
     public ProfileDetailResponse(ProfileDetail profileDetail, ReviewCountByTypeResponse reviewCount, List<ReviewPagingResponse> reviews) {
         this.profileId= profileDetail.getProfileId();
@@ -35,7 +36,10 @@ public class ProfileDetailResponse {
         reviewCountMap.put("good",reviewCount.getGreatCount());
         reviewCountMap.put("bad",reviewCount.getBadCount());
         this.reviewCount=reviewCountMap;
-
         this.reviews=reviews;
+    }
+
+    public void setApiRequesterSameAsProfileOwner(Boolean apiRequesterSameAsProfileOwner) {
+        this.isApiRequesterSameAsProfileOwner = apiRequesterSameAsProfileOwner;
     }
 }

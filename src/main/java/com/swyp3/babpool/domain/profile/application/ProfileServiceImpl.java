@@ -65,7 +65,7 @@ public class ProfileServiceImpl implements ProfileService{
     }
 
     @Override
-    public ProfileDetailResponse getProfileDetail(Long targetProfileId) {
+    public ProfileDetailResponse getProfileDetail(Long userId, Long targetProfileId) {
         if(!isExistProfile(targetProfileId)){
             throw new ProfileException(ProfileErrorCode.PROFILE_TARGET_PROFILE_ERROR,"존재하지 않는 프로필을 조회하였습니다.");
         }
@@ -73,6 +73,10 @@ public class ProfileServiceImpl implements ProfileService{
         ReviewCountByTypeResponse reviewCountByType = reviewService.getReviewCountByType(targetProfileId);
         List<ReviewPagingResponse> reviewListForProfileDetail = reviewService.getReviewListForProfileDetail(targetProfileId, 3);
         ProfileDetailResponse profileDetailResponse = new ProfileDetailResponse(profileDetail, reviewCountByType,reviewListForProfileDetail);
+
+        if(userId.equals(profileRepository.findUserIdByProfileId(targetProfileId))){
+            profileDetailResponse.setApiRequesterSameAsProfileOwner(true);
+        }
         return profileDetailResponse;
     }
 
