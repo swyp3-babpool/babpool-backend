@@ -1,5 +1,7 @@
 package com.swyp3.babpool.domain.profile.application;
 
+import com.swyp3.babpool.domain.appointment.application.AppointmentService;
+import com.swyp3.babpool.domain.appointment.dao.AppointmentRepository;
 import com.swyp3.babpool.domain.possibledatetime.dao.PossibleDateTimeRepository;
 import com.swyp3.babpool.domain.profile.api.request.ProfilePagingConditions;
 import com.swyp3.babpool.domain.profile.api.request.ProfileUpdateRequest;
@@ -37,6 +39,7 @@ public class ProfileServiceImpl implements ProfileService{
     private final AwsS3Provider awsS3Provider;
     private final ProfileRepository profileRepository;
     private final PossibleDateTimeRepository possibleDateTimeRepository;
+    private final AppointmentRepository appointmentRepository;
     private final ReviewService reviewService;
     @Override
     public Page<ProfilePagingResponse> getProfileListWithPageable(ProfilePagingConditions profilePagingConditions, Pageable pageable) {
@@ -257,12 +260,23 @@ public class ProfileServiceImpl implements ProfileService{
             deleteTargets.forEach((possibleDateAndTime) -> {
                 try {
                     for (Long timeId : possibleDateAndTime.getPossibleTimeIdList()) {
+                        boolean isReferenced = appointmentRepository.checkReferenceInAppointmentRequestTime(timeId);
+                        if (isReferenced) {
+                            log.info("ProfileServiceImpl.updatePossibleDateTime, 참조키가 존재하여 삭제하지 않음. {}", timeId);
+                            continue;
+                        }
                         possibleDateTimeRepository.deletePossibleTime(profileId, timeId);
+                    }
+                    boolean isReferenced = possibleDateTimeRepository.checkReferenceInAppointmentRequestDate(possibleDateAndTime.getPossibleDateId());
+                    if (isReferenced) {
+                        log.info("ProfileServiceImpl.updatePossibleDateTime, 참조키가 존재하여 삭제하지 않음. {}", possibleDateAndTime.getPossibleDateId());
+                        return;
                     }
                     possibleDateTimeRepository.deletePossibleDate(profileId, possibleDateAndTime.getPossibleDateId());
                 } catch (Exception e) {
                     log.info("ProfileServiceImpl.updatePossibleDateTime, 가능한 날짜와 시간 삭제 중 오류 발생. {}", e.getMessage());
-                    log.info("참조키 오류 발생 무시 : {}", possibleDateAndTime);
+                    log.info("참조키 오류 발생 : {}", possibleDateAndTime);
+                    throw new ProfileException(ProfileErrorCode.PROFILE_POSSIBLE_DATE_ERROR, "가능한 날짜와 시간 삭제 중 오류가 발생했습니다.");
                 }
             });
 

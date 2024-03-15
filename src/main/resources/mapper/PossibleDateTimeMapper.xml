@@ -28,5 +28,12 @@
         ORDER BY pdate.possible_date ASC;
     </select>
 
+    <select id="checkReferenceInAppointmentRequestDate" resultType="boolean">
+        SELECT EXISTS(
+            SELECT 1
+            FROM t_possible_time
+            WHERE possible_date_id = #{possibleDateId}
+        )
+    </select>
 
 </mapper>
