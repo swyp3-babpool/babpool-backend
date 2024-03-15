@@ -3,6 +3,7 @@ package com.swyp3.babpool.domain.profile.application;
 import com.swyp3.babpool.domain.appointment.application.AppointmentService;
 import com.swyp3.babpool.domain.appointment.dao.AppointmentRepository;
 import com.swyp3.babpool.domain.possibledatetime.dao.PossibleDateTimeRepository;
+import com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateInsertDto;
 import com.swyp3.babpool.domain.profile.api.request.ProfilePagingConditions;
 import com.swyp3.babpool.domain.profile.api.request.ProfileUpdateRequest;
 import com.swyp3.babpool.domain.profile.application.response.*;
@@ -27,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -286,8 +288,15 @@ public class ProfileServiceImpl implements ProfileService{
         if(!insertTargets.isEmpty()){
             // Map 순회하며 추가 : 추가할 때는 날짜 먼저 추가
             insertTargets.forEach((date, timeList) -> {
-                possibleDateTimeRepository.insertPossibleDate(profileId, date);
-                possibleDateTimeRepository.insertPossibleTime(profileId, timeList);
+                PossibleDateInsertDto possibleDateInsertDto = null;
+                try {
+                    possibleDateInsertDto = new PossibleDateInsertDto(profileId, date);
+                } catch (ParseException e) {
+                    throw new ProfileException(ProfileErrorCode.PROFILE_UPDATE_PARSE_ERROR,
+                            "가능한 시간대 insert 과정에서 Date 타입으로 파싱하는 중에 문제가 발생했습니다.");
+                }
+                possibleDateTimeRepository.insertPossibleDate(possibleDateInsertDto);
+                possibleDateTimeRepository.insertPossibleTime(possibleDateInsertDto.getPossibleDateId(), profileId, timeList);
             });
         }
 
