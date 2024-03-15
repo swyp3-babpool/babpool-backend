@@ -46,6 +46,11 @@ public class AppointmentServiceImpl implements AppointmentService{
     @Transactional
     @Override
     public AppointmentCreateResponse makeAppointment(AppointmentCreateRequest appointmentCreateRequest) {
+        // is requesterUserId same as receiverUserId?
+        if(appointmentCreateRequest.getRequesterUserId().equals(appointmentCreateRequest.getTargetProfileId())){
+            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_REQUESTER_IS_SAME_AS_RECEIVER, "본인에게 밥약을 요청할 수 없습니다.");
+        }
+
         // 프로필 카드 식별 번호로, 타겟(요청받을) 사용자 내부 식별 값 조회.
         Long targetReceiverUserId = profileRepository.findUserIdByProfileId(appointmentCreateRequest.getTargetProfileId());
         appointmentCreateRequest.setReceiverUserId(targetReceiverUserId);
@@ -110,7 +115,7 @@ public class AppointmentServiceImpl implements AppointmentService{
     public List<AppointmentHistoryRefuseResponse> getRefuseAppointmentList(Long receiverUserId) {
         List<AppointmentHistoryRefuseResponse> historyRefuseResponseList = appointmentRepository.findRefuseAppointmentListByReceiverId(receiverUserId);
         if (historyRefuseResponseList.isEmpty()) {
-            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_REFUSE_NOT_FOUND, "거절된 밥약이 존재하지 않습니다.");
+            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_REFUSE_NOT_FOUND, "거절당한 밥약이 존재하지 않습니다.");
         }
         return historyRefuseResponseList;
     }
