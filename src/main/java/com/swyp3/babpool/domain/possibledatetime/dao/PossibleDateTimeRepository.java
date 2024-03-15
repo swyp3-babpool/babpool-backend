@@ -1,7 +1,9 @@
 package com.swyp3.babpool.domain.possibledatetime.dao;
 
+import com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateInsertDto;
 import com.swyp3.babpool.domain.profile.domain.PossibleDateAndTime;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -9,13 +11,17 @@ import java.util.List;
 public interface PossibleDateTimeRepository {
     List<PossibleDateAndTime> findAllPossibleDateAndTimeByProfileIdAndNowDateWithoutAcceptOrDone(Long profileId);
 
-    void deletePossibleDate(Long profileId, Long dateId);
+    void deletePossibleDate(@Param("profileId") Long profileId, @Param("dateId") Long dateId);
 
-    void deletePossibleTime(Long profileId, Long timeId);
+    void deletePossibleTime(@Param("dateId") Long dateId, @Param("timeId") Long timeId);
 
-    void insertPossibleDate(Long profileId, String date);
+    void insertPossibleDate(PossibleDateInsertDto possibleDateInsertDto);
 
-    void insertPossibleTime(Long profileId, List<Integer> timeList);
+    void insertPossibleTime(@Param("dateId") Long dateId, @Param("time") Integer time);
 
     boolean checkReferenceInAppointmentRequestDate(Long possibleDateId);
+
+    boolean checkExistPossibleDate(Long profileId, String possibleDate);
+
+    boolean checkExistPossibleTime(Long profileId, String possibleDate, Integer possibleTimeStart);
 }

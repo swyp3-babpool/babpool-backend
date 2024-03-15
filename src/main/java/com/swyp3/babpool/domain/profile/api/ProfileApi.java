@@ -33,8 +33,8 @@ public class ProfileApi {
     }
 
     @GetMapping("/detail/{targetProfileId}")
-    public ApiResponse<ProfileDetailResponse> getProfileDetail(@PathVariable(name="targetProfileId") Long targetProfileId){
-        ProfileDetailResponse profileDetailResponse = profileService.getProfileDetail(targetProfileId);
+    public ApiResponse<ProfileDetailResponse> getProfileDetail(@RequestAttribute(value = "userId") Long userId, @PathVariable(name="targetProfileId") Long targetProfileId){
+        ProfileDetailResponse profileDetailResponse = profileService.getProfileDetail(userId, targetProfileId);
         return ApiResponse.ok(profileDetailResponse);
     }
 
