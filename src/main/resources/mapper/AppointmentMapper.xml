@@ -131,7 +131,7 @@
     </select>
 
     <!--  밥약 히스토리 - 거절 당한 요청 리스트  -->
-    <select id="findRefuseAppointmentListByReceiverId" resultMap="appointmentHistoryRefuseResponse">
+    <select id="findRefuseAppointmentListByRequesterId" resultMap="appointmentHistoryRefuseResponse">
         select appoint.appointment_id,
                profile.profile_id,
                account.user_nick_name,
@@ -142,8 +142,9 @@
                 inner join t_profile profile on appoint.appointment_requester_id = profile.user_id
                 inner join t_user_account account on appoint.appointment_requester_id = account.user_id
                 left join t_reject reject on appoint.appointment_id = reject.appointment_id
-          where appoint.appointment_requester_id = #{requesterUserId}
-             and appoint.appointment_status IN ('REJECT', 'EXPIRE')
+        where appoint.appointment_requester_id = #{requesterUserId}
+            and appoint.appointment_status IN ('REJECT', 'EXPIRE')
+        ORDER BY reject.reject_create_date DESC;
     </select>
 
     <select id="findAppointmentPossibleDateTimeByProfileId" parameterType="long" resultType="com.swyp3.babpool.domain.appointment.application.response.AppointmentPossibleDateTimeResponse">

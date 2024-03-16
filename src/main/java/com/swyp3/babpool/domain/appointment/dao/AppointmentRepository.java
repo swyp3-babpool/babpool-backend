@@ -23,7 +23,7 @@ public interface AppointmentRepository {
 
     List<AppointmentHistoryDoneResponse> findDoneAppointmentListByRequesterId(Long requesterUserId);
 
-    List<AppointmentHistoryRefuseResponse> findRefuseAppointmentListByReceiverId(Long receiverUserId);
+    List<AppointmentHistoryRefuseResponse> findRefuseAppointmentListByRequesterId(Long requesterUserId);
 
     List<AppointmentPossibleDateTimeResponse> findAppointmentPossibleDateTimeByProfileId(Long profileId);
 

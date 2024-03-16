@@ -17,7 +17,7 @@ public interface AppointmentService {
 
     List<AppointmentHistoryDoneResponse> getDoneAppointmentList(Long userId);
 
-    List<AppointmentHistoryRefuseResponse> getRefuseAppointmentList(Long userId);
+    List<AppointmentHistoryRefuseResponse> getRefusedAppointmentList(Long userId);
 
     List<AppointmentPossibleDateTimeResponse> getAppointmentPossibleDateTime(Long profileId);
 
