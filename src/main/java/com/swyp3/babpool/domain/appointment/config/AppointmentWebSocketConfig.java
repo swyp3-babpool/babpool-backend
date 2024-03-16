@@ -32,7 +32,7 @@ public class AppointmentWebSocketConfig implements WebSocketMessageBrokerConfigu
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/websocket/appointment")
-                .setAllowedOrigins("http://localhost:5173", "http://localhost:9090", "https://bab-pool.com", "https://www.bab-pool.com")
+                .setAllowedOrigins("http://localhost:5173", "http://localhost:9090", "https://bab-pool.com", "https://www.bab-pool.com", "https://jxy.me")
                 .withSockJS();
     }
 
