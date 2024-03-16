@@ -36,13 +36,14 @@
         )
     </select>
 
-    <select id="checkExistPossibleDate" resultType="boolean">
-        SELECT EXISTS(
-            SELECT 1
-                FROM t_possible_date
-            WHERE possible_date = #{possibleDate}
-                AND profile_id = #{profileId}
-        )
+    <select id="checkExistPossibleDate" resultType="long">
+        SELECT COALESCE(
+            (SELECT possible_date_id
+             FROM t_possible_date
+             WHERE possible_date = #{possibleDate}
+               AND profile_id = #{profileId}
+            LIMIT 1),
+        0) AS id;
     </select>
 
     <select id="checkExistPossibleTime" resultType="boolean">

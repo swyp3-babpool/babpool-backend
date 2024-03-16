@@ -27,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -164,6 +163,14 @@ public class ProfileServiceImpl implements ProfileService{
         return new ProfileUpdateResponse(profileId);
     }
 
+    @Override
+    public void updateProfileActiveFlag(Long userId, Boolean activeFlag) {
+        int updatedRows = profileRepository.updateProfileActiveFlag(userId, activeFlag);
+        if(updatedRows!=1){
+            throw new ProfileException(ProfileErrorCode.PROFILE_ACTIVE_FLAG_ERROR, "프로필 활성화 상태 변경에 실패하였습니다.");
+        }
+    }
+
     private void validateRequestPossibleDateTime(Map<String, List<Integer>> possibleDateMap) {
         if(possibleDateMap.isEmpty()){
             throw new ProfileException(ProfileErrorCode.PROFILE_POSSIBLE_DATE_ERROR,"가능한 날짜와 시간을 최소 1개 이상 선택해주세요.");
@@ -177,27 +184,6 @@ public class ProfileServiceImpl implements ProfileService{
                     }
                 });
     }
-
-//    public void updatePossibleDateTime(Long profileId, ProfileUpdateRequest profileUpdateRequest) {
-//        profileRepository.deletePossibleTimes(profileId);
-//        profileRepository.deletePossibleDates(profileId);
-//
-//        for (Map.Entry<String, List<Integer>> entry : profileUpdateRequest.getPossibleDate().entrySet()) {
-//            String date = entry.getKey();
-//
-//            PossibleDate possibleDate = PossibleDate.builder()
-//                    .possible_date(date)
-//                    .profile_id(profileId)
-//                    .build();
-//            profileRepository.savePossibleDates(possibleDate);
-//
-//            List<Integer> times = entry.getValue();
-//
-//            for (Integer time : times) {
-//                profileRepository.savePossibleTimes(time, possibleDate.getId());
-//            }
-//        }
-//    }
 
     @Transactional
     @Override
@@ -295,11 +281,15 @@ public class ProfileServiceImpl implements ProfileService{
                         .profileId(profileId)
                         .date(date)
                         .build();
-                // 이미 존재하는 날짜라면 날짜를 추가하지는 않음.
-                boolean isAlreadyExistDate = possibleDateTimeRepository.checkExistPossibleDate(profileId, date);
-                if (!isAlreadyExistDate) {
+                // 이미 존재하는 날짜라면 날짜를 추가하지는 않음. 이미 존재하는 날짜라면 해당 날짜의 ID를 가져온다. 존재하지 않는다면 0L 반환
+                Long isAlreadyExistDateId = possibleDateTimeRepository.checkExistPossibleDate(profileId, date);
+                // 존재하지 않는 날짜라면, 날짜를 DB에 저장
+                if (isAlreadyExistDateId == 0L) {
+                    // possibleDateInsertDto 에 GeneratedKey를 받아올 수 있도록 설정
                     possibleDateTimeRepository.insertPossibleDate(possibleDateInsertDto);
                 }else{
+                    // 이미 존재하는 날짜라면 possibleDateInsertDto 에 해당 날짜의 ID로 세팅
+                    possibleDateInsertDto.setPossibleDateId(isAlreadyExistDateId);
                     log.info("ProfileServiceImpl.updatePossibleDateTime, 이미 존재하는 가능한 날짜입니다. {}", date);
                 }
 

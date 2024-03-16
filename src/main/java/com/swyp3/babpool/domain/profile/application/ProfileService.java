@@ -29,5 +29,7 @@ public interface ProfileService {
 
     ProfileRegistrationResponse getProfileisRegistered(Long userId);
 
+    void updateProfileActiveFlag(Long userId, Boolean activeFlag);
+
     void updatePossibleDateTime(Long userId, Long profileId, ProfileUpdateRequest profileUpdateRequest);
 }
