@@ -28,5 +28,7 @@ public class ReviewCreateRequest {
         return this;
     }
 
-
+    public Long getTargetAppointmentId() {
+        return targetAppointmentId;
+    }
 }
