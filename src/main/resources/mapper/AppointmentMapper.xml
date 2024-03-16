@@ -53,6 +53,7 @@
         WHERE
             appoint.appointment_requester_id = #{requesterUserId}
         AND appoint.appointment_status IN ('WAITING', 'ACCEPT')
+        ORDER BY appoint.appointment_create_date DESC;
     </select>
 
     <!--  밥약 알림 - 특정 사용자가 받은 밥약 알림  -->
@@ -76,6 +77,7 @@
         WHERE
             appoint.appointment_receiver_id = #{receiverUserId}
         AND appoint.appointment_status IN ('WAITING', 'ACCEPT')
+        ORDER BY appoint.appointment_create_date DESC;
     </select>
 
     <select id="countAcceptedAppointmentByReceiverIdAndPossibleTimeId" resultType="int" parameterType="map">
@@ -140,7 +142,7 @@
                 inner join t_profile profile on appoint.appointment_requester_id = profile.user_id
                 inner join t_user_account account on appoint.appointment_requester_id = account.user_id
                 left join t_reject reject on appoint.appointment_id = reject.appointment_id
-          where appoint.appointment_receiver_id = #{receiverUserId}
+          where appoint.appointment_requester_id = #{requesterUserId}
              and appoint.appointment_status IN ('REJECT', 'EXPIRE')
     </select>
 
