@@ -62,8 +62,8 @@ public class AppointmentApi {
      * 밥약 히스토리 - 거절(EXPIRE, REJECT)당한 리스트 조회 API
      */
     @GetMapping("/api/appointment/list/refuse")
-    public ApiResponse<List<AppointmentHistoryRefuseResponse>> getRefuseAppointmentList(@RequestAttribute(value = "userId", required = false) Long userId) {
-        return ApiResponse.ok(appointmentService.getRefuseAppointmentList(userId));
+    public ApiResponse<List<AppointmentHistoryRefuseResponse>> getRefusedAppointmentList(@RequestAttribute(value = "userId", required = false) Long userId) {
+        return ApiResponse.ok(appointmentService.getRefusedAppointmentList(userId));
     }
 
     /**
