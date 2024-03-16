@@ -28,4 +28,6 @@ public interface AppointmentService {
     AppointmentDetailResponse getAppointmentDetail(Long userId, Long appointmentId);
 
     AppointmentCancelResponse cancelAppointmentRequested(Long userId, Long appointmentId);
+
+    AppointmentRefuseDetailResponse getRefuseAppointmentDetail(Long userId, Long appointmentId);
 }

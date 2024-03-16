@@ -111,4 +111,13 @@ public class AppointmentApi {
                                                                    @PathVariable("appointmentId") Long appointmentId){
         return ApiResponse.ok(appointmentService.cancelAppointmentRequested(userId,appointmentId));
     }
+
+    /**
+     * 밥약 거절 사유 조회 API
+     */
+    @GetMapping("/api/appointment/refuse/{appointmentId}")
+    public ApiResponse<AppointmentRefuseDetailResponse> getRefuseAppointmentDetail(@RequestAttribute(value="userId", required = false) Long userId,
+                                                                                   @PathVariable("appointmentId") Long appointmentId){
+        return ApiResponse.ok(appointmentService.getRefuseAppointmentDetail(userId,appointmentId));
+    }
 }
