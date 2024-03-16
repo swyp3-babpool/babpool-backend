@@ -295,7 +295,7 @@
                  INNER JOIN t_possible_date pd ON pd.possible_date_id = pt.possible_date_id
                  INNER JOIN t_user_account ua ON a.appointment_requester_id = ua.user_id
                  INNER JOIN t_profile p ON p.user_id = ua.user_id
-        WHERE a.appointment_id = 62
+        WHERE a.appointment_id = #{appointmentId}
     </select>
 
 </mapper>
