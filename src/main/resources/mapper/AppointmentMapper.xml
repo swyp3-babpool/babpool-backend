@@ -301,4 +301,9 @@
         WHERE a.appointment_id = #{appointmentId}
     </select>
 
+    <update id="updateAppointmentStatus">
+        UPDATE t_appointment
+        SET appointment_status = #{status}
+        WHERE appointment_id = #{targetAppointmentId}
+    </update>
 </mapper>

@@ -49,9 +49,16 @@ public class ReviewServiceImpl implements ReviewService{
             throw new ReviewException(ReviewErrorCode.REVIEW_CREATE_REQUEST_FAIL,"리뷰 작성 가능 시간이 아닙니다.");
         }
 
+        // 리뷰 생성
         int resultRows = reviewRepository.saveReview(reviewCreateRequest);
         if(resultRows != 1){
             throw new ReviewException(ReviewErrorCode.REVIEW_CREATE_REQUEST_FAIL,"리뷰 작성에 실패하였습니다.");
+        }
+
+        // 리뷰 생성 후 appointment 테이블에 DONE 상태로 변경
+        int updatedRows = appointmentRepository.updateAppointmentStatus(reviewCreateRequest.getTargetAppointmentId(), "DONE");
+        if(updatedRows != 1){
+            throw new ReviewException(ReviewErrorCode.REVIEW_CREATE_REQUEST_FAIL,"리뷰 작성에 실패하였습니다. appointment 테이블 상태 변경 실패.");
         }
 
         return ReviewSaveResponse.of(reviewRepository.findByReviewId(reviewCreateRequest.getReviewId()).orElseThrow(
