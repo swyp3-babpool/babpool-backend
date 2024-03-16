@@ -47,7 +47,7 @@ public class AppointmentServiceImpl implements AppointmentService{
     @Override
     public AppointmentCreateResponse makeAppointment(AppointmentCreateRequest appointmentCreateRequest) {
         // is requesterUserId same as receiverUserId?
-        if(appointmentCreateRequest.getRequesterUserId().equals(appointmentCreateRequest.getTargetProfileId())){
+        if(appointmentCreateRequest.getRequesterUserId().equals(appointmentCreateRequest.getReceiverUserId())){
             throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_REQUESTER_IS_SAME_AS_RECEIVER, "본인에게 밥약을 요청할 수 없습니다.");
         }
 
