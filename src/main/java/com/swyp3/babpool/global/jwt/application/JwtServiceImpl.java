@@ -41,6 +41,20 @@ public class JwtServiceImpl implements JwtService{
     }
 
     @Override
+    public JwtPairDto createJwtPairAdmin(String userUUID, List roles) {
+        JwtPairDto jwtPairDto = JwtPairDto.builder()
+                .accessToken(jwtTokenizer.createAccessTokenAdmin(userUUID, roles))
+                .refreshToken(jwtTokenizer.createRefreshToken(userUUID, roles))
+                .build();
+        tokenRepository.save(TokenForRedis.builder()
+                .refreshToken(jwtPairDto.getRefreshToken())
+                .refreshExpire(refreshExpire)
+                .userUUID(userUUID)
+                .build());
+        return jwtPairDto;
+    }
+
+    @Override
     public String extendLoginState(String refreshToken) {
         TokenForRedis tokenObject = tokenRepository.findById(refreshToken)
                 .orElseThrow(() -> new BabpoolJwtException(JwtExceptionErrorCode.REFRESH_TOKEN_NOT_FOUND,

@@ -24,7 +24,8 @@ public class AppointmentWebSocketConfig implements WebSocketMessageBrokerConfigu
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/websocket/appointment")
-                .setAllowedOrigins("*");
+                .setAllowedOrigins("*")
+                .withSockJS();
     }
 
     /**

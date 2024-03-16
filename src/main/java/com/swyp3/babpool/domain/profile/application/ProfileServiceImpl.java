@@ -27,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -164,6 +163,14 @@ public class ProfileServiceImpl implements ProfileService{
         return new ProfileUpdateResponse(profileId);
     }
 
+    @Override
+    public void updateProfileActiveFlag(Long userId, Boolean activeFlag) {
+        int updatedRows = profileRepository.updateProfileActiveFlag(userId, activeFlag);
+        if(updatedRows!=1){
+            throw new ProfileException(ProfileErrorCode.PROFILE_ACTIVE_FLAG_ERROR, "프로필 활성화 상태 변경에 실패하였습니다.");
+        }
+    }
+
     private void validateRequestPossibleDateTime(Map<String, List<Integer>> possibleDateMap) {
         if(possibleDateMap.isEmpty()){
             throw new ProfileException(ProfileErrorCode.PROFILE_POSSIBLE_DATE_ERROR,"가능한 날짜와 시간을 최소 1개 이상 선택해주세요.");
@@ -177,27 +184,6 @@ public class ProfileServiceImpl implements ProfileService{
                     }
                 });
     }
-
-//    public void updatePossibleDateTime(Long profileId, ProfileUpdateRequest profileUpdateRequest) {
-//        profileRepository.deletePossibleTimes(profileId);
-//        profileRepository.deletePossibleDates(profileId);
-//
-//        for (Map.Entry<String, List<Integer>> entry : profileUpdateRequest.getPossibleDate().entrySet()) {
-//            String date = entry.getKey();
-//
-//            PossibleDate possibleDate = PossibleDate.builder()
-//                    .possible_date(date)
-//                    .profile_id(profileId)
-//                    .build();
-//            profileRepository.savePossibleDates(possibleDate);
-//
-//            List<Integer> times = entry.getValue();
-//
-//            for (Integer time : times) {
-//                profileRepository.savePossibleTimes(time, possibleDate.getId());
-//            }
-//        }
-//    }
 
     @Transactional
     @Override
