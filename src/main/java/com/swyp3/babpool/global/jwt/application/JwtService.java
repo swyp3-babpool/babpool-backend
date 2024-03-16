@@ -8,6 +8,8 @@ public interface JwtService {
 
     JwtPairDto createJwtPair(String userUUID, List roles);
 
+    JwtPairDto createJwtPairAdmin(String userUUID, List roles);
+
     String extendLoginState(String refreshToken);
 
     void logout(String refreshToken);

@@ -21,7 +21,8 @@ public class JwtTokenizer {
     private final byte[] accessSecret;
     private final byte[] refreshSecret;
 
-    public final static Long ACCESS_TOKEN_EXPIRE_COUNT = 1 * 24 * 60 * 60 * 1000L; // 1 day
+    public final static Long ACCESS_TOKEN_EXPIRE_COUNT = 15 * 60 * 1000L; // 15 minutes
+    public final static Long ACCESS_TOKEN_EXPIRE_COUNT_ADMIN = 1 * 24 * 60 * 60 * 1000L; // 1 days
     public final static Long REFRESH_TOKEN_EXPIRE_COUNT = 7 * 24 * 60 * 60 * 1000L; // 7 days
 
     public JwtTokenizer(@Value("${property.jwt.secretKey}") String accessSecret, @Value("${property.jwt.refreshKey}") String refreshSecret) {
@@ -32,6 +33,10 @@ public class JwtTokenizer {
 
     public String createAccessToken(String uuid, List<String> roles) {
         return createToken(uuid, roles, ACCESS_TOKEN_EXPIRE_COUNT, accessSecret);
+    }
+
+    public String createAccessTokenAdmin(String uuid, List<String> roles) {
+        return createToken(uuid, roles, ACCESS_TOKEN_EXPIRE_COUNT_ADMIN, accessSecret);
     }
 
 
