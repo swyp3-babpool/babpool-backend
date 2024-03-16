@@ -1,6 +1,7 @@
 package com.swyp3.babpool.domain.appointment.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -15,6 +16,13 @@ public class AppointmentWebSocketConfig implements WebSocketMessageBrokerConfigu
 
     private final AppointmentWebSocketHandler appointmentWebSocketHandler;
 
+//    @Value("${property.url.clientUrl}")
+//    private String clientUrl;
+//    @Value("${property.url.clientUrlMain}")
+//    private String clientUrlMain;
+//    @Value("${property.url.clientUrlSub}")
+//    private String clientUrlSub;
+
     /**
      * stompClient 연결을 위한 endpoint 설정
      * stompClient connection local url : ws://localhost:9090/websocket/appointment
@@ -24,7 +32,7 @@ public class AppointmentWebSocketConfig implements WebSocketMessageBrokerConfigu
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/websocket/appointment")
-                .setAllowedOrigins("*")
+                .setAllowedOrigins("http://localhost:5173", "http://localhost:9090", "https://bab-pool.com", "https://www.bab-pool.com")
                 .withSockJS();
     }
 
