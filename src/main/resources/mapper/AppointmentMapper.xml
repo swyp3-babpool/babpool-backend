@@ -127,7 +127,7 @@
                  LEFT JOIN t_review review ON appoint.appointment_id = review.appointment_id
         WHERE
             appoint.appointment_requester_id = #{requesterUserId}
-          AND appoint.appointment_status = 'DONE';
+          AND appoint.appointment_status IN ('DONE', 'ACCEPT');
     </select>
 
     <!--  밥약 히스토리 - 거절 당한 요청 리스트  -->
@@ -139,11 +139,11 @@
                appoint.appointment_status,
                reject.reject_create_date
         from t_appointment appoint
-                inner join t_profile profile on appoint.appointment_requester_id = profile.user_id
-                inner join t_user_account account on appoint.appointment_requester_id = account.user_id
-                left join t_reject reject on appoint.appointment_id = reject.appointment_id
-        where appoint.appointment_requester_id = #{requesterUserId}
-            and appoint.appointment_status IN ('REJECT', 'EXPIRE')
+                 inner join t_profile profile on appoint.appointment_receiver_id = profile.user_id
+                 inner join t_user_account account on appoint.appointment_receiver_id = account.user_id
+                 left join t_reject reject on appoint.appointment_id = reject.appointment_id
+        where appoint.appointment_requester_id = 46
+          and appoint.appointment_status IN ('REJECT', 'EXPIRE')
         ORDER BY reject.reject_create_date DESC;
     </select>
 
