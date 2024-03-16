@@ -196,7 +196,8 @@ public class AppointmentServiceImpl implements AppointmentService{
     @Override
     public AppointmentDetailResponse getAppointmentDetail(Long userId, Long appointmentId) {
         Appointment appointment = appointmentRepository.findByAppointmentId(appointmentId);
-        MyPageUserDto userData = userRepository.findMyProfile(appointment.getAppointmentRequesterUserId());
+        MyPageUserDto requesterData = userRepository.findMyProfile(appointment.getAppointmentRequesterUserId());
+        MyPageUserDto receiverData = userRepository.findMyProfile(appointment.getAppointmentReceiverUserId());
 
         //만료까지 남은 시간 계산
         Map<String, Long> lastingTime = getLastingTime(appointment);
@@ -207,15 +208,19 @@ public class AppointmentServiceImpl implements AppointmentService{
 
         //대기 중인 보낸 밥약 - 만료 시간, 연락처
         if(appointment.getAppointmentStatus().equals("WAITING") && appointment.getAppointmentRequesterUserId()==userId){
-            return new AppointmentSendWaitingDetailResponse(userData,lastingTime,requesterPossibleTime,question);
+            return new AppointmentSendWaitingDetailResponse(receiverData,lastingTime,requesterPossibleTime,question);
         }
         //대기 중인 받은 밥약 - 만료 시간
         if(appointment.getAppointmentStatus().equals("WAITING") && appointment.getAppointmentReceiverUserId()==userId){
-            return new AppointmentReceiveWaitingDetailResponse(userData,lastingTime,requesterPossibleTime,question);
+            return new AppointmentReceiveWaitingDetailResponse(requesterData,lastingTime,requesterPossibleTime,question);
         }
-        //수락된 밥약 - 연락처
-        if(appointment.getAppointmentStatus().equals("ACCEPT")){
-            return new AppointmentAcceptDetailResponse(userData,requesterPossibleTime,question,appointment.getAppointmentFixTimeId());
+        //수락된 받은 밥약 - 연락처
+        if(appointment.getAppointmentStatus().equals("ACCEPT") && appointment.getAppointmentReceiverUserId()==userId){
+            return new AppointmentAcceptDetailResponse(requesterData,requesterPossibleTime,question,appointment.getAppointmentFixTimeId());
+        }
+        //수락된 보낸 밥약 - 연락처
+        if(appointment.getAppointmentStatus().equals("ACCEPT") && appointment.getAppointmentRequesterUserId()==userId){
+            return new AppointmentAcceptDetailResponse(receiverData,requesterPossibleTime,question,appointment.getAppointmentFixTimeId());
         }
         throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_DETAIL_ERROR,"대기중 혹은 수락된 밥약이 아닙니다.");
     }

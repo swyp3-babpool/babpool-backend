@@ -142,7 +142,7 @@
                  inner join t_profile profile on appoint.appointment_receiver_id = profile.user_id
                  inner join t_user_account account on appoint.appointment_receiver_id = account.user_id
                  left join t_reject reject on appoint.appointment_id = reject.appointment_id
-        where appoint.appointment_requester_id = 46
+        where appoint.appointment_requester_id = #{requesterUserId}
           and appoint.appointment_status IN ('REJECT', 'EXPIRE')
         ORDER BY reject.reject_create_date DESC;
     </select>
@@ -301,4 +301,9 @@
         WHERE a.appointment_id = #{appointmentId}
     </select>
 
+    <update id="updateAppointmentStatus">
+        UPDATE t_appointment
+        SET appointment_status = #{status}
+        WHERE appointment_id = #{targetAppointmentId}
+    </update>
 </mapper>
