@@ -186,7 +186,7 @@
         SELECT EXISTS(
             SELECT 1
             FROM t_appointment_request_time
-            WHERE appointment_request_id = #{appointmentRequestId}
+            WHERE possible_time_id = #{timeId}
         )
     </select>
 
