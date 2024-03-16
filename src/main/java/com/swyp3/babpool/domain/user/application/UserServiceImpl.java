@@ -69,6 +69,8 @@ public class UserServiceImpl implements UserService{
         authService.socialServiceDisconnect(userId, authPlatformName);
         authService.updateOAuthPlatformId(userId);
 
+        profileService.updateProfileActiveFlag(userId, false);
+
         int updatedRows = userRepository.updateUserStateByUserId(userId, UserStatus.EXIT);
         if(updatedRows!=1){
             throw new SignDownException(SignDownExceptionErrorCode.FAILED_TO_UPDATE_USER_STATE, "회원탈퇴에 실패하였습니다");
