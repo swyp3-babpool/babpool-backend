@@ -172,11 +172,16 @@ public class AppointmentServiceImpl implements AppointmentService{
                         .requestProfileId(requesterProfileId)
                         .acceptMessage(HttpStatus.OK.name())
                         .build());
-        
-        updateProfileActiveFlagIfPossibleDateNoExistAnymore(appointment);
+
+        // 프로필 카드 리스트에 노출되도록 하기 위해 profile_active_flag 값을 변경하지 않는 것으로 기획 변경. 더 나은 대안이 있기 전 까지 주석처리.
+//        updateProfileActiveFlagIfPossibleDateNoExistAnymore(appointment);
         return response;
     }
 
+    /**
+     * 수락된 밥약의 수락자의 활성화된 시간이 더이상 없으면, 해당 사용자의 profile_active_flag 값을 0으로 변경
+     * @param appointment
+     */
     private void updateProfileActiveFlagIfPossibleDateNoExistAnymore(Appointment appointment) {
         // 해당 사용자(수락자)의 활성화된 시간을 확인 후, 활성화된 시간이 없으면
         if(appointmentRepository.findAppointmentPossibleDateTimeByProfileId(appointment.getAppointmentReceiverUserId()).isEmpty()){
