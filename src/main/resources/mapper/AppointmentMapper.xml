@@ -306,4 +306,48 @@
         SET appointment_status = #{status}
         WHERE appointment_id = #{targetAppointmentId}
     </update>
+
+    <select id="findRejectAppointmentDetail">
+        SELECT
+            ua.user_nick_name AS receiverNickName,
+            p.profile_image_url AS receiverProfileImage,
+            ua.user_grade AS receiverGrade,
+            p.profile_intro AS receiverProfileIntro,
+            GROUP_CONCAT(k.keyword_name) AS keywords,
+            r.reject_cause_content AS message
+        FROM
+            t_appointment a
+                INNER JOIN t_user_account ua ON ua.user_id = a.appointment_receiver_id
+                INNER JOIN t_profile p ON ua.user_id = p.user_id
+                LEFT JOIN t_m_user_keyword muk ON ua.user_id = muk.user_id
+                LEFT JOIN t_keyword k ON muk.keyword_id = k.keyword_id
+                LEFT JOIN t_reject r ON r.appointment_id = a.appointment_id
+        WHERE
+            a.appointment_requester_id= #{userId}
+          and a.appointment_id = #{appointmentId}
+        GROUP BY
+            ua.user_id
+    </select>
+
+    <select id="findExpireAppointmentDetail">
+        SELECT
+            ua.user_nick_name AS receiverNickName,
+            p.profile_image_url AS receiverProfileImage,
+            ua.user_grade AS receiverGrade,
+            p.profile_intro AS receiverProfileIntro,
+            GROUP_CONCAT(k.keyword_name) AS keywords,
+            '시간만료' AS message
+        FROM
+            t_appointment a
+                INNER JOIN t_user_account ua ON ua.user_id = a.appointment_receiver_id
+                INNER JOIN t_profile p ON ua.user_id = p.user_id
+                LEFT JOIN t_m_user_keyword muk ON ua.user_id = muk.user_id
+                LEFT JOIN t_keyword k ON muk.keyword_id = k.keyword_id
+        WHERE
+            a.appointment_requester_id= #{userId}
+          and a.appointment_id = #{appointmentId}
+        GROUP BY
+            ua.user_id
+    </select>
+
 </mapper>

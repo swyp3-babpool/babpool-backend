@@ -242,6 +242,24 @@ public class AppointmentServiceImpl implements AppointmentService{
                 .build();
     }
 
+    @Override
+    public AppointmentRefuseDetailResponse getRefuseAppointmentDetail(Long userId, Long appointmentId) {
+        Appointment appointment = appointmentRepository.findByAppointmentId(appointmentId);
+
+        if(appointment.getAppointmentRequesterUserId()!=userId)
+            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_REFUSE_DETAIL_NOT_ALLOW,
+                    "밥약 요청자가 아닙니다.");
+        if(appointment.getAppointmentStatus().equals("REJECT")){
+            return appointmentRepository.findRejectAppointmentDetail(appointmentId,userId);
+        }
+        if(appointment.getAppointmentStatus().equals("EXPIRE")){
+            return appointmentRepository.findExpireAppointmentDetail(appointmentId,userId);
+        }
+
+        throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_STATUS_IS_NOT_REFUSE,
+                "거절된 밥약이 아닙니다.");
+    }
+
     private Map<String, Long> getLastingTime(Appointment appointment) {
         LocalDateTime expireDate = appointment.getAppointmentCreateDate().plusDays(1);
         Duration duration = Duration.between(LocalDateTime.now(), expireDate);
