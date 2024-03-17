@@ -16,8 +16,8 @@ public class HealthCheckStompAPi {
 
 
     @PostMapping("/api/test/stomp/send")
-    public void testStompSend(@RequestBody String receiverProfileId) {
-        simpMessagingTemplate.convertAndSend("/topic/appointment/" + receiverProfileId, "요청 잘 가니?");
+    public void testStompSend(@RequestBody String userUUID) {
+        simpMessagingTemplate.convertAndSend("/topic/appointment/" + userUUID, "요청 잘 가니?");
     }
 
 }
