@@ -63,7 +63,6 @@ public class JwtServiceImpl implements JwtService{
         Claims claims = jwtTokenizer.parseRefreshToken(refreshToken);
         String userUUID = claims.getSubject();
 
-        // TODO : Redis 에서 꺼낸 tokenObject 의 userUUID 와 request refresh token claims 의 userUUID 가 다른지 까지 검증해야 할까요?
         if (!tokenObject.getUserUUID().equals(userUUID)) {
             throw new BabpoolJwtException(JwtExceptionErrorCode.REFRESH_TOKEN_NOT_SAME_USER,
                     "user uuid in request refresh token and redis refresh token are not same, while extending login state.");
