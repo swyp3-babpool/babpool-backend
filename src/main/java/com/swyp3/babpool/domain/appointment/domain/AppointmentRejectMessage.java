@@ -5,12 +5,12 @@ import lombok.Getter;
 
 @Getter
 public class AppointmentRejectMessage {
-    private Long requestProfileId;
-    private String rejectMessage;
+    private Long receiverProfileId;
+    private String messageType;
 
     @Builder
-    public AppointmentRejectMessage(Long requestProfileId, String rejectMessage) {
-        this.requestProfileId = requestProfileId;
-        this.rejectMessage = rejectMessage;
+    public AppointmentRejectMessage(Long receiverProfileId, AppointmentSocketMessageType messageType) {
+        this.receiverProfileId = receiverProfileId;
+        this.messageType = messageType.toString();
     }
 }
