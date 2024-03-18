@@ -182,7 +182,8 @@
         UPDATE t_user_account
         SET
             user_nick_name = #{request.userNickName},
-            user_grade = #{request.userGrade}
+            user_grade = #{request.userGrade},
+            user_modify_date = CURRENT_TIMESTAMP()
         WHERE
             user_id = #{userId}
     </update>
@@ -194,7 +195,8 @@
             profile_contents = #{request.profileContents},
             profile_contact_phone = #{request.profileContactPhone},
             profile_contact_chat = #{request.profileContactChat},
-            profile_active_flag = 1
+            profile_active_flag = 1,
+            profile_modify_date = CURRENT_TIMESTAMP()
         WHERE
             profile_id = #{profileId};
     </update>
@@ -237,7 +239,8 @@
 
     <update id="updateProfileActiveFlag">
         UPDATE t_profile
-        SET profile_active_flag = #{activeFlag}
+        SET profile_active_flag = #{activeFlag},
+            profile_modify_date = CURRENT_TIMESTAMP()
         WHERE user_id = #{userId}
     </update>
 

@@ -270,7 +270,8 @@
     <update id="updateAppointment" parameterType="com.swyp3.babpool.domain.appointment.api.request.AppointmentAcceptRequest">
         UPDATE t_appointment
         SET appointment_status = 'ACCEPT',
-            possible_time_id=#{possibleTimeId}
+            possible_time_id=#{possibleTimeId},
+            appointment_modify_date = CURRENT_TIMESTAMP()
         WHERE appointment_id=#{appointmentId}
     </update>
 
@@ -303,7 +304,8 @@
 
     <update id="updateAppointmentStatus">
         UPDATE t_appointment
-        SET appointment_status = #{status}
+        SET appointment_status = #{status},
+            appointment_modify_date=CURRENT_TIMESTAMP()
         WHERE appointment_id = #{targetAppointmentId}
     </update>
 
