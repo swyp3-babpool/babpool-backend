@@ -9,16 +9,14 @@ import com.swyp3.babpool.domain.appointment.application.response.appointmentdeta
 import com.swyp3.babpool.domain.appointment.application.response.appointmentdetail.AppointmentReceiveWaitingDetailResponse;
 import com.swyp3.babpool.domain.appointment.application.response.appointmentdetail.AppointmentSendWaitingDetailResponse;
 import com.swyp3.babpool.domain.appointment.dao.AppointmentRepository;
-import com.swyp3.babpool.domain.appointment.domain.Appointment;
-import com.swyp3.babpool.domain.appointment.domain.AppointmentAcceptMessage;
-import com.swyp3.babpool.domain.appointment.domain.AppointmentRejectMessage;
-import com.swyp3.babpool.domain.appointment.domain.AppointmentRequestMessage;
+import com.swyp3.babpool.domain.appointment.domain.*;
 import com.swyp3.babpool.domain.appointment.exception.AppointmentException;
 import com.swyp3.babpool.domain.appointment.exception.errorcode.AppointmentErrorCode;
 import com.swyp3.babpool.domain.profile.dao.ProfileRepository;
 import com.swyp3.babpool.domain.user.application.UserService;
 import com.swyp3.babpool.domain.user.application.response.MyPageUserDto;
 import com.swyp3.babpool.domain.user.dao.UserRepository;
+import com.swyp3.babpool.global.uuid.application.UuidService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -31,6 +29,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -41,6 +40,7 @@ public class AppointmentServiceImpl implements AppointmentService{
     private final AppointmentRepository appointmentRepository;
     private final ProfileRepository profileRepository;
     private final UserService userService;
+    private final UuidService uuidService;
     private final UserRepository userRepository;
 
     @Transactional
@@ -61,11 +61,15 @@ public class AppointmentServiceImpl implements AppointmentService{
         appointmentRepository.saveAppointmentRequest(appointmentCreateRequest);
         appointmentRepository.saveAppointmentRequestTime(appointmentCreateRequest);
 
-        // 요청 상대에게 알림 메시지 전송.
-        simpMessagingTemplate.convertAndSend("/topic/appointment/" + appointmentCreateRequest.getTargetProfileId(),
+
+        // 밥약 요청 상대에게 알림 메시지 전송. + 알림 메시지에는 요청자의 프로필 식별 번호도 포함.
+        Long requesterProfileId = profileRepository.findByUserId(appointmentCreateRequest.getRequesterUserId()).getProfileId();
+        UUID receiverUserUUID = uuidService.getUuidByUserId(appointmentCreateRequest.getReceiverUserId());
+
+        simpMessagingTemplate.convertAndSend("/topic/appointment/" + receiverUserUUID.toString(),
                 AppointmentRequestMessage.builder()
-                        .targetProfileId(appointmentCreateRequest.getTargetProfileId())
-                        .message(HttpStatus.OK.name())
+                        .requesterProfileId(requesterProfileId)
+                        .messageType(AppointmentSocketMessageType.APPOINTMENT_REQUESTED)
                         .build());
         Appointment appointmentEntity = appointmentRepository.findByAppointmentId(appointmentCreateRequest.getAppointmentId());
         return AppointmentCreateResponse.of(appointmentEntity, appointmentCreateRequest.getTargetProfileId());
@@ -140,14 +144,14 @@ public class AppointmentServiceImpl implements AppointmentService{
         appointmentRepository.updateAppointmentReject(appointmentRejectRequest);
         appointmentRepository.saveRejectData(appointmentRejectRequest);
 
-        //상대에게 거절 알림 메시지 전송
-        Long requesterUserId = appointment.getAppointmentRequesterUserId();
-        Long requesterProfileId = profileRepository.findByUserId(requesterUserId).getProfileId();
+        // 밥약 요청자에게 거절 알림 메시지 전송 + 알림 메시지에는 거절자의 프로필 식별 번호도 포함.
+        Long receiverProfileId = profileRepository.findByUserId(appointment.getAppointmentReceiverUserId()).getProfileId();
+        UUID requesterUserUUID = uuidService.getUuidByUserId(appointment.getAppointmentRequesterUserId());
 
-        simpMessagingTemplate.convertAndSend("/topic/appointment/" + requesterProfileId,
+        simpMessagingTemplate.convertAndSend("/topic/appointment/" + requesterUserUUID.toString(),
                 AppointmentRejectMessage.builder()
-                        .requestProfileId(requesterProfileId)
-                        .rejectMessage(HttpStatus.OK.name())
+                        .receiverProfileId(receiverProfileId)
+                        .messageType(AppointmentSocketMessageType.APPOINTMENT_REJECTED)
                         .build());
         return new AppointmentRejectResponse("밥약 거절이 처리되었습니다.");
     }
@@ -163,17 +167,18 @@ public class AppointmentServiceImpl implements AppointmentService{
         appointmentRepository.updateAppointment(appointmentAcceptRequest);
         AppointmentAcceptResponse response = appointmentRepository.findAcceptAppointment(appointment.getAppointmentId());
 
-      //상대에게 수락 알림 전송.
-        Long requesterUserId = appointment.getAppointmentRequesterUserId();
-        Long requesterProfileId = profileRepository.findByUserId(requesterUserId).getProfileId();
+        // 밥약 요청자에게 수락 알림 전송. + 수락 메시지에는 수락자의 프로필 식별 번호도 포함.
+        Long receiverUserId = appointment.getAppointmentReceiverUserId();
+        Long receiverProfileId = profileRepository.findByUserId(receiverUserId).getProfileId();
 
-        simpMessagingTemplate.convertAndSend("/topic/appointment/"+ requesterProfileId,
+        UUID requesterUserUUID = uuidService.getUuidByUserId(appointment.getAppointmentRequesterUserId());
+        simpMessagingTemplate.convertAndSend("/topic/appointment/"+ requesterUserUUID.toString(),
                 AppointmentAcceptMessage.builder()
-                        .requestProfileId(requesterProfileId)
-                        .acceptMessage(HttpStatus.OK.name())
+                        .receiverProfileId(receiverProfileId)
+                        .messageType(AppointmentSocketMessageType.APPOINTMENT_ACCEPTED)
                         .build());
 
-        // 프로필 카드 리스트에 노출되도록 하기 위해 profile_active_flag 값을 변경하지 않는 것으로 기획 변경. 더 나은 대안이 있기 전 까지 주석처리.
+        // TODO : 프로필 카드 리스트에 노출되도록 하기 위해 profile_active_flag 값을 변경하지 않는 것으로 기획 변경. 더 나은 대안이 있기 전 까지 주석처리.
 //        updateProfileActiveFlagIfPossibleDateNoExistAnymore(appointment);
         return response;
     }
