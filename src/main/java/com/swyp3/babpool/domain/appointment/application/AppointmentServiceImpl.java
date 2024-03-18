@@ -213,10 +213,14 @@ public class AppointmentServiceImpl implements AppointmentService{
 
         //대기 중인 보낸 밥약 - 만료 시간, 연락처
         if(appointment.getAppointmentStatus().equals("WAITING") && appointment.getAppointmentRequesterUserId()==userId){
+            receiverData.setContactPhone(null);
+            receiverData.setContactChat(null);
             return new AppointmentSendWaitingDetailResponse(receiverData,lastingTime,requesterPossibleTime,question);
         }
         //대기 중인 받은 밥약 - 만료 시간
         if(appointment.getAppointmentStatus().equals("WAITING") && appointment.getAppointmentReceiverUserId()==userId){
+            requesterData.setContactPhone(null);
+            requesterData.setContactChat(null);
             return new AppointmentReceiveWaitingDetailResponse(requesterData,lastingTime,requesterPossibleTime,question);
         }
         //수락된 받은 밥약 - 연락처
