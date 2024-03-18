@@ -24,4 +24,12 @@ public class MyPageUserDto {
         this.contactPhone=contactPhone;
         this.contactChat=contactChat;
     }
+
+    public void setContactPhone(String contactPhone) {
+        this.contactPhone = contactPhone;
+    }
+
+    public void setContactChat(String contactChat) {
+        this.contactChat = contactChat;
+    }
 }
