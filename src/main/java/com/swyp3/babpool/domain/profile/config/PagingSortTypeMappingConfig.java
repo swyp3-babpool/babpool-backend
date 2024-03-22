@@ -39,8 +39,8 @@ public class PagingSortTypeMappingConfig implements WebMvcConfigurer {
                             case "NickName":
                                 convertToDatabaseColumnNameForSorting = ProfileSortType.NickName.getColumnName();
                                 break;
-                            case "NewestPofile":
-                                convertToDatabaseColumnNameForSorting = ProfileSortType.NewestPofile.getColumnName();
+                            case "NewestProfile":
+                                convertToDatabaseColumnNameForSorting = ProfileSortType.NewestProfile.getColumnName();
                                 break;
                             case "NewestReview":
                                 convertToDatabaseColumnNameForSorting = ProfileSortType.NewestReview.getColumnName();
