@@ -1,4 +1,4 @@
-name: Spring Boot Gradle CICD (version 0.1.3)
+name: Spring Boot Gradle CICD (version 0.1.4)
 
 on:
   push:
@@ -128,6 +128,25 @@ jobs:
           key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
           source: "app.conf"
           target: "/home/ubuntu/data/nginx/conf"
+
+      - name: Create promtail-config.yml from secrets
+        run: |
+          touch ./promtail-config.yml
+          echo -e "${{secrets.PROMTAIL_CONFIG}}" | base64 --decode > ./promtail-config.yml
+      - name: Upload promtail-config.yml to Repo
+        uses: actions/upload-artifact@v3
+        with:
+          name: promtail-config.yml
+          path: ./promtail-config.yml
+          retention-days: 1
+      - name: Copy promtail-config.yml to VM
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.VM_HOST_IP }}
+          username: ${{ secrets.VM_USERNAME }}
+          key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+          source: "promtail-config.yml"
+          target: "/home/ubuntu"
 
       - name: executing remote ssh commands using password
         uses: appleboy/ssh-action@v1.0.0
