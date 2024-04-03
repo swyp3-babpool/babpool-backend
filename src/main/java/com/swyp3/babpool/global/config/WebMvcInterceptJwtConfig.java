@@ -13,15 +13,25 @@ public class WebMvcInterceptJwtConfig implements WebMvcConfigurer {
     private final JwtTokenInterceptor jwtTokenInterceptor;
     private static final String[] EXCLUDE_PATHS = {
         "/api/user/sign/in", "/api/user/sign/up", "/api/user/sign/out", "/api/token/access/refresh",
-        "/api/test/connection", "/api/test/jwt/permitted", "/api/test/uuid", "/api/test/jwt/tokens", "/api/test/image/upload",
-            "/api/test/image/delete", "/api/test/cookie", "/api/test/from/uuid/to/id", "/api/test/stomp/send", "/api/test/jwt/tokens/admin",
         "/api/profile/list"
+    };
+
+    private static final String[] MONITORING = {
+        "/api/actuator/**"
+    };
+
+    private static final String[] TESTING = {
+        "/api/test/**"
+//        "/api/test/connection", "/api/test/jwt/permitted", "/api/test/uuid", "/api/test/jwt/tokens", "/api/test/image/upload",
+//        "/api/test/image/delete", "/api/test/cookie", "/api/test/from/uuid/to/id", "/api/test/stomp/send", "/api/test/jwt/tokens/admin",
     };
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(jwtTokenInterceptor)
                 .addPathPatterns("/api/**")
-                .excludePathPatterns(EXCLUDE_PATHS);
+                .excludePathPatterns(EXCLUDE_PATHS)
+                .excludePathPatterns(MONITORING)
+                .excludePathPatterns(TESTING);
     }
 }
