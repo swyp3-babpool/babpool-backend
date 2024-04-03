@@ -75,7 +75,7 @@ public class HealthCheckApi {
     }
 
     @GetMapping("/api/test/from/uuid/to/id")
-    public ResponseEntity<Long> testGetUserIdByUuid(@RequestParam String userUuid) {
+    public ResponseEntity<Long> testGetUserIdByUuid(@RequestParam("userUuid") String userUuid) {
         return ResponseEntity.ok(uuidService.getUserIdByUuid(userUuid));
     }
 
@@ -85,6 +85,43 @@ public class HealthCheckApi {
         return ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.SET_COOKIE, CookieProvider.ofRefreshToken("refreshToken1234", 1).toString())
                 .body(ApiResponse.ok("data"));
+    }
+    
+    @PostMapping("/api/test/mdc")
+    public ResponseEntity<String> testMdc(@RequestBody Map<String, String> requestBody) {
+        switch (requestBody.get("logLevel")) {
+            case "info":
+                testMdcInfo();
+                break;
+            case "debug":
+                testMdcDebug();
+                break;
+            case "warn":
+                testMdcWarn();
+                break;
+            case "error":
+                testMdcError();
+                break;
+            default:
+                break;
+        }
+        return ResponseEntity.ok("success");
+    }
+
+    private void testMdcInfo() {
+        log.info("testMdcInfo");
+    }
+
+    private void testMdcDebug() {
+        log.debug("testMdcDebug");
+    }
+
+    private void testMdcWarn() {
+        log.warn("testMdcWarn");
+    }
+
+    private void testMdcError() {
+        log.error("testMdcError");
     }
 
 }
