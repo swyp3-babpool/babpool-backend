@@ -10,6 +10,7 @@ import org.slf4j.MDC;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StopWatch;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
@@ -23,6 +24,7 @@ import java.util.*;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class MdcLoggingFilter extends OncePerRequestFilter{
 
+    private static final AntPathMatcher pathMatcher = new AntPathMatcher();
     private static ArrayList<String> NOT_LOGGING_MONITORING = new ArrayList<>(Arrays.asList(
             "/api/actuator/**"
     ));
@@ -54,8 +56,14 @@ public class MdcLoggingFilter extends OncePerRequestFilter{
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        if (NOT_LOGGING_MONITORING.contains(request.getRequestURI())) {
-            log.info("Monitoring URI: {}", request.getRequestURI(), "\t Client IP: {}", request.getRemoteAddr());
+        ContentCachingRequestWrapper requestWrapper = new ContentCachingRequestWrapper(request);
+
+        boolean matchResult = NOT_LOGGING_MONITORING.stream().anyMatch(
+                uri -> pathMatcher.match(uri, requestWrapper.getRequestURI())
+        );
+
+        if (matchResult) {
+            log.info("Monitoring URI: {} \t Client IP: {}", requestWrapper.getRequestURI(), requestWrapper.getRemoteAddr());
             return true;
         }
         return false;

@@ -32,6 +32,9 @@ out/
 docker-compose.yaml
 nginx/app.conf
 
+### LOGGING ###
+var/
+
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
