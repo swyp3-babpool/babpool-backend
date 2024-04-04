@@ -81,7 +81,7 @@ public class KakaoTokenProvider {
                 return idToken;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("카카오로부터 Token 조회 실패, {}", e.getStackTrace()[0]);
             throw new AuthException(AuthExceptionErrorCode.AUTH_ERROR_CONNECT_WITH_KAKAO,
                     e.getMessage().toString());
         }
