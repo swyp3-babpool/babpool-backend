@@ -66,7 +66,7 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
             log.error("token : {}", accessToken);
             log.error("Exception Message : {}", e.getMessage());
             log.error("Exception StackTrace : {");
-            e.printStackTrace();
+            e.getStackTrace()[0].toString();
             log.error("}");
             log.error("====================================================");
             throw new BadCredentialsException(JwtExceptionErrorCode.NOT_FOUND_TOKEN, "throw new exception");

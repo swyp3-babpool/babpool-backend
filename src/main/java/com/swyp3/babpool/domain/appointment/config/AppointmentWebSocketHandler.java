@@ -41,17 +41,10 @@ public class AppointmentWebSocketHandler implements ChannelInterceptor {
         }
         String authorization = accessor.getFirstNativeHeader(AUTHORIZATION);
         String accessToken = getAccessTokenFrom(authorization);
-        log.info("accessToken in AppointmentWebSocketHandler.class: {}", accessToken);
 
-        Claims authenticatedClaims = null;
         try {
             if (StringUtils.hasText(accessToken)) {
-                authenticatedClaims = jwtAuthenticator.authenticate(accessToken);
-            }
-            if (!authenticatedClaims.isEmpty()){
-                Long userId = jwtAuthenticator.jwtTokenUserIdResolver(authenticatedClaims.getSubject());
-//                accessor.getSessionAttributes().put("userId", userId);
-//                accessor.setHeader("userId", userId);
+                jwtAuthenticator.authenticate(accessToken);
             }
         } catch (NullPointerException | IllegalStateException e) {
             log.error("Not found Token // token : {}", accessToken);
@@ -67,11 +60,11 @@ public class AppointmentWebSocketHandler implements ChannelInterceptor {
             throw new BadCredentialsException(JwtExceptionErrorCode.UNSUPPORTED_TOKEN, "throw new unsupported token exception");
         } catch (Exception e) {
             log.error("====================================================");
-            log.error("Babpool JwtTokenInterceptor - preHandle() 오류 발생");
+            log.error("Babpool AppointmentWebSocketHandler - preHandle() 오류 발생");
             log.error("token : {}", accessToken);
             log.error("Exception Message : {}", e.getMessage());
             log.error("Exception StackTrace : {");
-            e.printStackTrace();
+            e.getStackTrace()[0].toString();
             log.error("}");
             log.error("====================================================");
             throw new BadCredentialsException(JwtExceptionErrorCode.NOT_FOUND_TOKEN, "throw new exception");
