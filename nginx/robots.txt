@@ -1,0 +1,23 @@
+User-agent: *
+Disallow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Mediapartners-Google
+Allow: /
+
+User-agent: Yeti
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: facebot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+User-agent: Daum
+Allow: /
