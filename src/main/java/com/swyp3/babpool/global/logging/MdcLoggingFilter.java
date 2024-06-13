@@ -58,9 +58,9 @@ public class MdcLoggingFilter extends OncePerRequestFilter{
     }
 
     /**
-     * 허용된 IP에서 전송된 모니터링 요청을 공통 로깅에서 제외한다.
-     * 허용되지 않은 IP에서 전송된 모니터링 요청은 error 레벨로 별도 로깅한다.
-     * @return boolean : 공통 로깅에서 제외할지 여부
+     * 모니터링 요청인 경우 MDC 로깅에서 제외한다.
+     * 단, 허용되지 않은 IP에서 전송된 모니터링 요청은 error 레벨로 로깅된다.
+     * @return boolean : MDC 로깅에서 제외할지 여부
      * @throws ServletException
      */
     @Override
