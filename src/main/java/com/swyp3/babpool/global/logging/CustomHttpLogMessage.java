@@ -26,11 +26,11 @@ public class CustomHttpLogMessage {
     String responseBody;
 
     @Builder
-    public CustomHttpLogMessage(Long responseTime, ContentCachingRequestWrapper requestWrapper, ContentCachingResponseWrapper responseWrapper) {
+    public CustomHttpLogMessage(Long responseTime, ContentCachingRequestWrapper requestWrapper, ContentCachingResponseWrapper responseWrapper, String clientIP) {
         this.httpMethod = requestWrapper.getMethod();
         this.requestURI = requestWrapper.getRequestURI();
         this.httpStatus = HttpStatus.valueOf(responseWrapper.getStatus());
-        this.clientIP = requestWrapper.getRemoteAddr();
+        this.clientIP = clientIP;
         this.responseTime = responseTime;
         Map<String, String> requestHeaderMap = new HashMap<>();
         Enumeration headerNames = requestWrapper.getHeaderNames();
