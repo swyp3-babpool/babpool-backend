@@ -7,10 +7,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Stream;
 
 @Slf4j
 @Getter
@@ -32,6 +32,7 @@ public class CustomHttpLogMessage {
         this.httpStatus = HttpStatus.valueOf(responseWrapper.getStatus());
         this.clientIP = clientIP;
         this.responseTime = responseTime;
+
         Map<String, String> requestHeaderMap = new HashMap<>();
         Enumeration headerNames = requestWrapper.getHeaderNames();
         while (headerNames.hasMoreElements()) {
@@ -40,13 +41,14 @@ public class CustomHttpLogMessage {
             requestHeaderMap.put(key, value);
         }
         this.headers = requestHeaderMap.toString();
+
         StringBuilder requestParamBuilder = new StringBuilder();
         requestWrapper.getParameterMap().entrySet().stream().forEach(entry ->{
                 requestParamBuilder.append(entry.getKey() + "=" + entry.getValue()[0]);
         });
         this.requestParam = requestParamBuilder.toString();
-        this.requestBody = new String(requestWrapper.getContentAsByteArray());
-        this.responseBody = new String(responseWrapper.getContentAsByteArray());
+        this.requestBody = truncateWhenStatusCodeNot200(Arrays.toString(requestWrapper.getContentAsByteArray()), 1000);
+        this.responseBody = truncateWhenStatusCodeNot200(Arrays.toString(responseWrapper.getContentAsByteArray()), 1000);
     }
 
     public void toPrettierLog() {
@@ -63,5 +65,23 @@ public class CustomHttpLogMessage {
                 "└============================================",
                 httpMethod, requestURI, httpStatus, clientIP, responseTime, headers, requestParam, requestBody, responseBody);
     }
+
+    /**
+     * 원본 문자열의 길이가 length 보다 길 경우, length 만큼 자르고 suffix 를 붙여 반환한다.
+     * 단, 응답 코드가 4xx, 5xx 인 경우 원본 문자열을 그대로 반환한다.
+     * @param str 원본 문자열
+     * @param maxTruncatedLength 최대 문자열 길이
+     * @return 최대 길이로 잘린 문자열
+     */
+    private String truncateWhenStatusCodeNot200(String str, int maxTruncatedLength) {
+        if (this.httpStatus.is4xxClientError() || this.httpStatus.is5xxServerError()) {
+            return str;
+        }
+        if (!str.isBlank() && str.length() > maxTruncatedLength) {
+            return str.substring(0, maxTruncatedLength) + "... (truncated)";
+        }
+        return str;
+    }
+
 
 }
