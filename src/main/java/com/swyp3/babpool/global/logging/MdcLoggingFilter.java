@@ -74,7 +74,7 @@ public class MdcLoggingFilter extends OncePerRequestFilter{
         if (urlMatchResult) {
             String clientIP = ClientIPResolver.getClientIP(requestWrapper);
             if (!MONITORING_ALLOWED_IPS.contains(clientIP)) {
-                log.error("Monitoring Request From Invalid IP.\n\r URI: {} \t Client IP: {}", requestWrapper.getRequestURI(), clientIP);
+                log.error("Monitoring Request From Invalid IP.\t URI: {} \t Client IP: {}", requestWrapper.getRequestURI(), clientIP);
             }
             return true;
         }
