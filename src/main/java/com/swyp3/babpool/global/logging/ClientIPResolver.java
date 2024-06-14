@@ -29,7 +29,7 @@ public class ClientIPResolver {
             clientIP = httpServletRequest.getHeader("x-real-ip");
         }
 
-        if (!StringUtils.hasText(clientIP) && httpServletRequest.getRemoteAddr().equals("0:0:0:0:0:0:0:1")) {
+        if (!StringUtils.hasText(clientIP) && StringUtils.hasText(httpServletRequest.getRemoteAddr()) && httpServletRequest.getRemoteAddr().equals("0:0:0:0:0:0:0:1")) {
             clientIP = "localhost";
         }
 

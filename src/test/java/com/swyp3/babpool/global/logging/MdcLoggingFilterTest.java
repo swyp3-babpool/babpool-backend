@@ -48,7 +48,7 @@ class MdcLoggingFilterTest {
         // given
         request.addHeader("X-Forwarded-For", "34.168.207.216");
         requestWrapper = new ContentCachingRequestWrapper(request);
-        when(request.getRequestURI()).thenReturn("/api/actuator");
+        when(requestWrapper.getRequestURI()).thenReturn("/api/actuator");
 
         // when
         boolean result = mdcLoggingFilter.shouldNotFilter(requestWrapper);
@@ -63,7 +63,7 @@ class MdcLoggingFilterTest {
         // given
         request.addHeader("X-Forwarded-For", "127.0.0.2");
         requestWrapper = new ContentCachingRequestWrapper(request);
-        when(request.getRequestURI()).thenReturn("/api/actuator");
+        when(requestWrapper.getRequestURI()).thenReturn("/api/actuator");
 
         // when
         boolean result = mdcLoggingFilter.shouldNotFilter(requestWrapper);
