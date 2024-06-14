@@ -47,8 +47,8 @@ public class CustomHttpLogMessage {
                 requestParamBuilder.append(entry.getKey() + "=" + entry.getValue()[0]);
         });
         this.requestParam = requestParamBuilder.toString();
-        this.requestBody = truncateWhenStatusCodeNot200(Arrays.toString(requestWrapper.getContentAsByteArray()), 1000);
-        this.responseBody = truncateWhenStatusCodeNot200(Arrays.toString(responseWrapper.getContentAsByteArray()), 1000);
+        this.requestBody = truncateWhenStatusCodeNot200(new String(requestWrapper.getContentAsByteArray()), 1000);
+        this.responseBody = truncateWhenStatusCodeNot200(new String(responseWrapper.getContentAsByteArray()), 1000);
     }
 
     public void toPrettierLog() {
