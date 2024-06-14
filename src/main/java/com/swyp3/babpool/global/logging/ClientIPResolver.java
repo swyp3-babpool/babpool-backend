@@ -1,11 +1,13 @@
 package com.swyp3.babpool.global.logging;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 public class ClientIPResolver {
 
     /**
@@ -25,6 +27,10 @@ public class ClientIPResolver {
 
         if (!StringUtils.hasText(clientIP)) {
             clientIP = httpServletRequest.getHeader("x-real-ip");
+        }
+
+        if (!StringUtils.hasText(clientIP) && httpServletRequest.getRemoteAddr().equals("0:0:0:0:0:0:0:1")) {
+            clientIP = "localhost";
         }
 
         if (!StringUtils.hasText(clientIP)) {
