@@ -1,6 +1,5 @@
 package com.swyp3.babpool.global.logging;
 
-import com.fasterxml.uuid.Generators;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,8 +24,11 @@ import java.util.*;
 public class MdcLoggingFilter extends OncePerRequestFilter{
 
     private static final AntPathMatcher pathMatcher = new AntPathMatcher();
-    private static ArrayList<String> NOT_LOGGING_MONITORING = new ArrayList<>(Arrays.asList(
+    private static ArrayList<String> LOGGING_EXCLUDE_URLS = new ArrayList<>(Arrays.asList(
             "/api/actuator/**"
+    ));
+    private static ArrayList<String> MONITORING_ALLOWED_IPS = new ArrayList<>(Arrays.asList(
+            "34.168.207.216"
     ));
 
     @Override
@@ -45,6 +47,7 @@ public class MdcLoggingFilter extends OncePerRequestFilter{
                 .requestWrapper(requestWrapper)
                 .responseWrapper(responseWrapper)
                 .responseTime(stopWatch.getTotalTimeMillis())
+                .clientIP(ClientIPResolver.getClientIP(requestWrapper))
                 .build()
                 .toPrettierLog();
 
@@ -54,16 +57,25 @@ public class MdcLoggingFilter extends OncePerRequestFilter{
         MDC.clear();
     }
 
+    /**
+     * 모니터링 요청인 경우 MDC 로깅에서 제외한다.
+     * 단, 허용되지 않은 IP에서 전송된 모니터링 요청은 error 레벨로 로깅된다.
+     * @return boolean : MDC 로깅에서 제외할지 여부
+     * @throws ServletException
+     */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         ContentCachingRequestWrapper requestWrapper = new ContentCachingRequestWrapper(request);
 
-        boolean matchResult = NOT_LOGGING_MONITORING.stream().anyMatch(
+        boolean urlMatchResult = LOGGING_EXCLUDE_URLS.stream().anyMatch(
                 uri -> pathMatcher.match(uri, requestWrapper.getRequestURI())
         );
 
-        if (matchResult) {
-            log.info("Monitoring URI: {} \t Client IP: {}", requestWrapper.getRequestURI(), requestWrapper.getRemoteAddr());
+        if (urlMatchResult) {
+            String clientIP = ClientIPResolver.getClientIP(requestWrapper);
+            if (!MONITORING_ALLOWED_IPS.contains(clientIP)) {
+                log.error("Monitoring Request From Invalid IP.\t URI: {} \t Client IP: {}", requestWrapper.getRequestURI(), clientIP);
+            }
             return true;
         }
         return false;
