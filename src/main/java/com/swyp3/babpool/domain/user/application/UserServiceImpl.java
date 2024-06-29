@@ -47,8 +47,8 @@ public class UserServiceImpl implements UserService{
     private final ExitInfoRepository exitInfoRepository;
 
     @Override
-    public LoginResponseWithRefreshToken login(LoginRequestDTO loginRequest) {
-        AuthMemberResponse kakaoPlatformMember = authService.getUserDataByCode(loginRequest.getCode());
+    public LoginResponseWithRefreshToken login(LoginRequestDTO loginRequest, String localhostFlag) {
+        AuthMemberResponse kakaoPlatformMember = authService.getUserDataByCode(loginRequest.getCode(), localhostFlag);
         return generateLoginResponse(AuthPlatform.KAKAO,kakaoPlatformMember);
     }
 
