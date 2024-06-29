@@ -11,6 +11,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StopWatch;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
@@ -30,6 +31,7 @@ public class MdcLoggingFilter extends OncePerRequestFilter{
     private static ArrayList<String> MONITORING_ALLOWED_IPS = new ArrayList<>(Arrays.asList(
             "34.168.207.216"
     ));
+    private static final String LOCAL_HOST_5173 = "http://localhost:5173";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -40,8 +42,10 @@ public class MdcLoggingFilter extends OncePerRequestFilter{
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
+        setOriginAttributeAtRequest(requestWrapper);
         filterChain.doFilter(requestWrapper, responseWrapper);
         stopWatch.stop();
+
 
         CustomHttpLogMessage.builder()
                 .requestWrapper(requestWrapper)
@@ -55,6 +59,17 @@ public class MdcLoggingFilter extends OncePerRequestFilter{
 
         MDC.remove("request_uuid");
         MDC.clear();
+    }
+
+    /**
+     * 클라이언트 Origin 이 LOCAL_HOST_5173 인 경우 request 에 localhostFlag 속성을 추가한다.
+     * @param requestWrapper
+     */
+    void setOriginAttributeAtRequest(ContentCachingRequestWrapper requestWrapper) {
+        String requestOrigin = requestWrapper.getHeader("origin");
+        if (StringUtils.hasText(requestOrigin) && requestOrigin.equals(LOCAL_HOST_5173)) {
+            requestWrapper.setAttribute("localhostFlag", "true");
+        }
     }
 
     /**

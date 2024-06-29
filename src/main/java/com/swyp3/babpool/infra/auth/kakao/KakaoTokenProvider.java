@@ -25,8 +25,9 @@ public class KakaoTokenProvider {
     @Value("${property.oauth.kakao.client-secret}")
     private String clientSecret;
 
-    public String getIdTokenFromKakao(String code) {
+    public String getIdTokenFromKakao(String code, String localhostFlag) {
         String idToken;
+        reAssignKakaoRedirectUriWhenRequestFromLocalHost(localhostFlag);
 
         try {
             URL url = new URL(reqURL);
@@ -85,5 +86,9 @@ public class KakaoTokenProvider {
             throw new AuthException(AuthExceptionErrorCode.AUTH_ERROR_CONNECT_WITH_KAKAO,
                     e.getMessage().toString());
         }
+    }
+
+    private void reAssignKakaoRedirectUriWhenRequestFromLocalHost(String localhostFlag) {
+        redirectUri = localhostFlag != null && localhostFlag.equals("true") ? "http://localhost:5173/auth/kakao/callback" : redirectUri;
     }
 }

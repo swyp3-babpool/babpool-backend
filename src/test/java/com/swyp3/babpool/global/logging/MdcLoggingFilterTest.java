@@ -91,4 +91,15 @@ class MdcLoggingFilterTest {
         log.info("output >> {}", output.getAll());
     }
 
+    @DisplayName("origin 이 LOCAL_HOST_5173 인 경우, request 에 localhostFlag=true 속성을 추가한다.")
+    @Test
+    void setOriginAttributeAtRequest() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("origin", "http://localhost:5173");
+
+        ContentCachingRequestWrapper requestWrapper = new ContentCachingRequestWrapper(request);
+        mdcLoggingFilter.setOriginAttributeAtRequest(requestWrapper);
+
+        assertThat(requestWrapper.getAttribute("localhostFlag")).isEqualTo("true");
+    }
 }

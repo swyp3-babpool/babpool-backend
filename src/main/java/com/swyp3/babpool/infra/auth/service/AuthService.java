@@ -24,8 +24,8 @@ public class AuthService {
     private final KakaoTokenProvider kakaoTokenProvider;
     private final AuthRepository authRepository;
 
-    public AuthMemberResponse getUserDataByCode(String code) {
-        String idToken = kakaoTokenProvider.getIdTokenFromKakao(code);
+    public AuthMemberResponse getUserDataByCode(String code, String localhostFlag) {
+        String idToken = kakaoTokenProvider.getIdTokenFromKakao(code, localhostFlag);
         AuthMemberResponse kakaoPlatformMember = kakaoProvider.getKakaoPlatformMember(idToken);
 
         return kakaoPlatformMember;
