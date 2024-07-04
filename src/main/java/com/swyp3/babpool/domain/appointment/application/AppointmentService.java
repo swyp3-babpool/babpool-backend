@@ -2,6 +2,7 @@ package com.swyp3.babpool.domain.appointment.application;
 
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentAcceptRequest;
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
+import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequestV1;
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentRejectRequest;
 import com.swyp3.babpool.domain.appointment.application.response.*;
 import com.swyp3.babpool.domain.appointment.application.response.appointmentdetail.AppointmentDetailResponse;
@@ -30,4 +31,6 @@ public interface AppointmentService {
     AppointmentCancelResponse cancelAppointmentRequested(Long userId, Long appointmentId);
 
     AppointmentRefuseDetailResponse getRefuseAppointmentDetail(Long userId, Long appointmentId);
+
+    AppointmentCreateResponse makeAppointmentResolveConcurrency(AppointmentCreateRequestV1 appointmentCreateRequest);
 }

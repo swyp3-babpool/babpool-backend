@@ -1,6 +1,7 @@
 package com.swyp3.babpool.domain.appointment.api;
 
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentAcceptRequest;
+import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequestV1;
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentRejectRequest;
 import com.swyp3.babpool.domain.appointment.application.AppointmentService;
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
@@ -32,6 +33,11 @@ public class AppointmentApi {
                                                                   @RequestBody @Valid AppointmentCreateRequest appointmentCreateRequest) {
         appointmentCreateRequest.setRequesterUserId(userId);
         return ApiResponse.ok(appointmentService.makeAppointment(appointmentCreateRequest));
+    }
+
+    @PostMapping("/api/v1/appointment")
+    public ApiResponse<AppointmentCreateResponse> createAppointment(@RequestBody @Valid AppointmentCreateRequestV1 appointmentCreateRequest) {
+        return ApiResponse.ok(appointmentService.makeAppointmentResolveConcurrency(appointmentCreateRequest));
     }
 
     /**

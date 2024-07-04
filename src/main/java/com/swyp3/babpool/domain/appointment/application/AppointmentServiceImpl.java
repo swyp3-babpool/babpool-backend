@@ -2,6 +2,7 @@ package com.swyp3.babpool.domain.appointment.application;
 
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentAcceptRequest;
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
+import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequestV1;
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentRejectRequest;
 import com.swyp3.babpool.domain.appointment.application.response.*;
 import com.swyp3.babpool.domain.appointment.application.response.appointmentdetail.AppointmentAcceptDetailResponse;
@@ -12,6 +13,7 @@ import com.swyp3.babpool.domain.appointment.dao.AppointmentRepository;
 import com.swyp3.babpool.domain.appointment.domain.*;
 import com.swyp3.babpool.domain.appointment.exception.AppointmentException;
 import com.swyp3.babpool.domain.appointment.exception.errorcode.AppointmentErrorCode;
+import com.swyp3.babpool.domain.possibledatetime.dao.PossibleDateTimeRepository;
 import com.swyp3.babpool.domain.profile.dao.ProfileRepository;
 import com.swyp3.babpool.domain.user.application.UserService;
 import com.swyp3.babpool.domain.user.application.response.MyPageUserDto;
@@ -26,10 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -38,6 +37,7 @@ public class AppointmentServiceImpl implements AppointmentService{
 
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final AppointmentRepository appointmentRepository;
+    private final PossibleDateTimeRepository possibleDateTimeRepository;
     private final ProfileRepository profileRepository;
     private final UserService userService;
     private final UuidService uuidService;
@@ -73,6 +73,27 @@ public class AppointmentServiceImpl implements AppointmentService{
                         .build());
         Appointment appointmentEntity = appointmentRepository.findByAppointmentId(appointmentCreateRequest.getAppointmentId());
         return AppointmentCreateResponse.of(appointmentEntity, appointmentCreateRequest.getTargetProfileId());
+    }
+
+    @Transactional
+    @Override
+    public AppointmentCreateResponse makeAppointmentResolveConcurrency(AppointmentCreateRequestV1 appointmentCreateRequest) {
+        // 자기 자신에게는 요청할 수 없다.
+        if(appointmentCreateRequest.getSenderUserId().equals(appointmentCreateRequest.getReceiverUserId())){
+            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_REQUESTER_IS_SAME_AS_RECEIVER, "본인에게 밥약을 요청할 수 없습니다.");
+        }
+
+        // 약속 요청한 일정이 이미 다른 사용자에 의해 예약 확정된 시간대인지 조회
+        Optional<PossibleDateTime> possibleDateTimeEntity = possibleDateTimeRepository.findByProfileIdAndDateTimeForUpdate(appointmentCreateRequest.getTargetProfileId(), appointmentCreateRequest.getPossibleDateTime());
+        if (possibleDateTimeEntity.isEmpty()){
+            throw new AppointmentException(AppointmentErrorCode.POSSIBLE_DATETIME_NOT_FOUND, "밥약 가능한 일정이 존재하지 않습니다.");
+        }
+        if (possibleDateTimeEntity.get().getStatus().equals("RESERVED")){
+            throw new AppointmentException(AppointmentErrorCode.POSSIBLE_DATETIME_ALREADY_RESERVED, "이미 예약된 시간대 입니다. 다른 시간대를 다시 선택해주세요.");
+        }
+
+        possibleDateTimeRepository.updatePossibleDateTimeStatus(possibleDateTimeEntity.get().getPossibleTimeId(), "RESERVED");
+        return AppointmentCreateResponse.of();
     }
 
     /**
