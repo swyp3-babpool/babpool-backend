@@ -14,6 +14,7 @@ import com.swyp3.babpool.domain.appointment.domain.*;
 import com.swyp3.babpool.domain.appointment.exception.AppointmentException;
 import com.swyp3.babpool.domain.appointment.exception.errorcode.AppointmentErrorCode;
 import com.swyp3.babpool.domain.possibledatetime.dao.PossibleDateTimeRepository;
+import com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateTime;
 import com.swyp3.babpool.domain.profile.dao.ProfileRepository;
 import com.swyp3.babpool.domain.user.application.UserService;
 import com.swyp3.babpool.domain.user.application.response.MyPageUserDto;
