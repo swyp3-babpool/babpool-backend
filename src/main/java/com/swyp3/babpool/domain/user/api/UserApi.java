@@ -30,8 +30,8 @@ public class UserApi {
      * 로그인 요청 api
      */
     @PostMapping("/sign/in")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody @Valid LoginRequestDTO loginRequest){
-        LoginResponseWithRefreshToken loginResponseData = userService.login(loginRequest);
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody @Valid LoginRequestDTO loginRequest, @RequestAttribute(value = "localhostFlag", required = false) String localhostFlag){
+        LoginResponseWithRefreshToken loginResponseData = userService.login(loginRequest, localhostFlag);
         Boolean isRegistered = loginResponseData.getLoginResponse().getIsRegistered();
 
         //로그인 성공한 경우
