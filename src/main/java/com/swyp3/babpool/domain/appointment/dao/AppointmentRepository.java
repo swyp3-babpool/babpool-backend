@@ -2,6 +2,7 @@ package com.swyp3.babpool.domain.appointment.dao;
 
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentAcceptRequest;
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
+import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequestV1;
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentRejectRequest;
 import com.swyp3.babpool.domain.appointment.application.response.*;
 import com.swyp3.babpool.domain.appointment.domain.Appointment;
@@ -14,6 +15,8 @@ import java.util.List;
 public interface AppointmentRepository {
 
     int saveAppointment(AppointmentCreateRequest appointmentCreateRequest);
+
+    int saveAppointment(AppointmentCreateRequestV1 appointmentCreateRequest);
 
     List<AppointmentSendResponse> findAppointmentListByRequesterId(Long requesterUserId);
 

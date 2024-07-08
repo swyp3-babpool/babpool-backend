@@ -214,6 +214,29 @@
             );
     </insert>
 
+    <insert id="saveAppointment" parameterType="com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequestV1"
+            useGeneratedKeys="true" keyProperty="appointmentId">
+        INSERT INTO t_appointment
+        (
+            appointment_id,
+            appointment_sender_id,
+            appointment_receiver_id,
+            appointment_status,
+            appointment_create_date,
+            appointment_modify_date,
+            possible_datetime_id
+        )
+        VALUES
+        (
+            #{appointmentId},
+            #{senderUserId},
+            #{receiverUserId},
+            'WAITING',
+            CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(),
+             #{possibleDateTimeId}
+        );
+    </insert>
+
     <insert id="saveAppointmentRequest" parameterType="com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest"
             useGeneratedKeys="true" keyProperty="appointmentRequestId">
         INSERT INTO t_appointment_request

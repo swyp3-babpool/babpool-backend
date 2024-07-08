@@ -58,6 +58,20 @@
             AND possible_time_start = #{possibleTimeStart}) as exist;
     </select>
 
+    <select id="findByProfileIdAndDateTimeForUpdate" resultType="com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateTime">
+        SELECT *
+        FROM t_possible_datetime
+        WHERE possible_datetime_id = #{possibleDateTimeId}
+          AND profile_id = #{targetProfileId}
+        FOR UPDATE;
+    </select>
+
+    <update id="updatePossibleDateTimeStatus">
+        UPDATE t_possible_datetime
+        SET possible_datetime_status = #{status}
+        WHERE possible_datetime_id = #{possibleDateTimeId}
+    </update>
+
     <delete id="deletePossibleDate">
         DELETE FROM t_possible_date
         WHERE profile_id=#{profileId} and
