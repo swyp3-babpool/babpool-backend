@@ -31,4 +31,6 @@ public interface PossibleDateTimeRepository {
     Optional<PossibleDateTime> findByProfileIdAndDateTimeForUpdate(Long targetProfileId, Long possibleDateTimeId);
 
     int updatePossibleDateTimeStatus(Long possibleDateTimeId, String status);
+
+    List<PossibleDateTime> findAllByProfileId(Long profileId);
 }

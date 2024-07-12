@@ -18,9 +18,11 @@ import com.swyp3.babpool.domain.possibledatetime.dao.PossibleDateTimeRepository;
 import com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateTime;
 import com.swyp3.babpool.domain.profile.application.ProfileService;
 import com.swyp3.babpool.domain.profile.dao.ProfileRepository;
+import com.swyp3.babpool.domain.profile.domain.Profile;
 import com.swyp3.babpool.domain.user.application.UserService;
 import com.swyp3.babpool.domain.user.application.response.MyPageUserDto;
 import com.swyp3.babpool.domain.user.dao.UserRepository;
+import com.swyp3.babpool.global.tsid.TsidKeyGenerator;
 import com.swyp3.babpool.global.uuid.application.UuidService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +41,7 @@ import java.util.*;
 public class AppointmentServiceImpl implements AppointmentService{
 
     private final SimpMessagingTemplate simpMessagingTemplate;
+    private final TsidKeyGenerator tsidKeyGenerator;
 
     private final UuidService uuidService;
     private final PossibleDateTimeService possibleDateTimeService;
@@ -83,7 +86,8 @@ public class AppointmentServiceImpl implements AppointmentService{
     @Transactional
     @Override
     public AppointmentCreateResponse makeAppointmentResolveConcurrency(AppointmentCreateRequestV1 appointmentCreateRequest) {
-        appointmentCreateRequest.setReceiverUserId(profileService.getProfileByProfileId(appointmentCreateRequest.getTargetProfileId()).getUserId());
+        Profile profileByProfileId = profileService.getProfileByProfileId(appointmentCreateRequest.getTargetProfileId());
+        appointmentCreateRequest.setReceiverUserId(profileByProfileId.getUserId());
 
         // 자기 자신에게는 요청할 수 없다.
         if(appointmentCreateRequest.getSenderUserId().equals(appointmentCreateRequest.getReceiverUserId())){
@@ -94,8 +98,11 @@ public class AppointmentServiceImpl implements AppointmentService{
         PossibleDateTime possibleDateTimeEntity = possibleDateTimeService.throwExceptionIfAppointmentAlreadyAcceptedAtSameTime(
                 appointmentCreateRequest.getTargetProfileId(), appointmentCreateRequest.getPossibleDateTimeId(), appointmentCreateRequest.getPossibleDateTime());
 
-        possibleDateTimeService.changeStatusAsReserved(possibleDateTimeEntity.getPossibleDateTimeId());
-        int insertedRows = appointmentRepository.saveAppointment(appointmentCreateRequest);
+        boolean isStatusUpdated = possibleDateTimeService.changeStatusAsReserved(possibleDateTimeEntity.getPossibleDateTimeId());
+        if (!isStatusUpdated){
+            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_CREATE_FAILED, "밥약 가능한 일정 상태 변경에 실패하였습니다.");
+        }
+        int insertedRows = appointmentRepository.saveAppointment(appointmentCreateRequest.toEntity(tsidKeyGenerator.generateTsid()));
         if(insertedRows != 1){
             throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_CREATE_FAILED, "밥약 요청. t_appointment insert fail.");
         }

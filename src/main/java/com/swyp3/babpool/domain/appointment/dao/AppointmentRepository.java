@@ -6,9 +6,11 @@ import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentRejectRequest;
 import com.swyp3.babpool.domain.appointment.application.response.*;
 import com.swyp3.babpool.domain.appointment.domain.Appointment;
+import com.swyp3.babpool.domain.appointment.domain.AppointmentV1;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Collection;
 import java.util.List;
 
 @Mapper
@@ -16,7 +18,7 @@ public interface AppointmentRepository {
 
     int saveAppointment(AppointmentCreateRequest appointmentCreateRequest);
 
-    int saveAppointment(AppointmentCreateRequestV1 appointmentCreateRequest);
+    int saveAppointment(AppointmentV1 appointmentEntity);
 
     List<AppointmentSendResponse> findAppointmentListByRequesterId(Long requesterUserId);
 
@@ -65,4 +67,6 @@ public interface AppointmentRepository {
 
     AppointmentRefuseDetailResponse findRejectAppointmentDetail(@Param("appointmentId") Long appointmentId, @Param("userId") Long userId);
     AppointmentRefuseDetailResponse findExpireAppointmentDetail(@Param("appointmentId") Long appointmentId, @Param("userId") Long userId);
+
+    List<AppointmentV1> findAllBySenderUserId(long senderUserId);
 }

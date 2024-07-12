@@ -20,14 +20,14 @@ public class PossibleDateTimeServiceImpl implements PossibleDateTimeService{
 
     private final PossibleDateTimeRepository possibleDateTimeRepository;
 
-    @Transactional
+
     @Override
     public PossibleDateTime throwExceptionIfAppointmentAlreadyAcceptedAtSameTime(Long targetProfileId, Long possibleDateTimeId, LocalDateTime possibleDateTime) {
         PossibleDateTime possibleDateTimeEntity = possibleDateTimeRepository.findByProfileIdAndDateTimeForUpdate(
                 targetProfileId, possibleDateTimeId).orElseThrow(
                 () -> new PossibleDateTimeException(PossibleDateTimeErrorCode.POSSIBLE_DATETIME_NOT_FOUND, "[Error Log] 밥약 가능한 일정이 존재하지 않습니다.")
         );
-
+        log.info("possibleDateTimeEntity.getPossibleDateTimeStatus() >> {}", possibleDateTimeEntity.getPossibleDateTimeStatus());
         if (possibleDateTimeEntity.getPossibleDateTimeStatus().equals(PossibleDateTimeStatusType.RESERVED.getStatus())){
             throw new PossibleDateTimeException(PossibleDateTimeErrorCode.POSSIBLE_DATETIME_ALREADY_RESERVED, "이미 예약된 시간대 입니다. 다른 시간대를 다시 선택해주세요.");
         }
@@ -35,12 +35,13 @@ public class PossibleDateTimeServiceImpl implements PossibleDateTimeService{
         return possibleDateTimeEntity;
     }
 
-    @Transactional
+
     @Override
-    public void changeStatusAsReserved(Long possibleDateTimeId) {
+    public boolean changeStatusAsReserved(Long possibleDateTimeId) {
         int updatedRows = possibleDateTimeRepository.updatePossibleDateTimeStatus(possibleDateTimeId, PossibleDateTimeStatusType.RESERVED.getStatus());
         if (updatedRows != 1){
             throw new PossibleDateTimeException(PossibleDateTimeErrorCode.POSSIBLE_DATETIME_STATUS_UPDATE_FAILED, "밥약 가능한 일정 상태 변경에 실패하였습니다.");
         }
+        return true;
     }
 }

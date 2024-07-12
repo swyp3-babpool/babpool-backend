@@ -8,5 +8,5 @@ import java.util.Optional;
 public interface PossibleDateTimeService {
     PossibleDateTime throwExceptionIfAppointmentAlreadyAcceptedAtSameTime(Long targetProfileId, Long possibleDateTimeId, LocalDateTime possibleDateTime);
 
-    void changeStatusAsReserved(Long possibleDateTimeId);
+    boolean changeStatusAsReserved(Long possibleDateTimeId);
 }

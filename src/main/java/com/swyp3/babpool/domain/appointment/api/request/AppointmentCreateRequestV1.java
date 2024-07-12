@@ -1,6 +1,7 @@
 package com.swyp3.babpool.domain.appointment.api.request;
 
 import com.swyp3.babpool.domain.appointment.domain.Appointment;
+import com.swyp3.babpool.domain.appointment.domain.AppointmentV1;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Null;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class AppointmentCreateRequestV1 {
 
+    @Setter
     @Null
     private Long appointmentId;
 
@@ -47,4 +49,15 @@ public class AppointmentCreateRequestV1 {
         this.possibleDateTime = possibleDateTime;
         this.appointmentContents = appointmentContents;
     }
+
+    public AppointmentV1 toEntity(Long appointmentId) {
+        return AppointmentV1.builder()
+                .appointmentId(appointmentId)
+                .appointmentSenderId(senderUserId)
+                .appointmentReceiverId(receiverUserId)
+                .possibleDateTimeId(possibleDateTimeId)
+                .appointmentQuestion(appointmentContents)
+                .build();
+    }
+
 }

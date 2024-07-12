@@ -30,7 +30,15 @@ class TsidGenerateTest {
     }
 
     @Test
-    void generateTsidWithComponent() {
+    void generateTsidForMigrateDB() {
+        for(int i = 1; i <= 73; i++){
+            long l = tsidKeyGenerator.generateTsid();
+            System.out.println(l);
+        }
+    }
+
+    @Test
+    void generateTsidWithComponent(){
         long l = tsidKeyGenerator.generateTsid();
         log.info("TSID : {}", l);
         assertThat(l).isNotNull();
