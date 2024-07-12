@@ -304,6 +304,15 @@ public class ProfileServiceImpl implements ProfileService{
 
     }
 
+    @Override
+    public Profile getProfileByProfileId(Long profileId) {
+        Profile profile = profileRepository.findById(profileId);
+        if(profile == null){
+            throw new ProfileException(ProfileErrorCode.PROFILE_TARGET_PROFILE_ERROR,"존재하지 않는 프로필을 조회하였습니다.");
+        }
+        return profile;
+    }
+
     private List<Long> filterTimeIds(List<Long> timeIds, List<Integer> existTimes, List<Integer> timesToDelete) {
         List<Long> filteredTimeIds = new ArrayList<>();
         for (int i = 0; i < existTimes.size(); i++) {

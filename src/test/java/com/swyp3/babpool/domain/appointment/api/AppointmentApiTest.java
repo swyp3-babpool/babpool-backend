@@ -1,7 +1,7 @@
 package com.swyp3.babpool.domain.appointment.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
+import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequestDeprecated;
 import com.swyp3.babpool.domain.appointment.application.AppointmentService;
 import com.swyp3.babpool.global.common.exception.handler.GlobalExceptionHandler;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,7 +48,7 @@ class AppointmentApiTest {
     void makeAppointmentValidationFail() throws Exception {
         String accessTokenFromRequestHeader = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0QHRlc3QuY29tIiwicm9sZXMiOiJ0ZXN0IiwidXNlcmlkIjoxfQ.eMKhy-XdJmhuS2QeH1fjycXLS4lucpSa0D56JFMr0fI";
         String dto = objectMapper.writeValueAsString(
-                AppointmentCreateRequest.builder()
+                AppointmentCreateRequestDeprecated.builder()
                         .targetProfileId(2L)
                         .possibleTimeIdList(List.of(1L, 2L, 3L))
                         .questionContents("").build()

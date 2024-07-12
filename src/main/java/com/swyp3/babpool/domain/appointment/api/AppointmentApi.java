@@ -1,9 +1,10 @@
 package com.swyp3.babpool.domain.appointment.api;
 
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentAcceptRequest;
+import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequestDeprecated;
+import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentRejectRequest;
 import com.swyp3.babpool.domain.appointment.application.AppointmentService;
-import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
 import com.swyp3.babpool.domain.appointment.application.response.*;
 import com.swyp3.babpool.domain.appointment.application.response.appointmentdetail.AppointmentDetailResponse;
 import com.swyp3.babpool.global.common.response.ApiResponse;
@@ -26,12 +27,22 @@ public class AppointmentApi {
 
     /**
      * 밥약 요청 API
+     * @deprecated [2024.07.12] 동시성 처리를 위한 버전으로 대체
      */
-    @PostMapping("/api/appointment")
+    @Deprecated
+    @PostMapping("/api/v1/appointment")
     public ApiResponse<AppointmentCreateResponse> makeAppointment(@RequestAttribute(value = "userId", required = false) Long userId,
-                                                                  @RequestBody @Valid AppointmentCreateRequest appointmentCreateRequest) {
-        appointmentCreateRequest.setRequesterUserId(userId);
-        return ApiResponse.ok(appointmentService.makeAppointment(appointmentCreateRequest));
+                                                                  @RequestBody @Valid AppointmentCreateRequestDeprecated appointmentCreateRequestDeprecated) {
+        appointmentCreateRequestDeprecated.setRequesterUserId(userId);
+        return ApiResponse.ok(appointmentService.makeAppointment(appointmentCreateRequestDeprecated));
+    }
+
+    /**
+     * 밥약 요청 API : 동시성 처리를 위한 버전
+     */
+    @PostMapping("/api/v2/appointment")
+    public ApiResponse<AppointmentCreateResponse> createAppointment(@RequestBody @Valid AppointmentCreateRequest appointmentCreateRequest) {
+        return ApiResponse.ok(appointmentService.makeAppointmentResolveConcurrency(appointmentCreateRequest));
     }
 
     /**

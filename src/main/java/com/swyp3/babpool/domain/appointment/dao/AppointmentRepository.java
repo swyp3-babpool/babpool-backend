@@ -1,10 +1,11 @@
 package com.swyp3.babpool.domain.appointment.dao;
 
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentAcceptRequest;
-import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
+import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequestDeprecated;
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentRejectRequest;
 import com.swyp3.babpool.domain.appointment.application.response.*;
 import com.swyp3.babpool.domain.appointment.domain.Appointment;
+import com.swyp3.babpool.domain.appointment.domain.AppointmentV1;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -13,7 +14,15 @@ import java.util.List;
 @Mapper
 public interface AppointmentRepository {
 
-    int saveAppointment(AppointmentCreateRequest appointmentCreateRequest);
+    /**
+     * @deprecated [2024.07.12] 동시성 처리를 위한 매퍼으로 대체
+     * @param appointmentCreateRequestDeprecated
+     * @return
+     */
+    @Deprecated
+    int saveAppointment(AppointmentCreateRequestDeprecated appointmentCreateRequestDeprecated);
+
+    int saveAppointment(AppointmentV1 appointmentEntity);
 
     List<AppointmentSendResponse> findAppointmentListByRequesterId(Long requesterUserId);
 
@@ -36,9 +45,9 @@ public interface AppointmentRepository {
     Integer countAcceptedAppointmentByReceiverIdAndPossibleTimeId(@Param("targetReceiverUserId") Long targetReceiverUserId,
                                                                   @Param("possibleTimeIdList") List<Long> possibleTimeIdList);
 
-    int saveAppointmentRequest(AppointmentCreateRequest appointmentCreateRequest);
+    int saveAppointmentRequest(AppointmentCreateRequestDeprecated appointmentCreateRequestDeprecated);
 
-    int saveAppointmentRequestTime(AppointmentCreateRequest appointmentCreateRequest);
+    int saveAppointmentRequestTime(AppointmentCreateRequestDeprecated appointmentCreateRequestDeprecated);
 
     void updateAppointmentReject(AppointmentRejectRequest appointmentRejectRequest);
   
@@ -62,4 +71,6 @@ public interface AppointmentRepository {
 
     AppointmentRefuseDetailResponse findRejectAppointmentDetail(@Param("appointmentId") Long appointmentId, @Param("userId") Long userId);
     AppointmentRefuseDetailResponse findExpireAppointmentDetail(@Param("appointmentId") Long appointmentId, @Param("userId") Long userId);
+
+    List<AppointmentV1> findAllBySenderUserId(long senderUserId);
 }
