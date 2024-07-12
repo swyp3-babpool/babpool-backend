@@ -25,11 +25,10 @@ public class PossibleDateTimeServiceImpl implements PossibleDateTimeService{
     public PossibleDateTime throwExceptionIfAppointmentAlreadyAcceptedAtSameTime(Long targetProfileId, Long possibleDateTimeId, LocalDateTime possibleDateTime) {
         PossibleDateTime possibleDateTimeEntity = possibleDateTimeRepository.findByProfileIdAndDateTimeForUpdate(
                 targetProfileId, possibleDateTimeId).orElseThrow(
-                () -> new PossibleDateTimeException(PossibleDateTimeErrorCode.POSSIBLE_DATETIME_NOT_FOUND, "[Error Log] 밥약 가능한 일정이 존재하지 않습니다.")
+                () -> new PossibleDateTimeException(PossibleDateTimeErrorCode.POSSIBLE_DATETIME_NOT_FOUND, "조회된 PossibleDateTime 이 존재하지 않습니다.")
         );
-        log.info("possibleDateTimeEntity.getPossibleDateTimeStatus() >> {}", possibleDateTimeEntity.getPossibleDateTimeStatus());
         if (possibleDateTimeEntity.getPossibleDateTimeStatus().equals(PossibleDateTimeStatusType.RESERVED.getStatus())){
-            throw new PossibleDateTimeException(PossibleDateTimeErrorCode.POSSIBLE_DATETIME_ALREADY_RESERVED, "이미 예약된 시간대 입니다. 다른 시간대를 다시 선택해주세요.");
+            throw new PossibleDateTimeException(PossibleDateTimeErrorCode.POSSIBLE_DATETIME_ALREADY_RESERVED, "조회된 PossibleDateTime의 status가 RESERVED 입니다.");
         }
 
         return possibleDateTimeEntity;

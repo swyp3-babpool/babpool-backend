@@ -12,8 +12,8 @@ public class AppointmentExceptionHandler {
 
     @ExceptionHandler
     protected ApiErrorResponse handleAppointmentException(AppointmentException exception){
-        log.error("AppointmentException getAppointmentErrorCode() >> "+exception.getErrorCode());
-        log.error("AppointmentException getMessage() >> "+exception.getMessage());
+        log.error("AppointmentException getAppointmentErrorCode() >> {}", exception.getErrorCode());
+        log.error("AppointmentException getMessage() >> {}", exception.getMessage());
         return ApiErrorResponse.of(exception.getErrorCode());
     }
 }

@@ -1,8 +1,8 @@
 package com.swyp3.babpool.domain.appointment.application;
 
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentAcceptRequest;
+import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequestDeprecated;
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
-import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequestV1;
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentRejectRequest;
 import com.swyp3.babpool.domain.appointment.application.response.*;
 import com.swyp3.babpool.domain.appointment.application.response.appointmentdetail.AppointmentAcceptDetailResponse;
@@ -14,19 +14,16 @@ import com.swyp3.babpool.domain.appointment.domain.*;
 import com.swyp3.babpool.domain.appointment.exception.AppointmentException;
 import com.swyp3.babpool.domain.appointment.exception.errorcode.AppointmentErrorCode;
 import com.swyp3.babpool.domain.possibledatetime.application.PossibleDateTimeService;
-import com.swyp3.babpool.domain.possibledatetime.dao.PossibleDateTimeRepository;
 import com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateTime;
 import com.swyp3.babpool.domain.profile.application.ProfileService;
 import com.swyp3.babpool.domain.profile.dao.ProfileRepository;
 import com.swyp3.babpool.domain.profile.domain.Profile;
-import com.swyp3.babpool.domain.user.application.UserService;
 import com.swyp3.babpool.domain.user.application.response.MyPageUserDto;
 import com.swyp3.babpool.domain.user.dao.UserRepository;
 import com.swyp3.babpool.global.tsid.TsidKeyGenerator;
 import com.swyp3.babpool.global.uuid.application.UuidService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,27 +48,40 @@ public class AppointmentServiceImpl implements AppointmentService{
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
 
+    /**
+     * 밥약 생성 요청 처리.
+     * Deprecated [2024.07.12] 동시성 처리를 위한 메서드(makeAppointmentResolveConcurrency)으로 대체
+     * @param appointmentCreateRequestDeprecated
+     * @return AppointmentCreateResponse
+     */
+    @Deprecated
     @Transactional
     @Override
-    public AppointmentCreateResponse makeAppointment(AppointmentCreateRequest appointmentCreateRequest) {
+    public AppointmentCreateResponse makeAppointment(AppointmentCreateRequestDeprecated appointmentCreateRequestDeprecated) {
         // is requesterUserId same as receiverUserId?
-        if(appointmentCreateRequest.getRequesterUserId().equals(appointmentCreateRequest.getReceiverUserId())){
-            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_REQUESTER_IS_SAME_AS_RECEIVER, "본인에게 밥약을 요청할 수 없습니다.");
+        if(appointmentCreateRequestDeprecated.getRequesterUserId().equals(appointmentCreateRequestDeprecated.getReceiverUserId())){
+            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_REQUESTER_AND_RECEIVER_EQUAL, "본인에게 밥약을 요청할 수 없습니다.");
         }
 
         // 프로필 카드 식별 번호로, 타겟(요청받을) 사용자 내부 식별 값 조회.
-        Long targetReceiverUserId = profileRepository.findUserIdByProfileId(appointmentCreateRequest.getTargetProfileId());
-        appointmentCreateRequest.setReceiverUserId(targetReceiverUserId);
-        throwExceptionIfOtherAppointmentAlreadyAcceptedAtSameTime(targetReceiverUserId, appointmentCreateRequest.getPossibleTimeIdList());
+        Long targetReceiverUserId = profileRepository.findUserIdByProfileId(appointmentCreateRequestDeprecated.getTargetProfileId());
+        appointmentCreateRequestDeprecated.setReceiverUserId(targetReceiverUserId);
+        throwExceptionIfOtherAppointmentAlreadyAcceptedAtSameTime(targetReceiverUserId, appointmentCreateRequestDeprecated.getPossibleTimeIdList());
 
         // t_appointment, t_appointment_request, t_appointment_request_time 테이블에 초기 데이터 저장.
-        appointmentRepository.saveAppointment(appointmentCreateRequest);
-        appointmentRepository.saveAppointmentRequest(appointmentCreateRequest);
-        appointmentRepository.saveAppointmentRequestTime(appointmentCreateRequest);
+        appointmentRepository.saveAppointment(appointmentCreateRequestDeprecated);
+        appointmentRepository.saveAppointmentRequest(appointmentCreateRequestDeprecated);
+        appointmentRepository.saveAppointmentRequestTime(appointmentCreateRequestDeprecated);
 
 
+//        sendStompToAppointmentReceiver(appointmentCreateRequestDeprecated);
+        Appointment appointmentEntity = appointmentRepository.findByAppointmentId(appointmentCreateRequestDeprecated.getAppointmentId());
+        return AppointmentCreateResponse.of(appointmentEntity, appointmentCreateRequestDeprecated.getTargetProfileId());
+    }
+
+    private void sendStompToAppointmentReceiver(AppointmentCreateRequest appointmentCreateRequest) {
         // 밥약 요청 상대에게 알림 메시지 전송. + 알림 메시지에는 요청자의 프로필 식별 번호도 포함.
-        Long requesterProfileId = profileRepository.findByUserId(appointmentCreateRequest.getRequesterUserId()).getProfileId();
+        Long requesterProfileId = profileRepository.findByUserId(appointmentCreateRequest.getSenderUserId()).getProfileId();
         UUID receiverUserUUID = uuidService.getUuidByUserId(appointmentCreateRequest.getReceiverUserId());
 
         simpMessagingTemplate.convertAndSend("/topic/appointment/" + receiverUserUUID.toString(),
@@ -79,33 +89,41 @@ public class AppointmentServiceImpl implements AppointmentService{
                         .requesterProfileId(requesterProfileId)
                         .messageType(AppointmentSocketMessageType.APPOINTMENT_REQUESTED)
                         .build());
-        Appointment appointmentEntity = appointmentRepository.findByAppointmentId(appointmentCreateRequest.getAppointmentId());
-        return AppointmentCreateResponse.of(appointmentEntity, appointmentCreateRequest.getTargetProfileId());
     }
 
     @Transactional
     @Override
-    public AppointmentCreateResponse makeAppointmentResolveConcurrency(AppointmentCreateRequestV1 appointmentCreateRequest) {
+    public AppointmentCreateResponse makeAppointmentResolveConcurrency(AppointmentCreateRequest appointmentCreateRequest) {
+        // 요청한 프로필 식별 번호로, 수신자의 식별 값(user_id) 조회.
         Profile profileByProfileId = profileService.getProfileByProfileId(appointmentCreateRequest.getTargetProfileId());
         appointmentCreateRequest.setReceiverUserId(profileByProfileId.getUserId());
 
-        // 자기 자신에게는 요청할 수 없다.
+        // 요청 송신자와 수신자가 다르게 요청되었는지 검증.
         if(appointmentCreateRequest.getSenderUserId().equals(appointmentCreateRequest.getReceiverUserId())){
-            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_REQUESTER_IS_SAME_AS_RECEIVER, "본인에게 밥약을 요청할 수 없습니다.");
+            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_REQUESTER_AND_RECEIVER_EQUAL, "밥 약속 생성. 송신자와 수신자가 동일하게 요청됨.");
         }
 
-        // 약속 요청한 일정이 이미 다른 사용자에 의해 예약 확정된 시간대인지 조회
+        // 약속 요청한 일정이 이미 다른 사용자에 의해 예약 신청된 시간대인지 조회. 이미 예약된 일정이면 예외 발생.
         PossibleDateTime possibleDateTimeEntity = possibleDateTimeService.throwExceptionIfAppointmentAlreadyAcceptedAtSameTime(
                 appointmentCreateRequest.getTargetProfileId(), appointmentCreateRequest.getPossibleDateTimeId(), appointmentCreateRequest.getPossibleDateTime());
 
+        // AVAILABLE 상태의 일정을 RESERVED 상태로 변경.
         boolean isStatusUpdated = possibleDateTimeService.changeStatusAsReserved(possibleDateTimeEntity.getPossibleDateTimeId());
         if (!isStatusUpdated){
-            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_CREATE_FAILED, "밥약 가능한 일정 상태 변경에 실패하였습니다.");
+            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_CREATE_FAILED, "밥약 가능한 일정 상태를 RESERVED 상태로 변경에 실패.");
         }
+
+        // 약속 생성 및 저장.
         int insertedRows = appointmentRepository.saveAppointment(appointmentCreateRequest.toEntity(tsidKeyGenerator.generateTsid()));
         if(insertedRows != 1){
             throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_CREATE_FAILED, "밥약 요청. t_appointment insert fail.");
         }
+
+        // TODO : 외부 패키지로 리팩토링 예정.
+        // 약속 수신자에게 알림 메시지 전송.
+        sendStompToAppointmentReceiver(appointmentCreateRequest);
+
+        // 생성된 약속을 조회해 응답.
         return AppointmentCreateResponse.of(appointmentRepository.findByAppointmentId(appointmentCreateRequest.getAppointmentId()),
                                             appointmentCreateRequest.getTargetProfileId());
     }

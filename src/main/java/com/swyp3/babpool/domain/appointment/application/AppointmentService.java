@@ -1,8 +1,8 @@
 package com.swyp3.babpool.domain.appointment.application;
 
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentAcceptRequest;
+import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequestDeprecated;
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
-import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequestV1;
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentRejectRequest;
 import com.swyp3.babpool.domain.appointment.application.response.*;
 import com.swyp3.babpool.domain.appointment.application.response.appointmentdetail.AppointmentDetailResponse;
@@ -10,7 +10,9 @@ import com.swyp3.babpool.domain.appointment.application.response.appointmentdeta
 import java.util.List;
 
 public interface AppointmentService {
-    AppointmentCreateResponse makeAppointment(AppointmentCreateRequest appointmentCreateRequest);
+    AppointmentCreateResponse makeAppointment(AppointmentCreateRequestDeprecated appointmentCreateRequestDeprecated);
+
+    AppointmentCreateResponse makeAppointmentResolveConcurrency(AppointmentCreateRequest appointmentCreateRequest);
 
     List<AppointmentSendResponse> getSendAppointmentList(Long userId);
 
@@ -31,6 +33,4 @@ public interface AppointmentService {
     AppointmentCancelResponse cancelAppointmentRequested(Long userId, Long appointmentId);
 
     AppointmentRefuseDetailResponse getRefuseAppointmentDetail(Long userId, Long appointmentId);
-
-    AppointmentCreateResponse makeAppointmentResolveConcurrency(AppointmentCreateRequestV1 appointmentCreateRequest);
 }

@@ -1,7 +1,6 @@
 package com.swyp3.babpool.domain.possibledatetime.application;
 
-import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequestV1;
-import com.swyp3.babpool.domain.appointment.application.response.AppointmentCreateResponse;
+import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
 import com.swyp3.babpool.domain.appointment.dao.AppointmentRepository;
 import com.swyp3.babpool.domain.appointment.domain.AppointmentV1;
 import com.swyp3.babpool.domain.appointment.exception.AppointmentException;
@@ -10,13 +9,8 @@ import com.swyp3.babpool.domain.possibledatetime.dao.PossibleDateTimeRepository;
 import com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateTime;
 import com.swyp3.babpool.global.tsid.TsidKeyGenerator;
 import lombok.extern.slf4j.Slf4j;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -29,7 +23,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 @ActiveProfiles("test")
@@ -52,14 +45,14 @@ class PossibleDateTimeServiceImplTest {
     @Test
     void throwExceptionIfAppointmentAlreadyAcceptedAtSameTime2() throws InterruptedException {
         // given
-        AppointmentCreateRequestV1 appointmentCreateRequest = AppointmentCreateRequestV1.builder()
+        AppointmentCreateRequest appointmentCreateRequest = AppointmentCreateRequest.builder()
                 .appointmentId(null)
                 .senderUserId(100000000000000001L)
                 .receiverUserId(100000000000000002L)
                 .targetProfileId(200000000000000002L)
                 .possibleDateTimeId(300000000000000002L)
                 .possibleDateTime(LocalDateTime.of(2024, 7, 3, 3, 0))
-                .appointmentContents("content1")
+                .appointmentContent("content1")
                 .build();
 
         int threadCount = 50;
@@ -68,7 +61,6 @@ class PossibleDateTimeServiceImplTest {
 
         // when
         for (int i = 0; i < threadCount; i++) {
-            final int threadIndex = i;
             executorService.submit(() -> {
                 try {
                     aaa(appointmentCreateRequest);
@@ -92,7 +84,7 @@ class PossibleDateTimeServiceImplTest {
     }
 
     @Transactional
-    protected void aaa(AppointmentCreateRequestV1 appointmentCreateRequest) {
+    protected void aaa(AppointmentCreateRequest appointmentCreateRequest) {
         PossibleDateTime possibleDateTimeEntity = possibleDateTimeService.throwExceptionIfAppointmentAlreadyAcceptedAtSameTime(
                 appointmentCreateRequest.getTargetProfileId(), appointmentCreateRequest.getPossibleDateTimeId(), appointmentCreateRequest.getPossibleDateTime());
         boolean isStatusUpdated = possibleDateTimeService.changeStatusAsReserved(possibleDateTimeEntity.getPossibleDateTimeId());
