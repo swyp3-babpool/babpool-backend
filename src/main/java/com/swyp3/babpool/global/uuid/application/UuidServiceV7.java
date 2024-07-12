@@ -11,6 +11,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+/**
+ * UuidServiceV7, UUID 버전 7을 사용하여 식별값을 생성하거나 변환하는 기능을 제공하는 서비스 클래스입니다.
+ * @deprecated TSID 도입으로 인해 UUID 를 더이상 사용하지 않습니다. 해당 클래스는 삭제될 예정입니다.
+ */
+@Deprecated
 @Primary
 @Service
 @RequiredArgsConstructor
