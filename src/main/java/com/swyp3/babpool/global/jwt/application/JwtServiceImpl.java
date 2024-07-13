@@ -27,29 +27,29 @@ public class JwtServiceImpl implements JwtService{
     private Integer refreshExpire;
 
     @Override
-    public JwtPairDto createJwtPair(String userUUID, List roles) {
+    public JwtPairDto createJwtPair(Long userId, List roles) {
         JwtPairDto jwtPairDto = JwtPairDto.builder()
-                .accessToken(jwtTokenizer.createAccessToken(userUUID, roles))
-                .refreshToken(jwtTokenizer.createRefreshToken(userUUID, roles))
+                .accessToken(jwtTokenizer.createAccessToken(userId, roles))
+                .refreshToken(jwtTokenizer.createRefreshToken(userId, roles))
                 .build();
         tokenRepository.save(TokenForRedis.builder()
                 .refreshToken(jwtPairDto.getRefreshToken())
                 .refreshExpire(refreshExpire)
-                .userUUID(userUUID)
+                .userId(userId)
                 .build());
         return jwtPairDto;
     }
 
     @Override
-    public JwtPairDto createJwtPairAdmin(String userUUID, List roles) {
+    public JwtPairDto createJwtPairAdmin(Long userId, List roles) {
         JwtPairDto jwtPairDto = JwtPairDto.builder()
-                .accessToken(jwtTokenizer.createAccessTokenAdmin(userUUID, roles))
-                .refreshToken(jwtTokenizer.createRefreshToken(userUUID, roles))
+                .accessToken(jwtTokenizer.createAccessTokenAdmin(userId, roles))
+                .refreshToken(jwtTokenizer.createRefreshToken(userId, roles))
                 .build();
         tokenRepository.save(TokenForRedis.builder()
                 .refreshToken(jwtPairDto.getRefreshToken())
                 .refreshExpire(refreshExpire)
-                .userUUID(userUUID)
+                .userId(userId)
                 .build());
         return jwtPairDto;
     }
@@ -61,14 +61,14 @@ public class JwtServiceImpl implements JwtService{
                         "refresh token not found in redis, while extending login state."));
 
         Claims claims = jwtTokenizer.parseRefreshToken(refreshToken);
-        String userUUID = claims.getSubject();
+        Long userId = Long.valueOf(claims.getSubject());
 
-        if (!tokenObject.getUserUUID().equals(userUUID)) {
+        if (!tokenObject.getUserId().equals(userId)) {
             throw new BabpoolJwtException(JwtExceptionErrorCode.REFRESH_TOKEN_NOT_SAME_USER,
                     "user uuid in request refresh token and redis refresh token are not same, while extending login state.");
         }
 
-        return jwtTokenizer.createAccessToken(userUUID, claims.get("roles", List.class));
+        return jwtTokenizer.createAccessToken(userId, claims.get("roles", List.class));
     }
 
     @Override

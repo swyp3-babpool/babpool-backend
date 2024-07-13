@@ -22,7 +22,7 @@ public class JwtAuthenticator {
         return jwtTokenizer.parseAccessToken(accessToken);
     }
 
-    public Long jwtTokenUserIdResolver(String userUuid) {
+    public Long jwtTokenUserUuidToUserIdResolver(String userUuid) {
         return userUuidRepository.findByUserUuIdBytes(uuidResolver.parseUuidToBytes(UUID.fromString(userUuid))).orElseThrow(
                     () -> new UuidException(UuidErrorCode.NOT_FOUND_USER_UUID,
                             "Not found user id with uuid, while JwtAuthenticator request to UserUuidRepository"))
@@ -31,7 +31,7 @@ public class JwtAuthenticator {
 
     public Long jwtRefreshTokenToUserIdResolver(String refreshToken) {
         Claims claims = jwtTokenizer.parseRefreshToken(refreshToken);
-        return jwtTokenUserIdResolver(claims.getSubject());
+        return Long.valueOf(claims.getSubject());
     }
 
 

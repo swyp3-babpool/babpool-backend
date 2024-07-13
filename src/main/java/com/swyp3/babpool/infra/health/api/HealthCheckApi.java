@@ -56,12 +56,12 @@ public class HealthCheckApi {
      */
     @PostMapping("/api/test/jwt/tokens")
     public ResponseEntity<JwtPairDto> testGenerateJwtTokens(@RequestBody Map<String, String> requestBody) {
-        return ResponseEntity.ok(jwtService.createJwtPair(requestBody.get("userUuid"), List.of(UserRole.USER)));
+        return ResponseEntity.ok(jwtService.createJwtPair(Long.valueOf(requestBody.get("userId")), List.of(UserRole.USER)));
     }
 
     @PostMapping("/api/test/jwt/tokens/admin")
     public ResponseEntity<JwtPairDto> testGenerateJwtTokensAdmin(@RequestBody Map<String, String> requestBody) {
-        return ResponseEntity.ok(jwtService.createJwtPairAdmin(requestBody.get("userUuid"), List.of(UserRole.ADMIN)));
+        return ResponseEntity.ok(jwtService.createJwtPairAdmin(Long.valueOf(requestBody.get("userId")), List.of(UserRole.ADMIN)));
     }
 
     /**

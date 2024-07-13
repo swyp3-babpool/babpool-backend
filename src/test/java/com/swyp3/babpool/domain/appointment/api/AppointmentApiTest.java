@@ -1,6 +1,8 @@
 package com.swyp3.babpool.domain.appointment.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequestDeprecated;
 import com.swyp3.babpool.domain.appointment.application.AppointmentService;
 import com.swyp3.babpool.global.common.exception.handler.GlobalExceptionHandler;
@@ -16,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -41,6 +44,7 @@ class AppointmentApiTest {
                 .setValidator(new LocalValidatorFactoryBean())
                 .build();
         objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
     }
 
     @DisplayName("밥약 요청 API - 유효성 검증 실패")
@@ -48,13 +52,14 @@ class AppointmentApiTest {
     void makeAppointmentValidationFail() throws Exception {
         String accessTokenFromRequestHeader = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0QHRlc3QuY29tIiwicm9sZXMiOiJ0ZXN0IiwidXNlcmlkIjoxfQ.eMKhy-XdJmhuS2QeH1fjycXLS4lucpSa0D56JFMr0fI";
         String dto = objectMapper.writeValueAsString(
-                AppointmentCreateRequestDeprecated.builder()
-                        .targetProfileId(2L)
-                        .possibleTimeIdList(List.of(1L, 2L, 3L))
-                        .questionContents("").build()
+                AppointmentCreateRequest.builder()
+                        .targetProfileId(200000000000000001L)
+                        .possibleDateTimeId(300000000000000001L)
+                        .possibleDateTime(LocalDateTime.of(2024, 7, 12, 12, 0))
+                        .appointmentContent("").build()
         );
 
-        mockMvc.perform(post("/api/appointment")
+        mockMvc.perform(post("/api/v2/appointment")
                 .header("userId", 1L)
                 .header("Authorization", "Bearer " + accessTokenFromRequestHeader)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -65,7 +70,7 @@ class AppointmentApiTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value(400))
                 .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
-                .andExpect(jsonPath("$.message").value("Validation error: questionContents: 질문 내용이 비어있습니다."))
+                .andExpect(jsonPath("$.message").value("Validation error: appointmentContent: 질문 내용이 비어있습니다."))
                 .andDo(print());
     }
 

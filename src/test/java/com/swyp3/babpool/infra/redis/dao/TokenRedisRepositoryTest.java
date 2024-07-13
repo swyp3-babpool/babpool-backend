@@ -27,7 +27,7 @@ class TokenRedisRepositoryTest {
         // given
         String refreshToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMTIzNDU2Nzg5Iiwicm9sZXMiOiJST0xFX1VTRVIiLCJpYXQiOjE1MTYyMzkwMjJ9.tac5NQLH2MmB-CmUvYllf2ftt2VnxTGRPxd2fHDopyY";
         TokenForRedis target = TokenForRedis.builder()
-                .userUUID("0123456789")
+                .userId(1000000000000000001L)
                 .refreshToken(refreshToken)
                 .refreshExpire(10)
                 .build();
@@ -37,7 +37,7 @@ class TokenRedisRepositoryTest {
         // then
         tokenRedisRepository.findById(refreshToken)
                 .ifPresent(token -> {
-                    assertThat(target.getUserUUID()).isEqualTo(savedToken.getUserUUID());
+                    assertThat(target.getUserId()).isEqualTo(savedToken.getUserId());
                     assertThat(target.getRefreshToken()).isEqualTo(savedToken.getRefreshToken());
                     assertThat(target.getRefreshExpire()).isEqualTo(savedToken.getRefreshExpire());
                 });

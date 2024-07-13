@@ -6,9 +6,9 @@ import java.util.List;
 
 public interface JwtService {
 
-    JwtPairDto createJwtPair(String userUUID, List roles);
+    JwtPairDto createJwtPair(Long userId, List roles);
 
-    JwtPairDto createJwtPairAdmin(String userUUID, List roles);
+    JwtPairDto createJwtPairAdmin(Long userId, List roles);
 
     String extendLoginState(String refreshToken);
 

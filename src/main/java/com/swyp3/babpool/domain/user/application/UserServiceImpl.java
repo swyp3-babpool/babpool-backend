@@ -37,12 +37,13 @@ import java.util.*;
 @Transactional
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
+
     private final AuthService authService;
-    private final UserRepository userRepository;
-    private final UuidService uuidService;
     private final JwtService jwtService;
     private final ProfileService profileService;
     private final ReviewService reviewService;
+
+    private final UserRepository userRepository;
     private final AppointmentRepository appointmentRepository;
     private final ExitInfoRepository exitInfoRepository;
 
@@ -54,7 +55,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public LoginResponseWithRefreshToken signUp(SignUpRequestDTO signUpRequest) {
-        if(getUserStatus(signUpRequest.getUserUuid()).equals(UserStatus.ACTIVE))
+        if(getUserStatus(signUpRequest.getUserId()).equals(UserStatus.ACTIVE))
             throw new SignUpException(SignUpExceptionErrorCode.IS_ALREADY_REGISTERED,
                     "이미 데이터베이스에 등록된 사용자이므로 새로운 회원가입을 진행할 수 없습니다.");
 
@@ -105,16 +106,13 @@ public class UserServiceImpl implements UserService{
         return new UserGradeResponse(userGrade);
     }
 
-    private UserStatus getUserStatus(String userUuid) {
-        Long userId = uuidService.getUserIdByUuid(userUuid);
-        User findUser = userRepository.findById(userId);
-
-        return findUser.getUserStatus();
+    private UserStatus getUserStatus(Long userId) {
+        return userRepository.findById(userId).getUserStatus();
     }
 
     @Transactional
     public User insertUserExtraInfo(SignUpRequestDTO signUpRequest) {
-        Long userId = uuidService.getUserIdByUuid(signUpRequest.getUserUuid());
+        Long userId = signUpRequest.getUserId();
         userRepository.updateSignUpInfo(userId, signUpRequest.getUserGrade());
 
         for (Long keywordId : signUpRequest.getKeywords()) {
@@ -130,10 +128,11 @@ public class UserServiceImpl implements UserService{
         //회원테이블에 id Token 정보가 저장되어있는 경우
         if(findUserId!=null) {
             User findUser = userRepository.findById(findUserId);
+            // 회원가입이 완료되었지만, 추가정보 입력이 필요한 경우
             if(findUser.getUserStatus().equals(UserStatus.PREACTIVE))
-                return getLoginResponseNeedSignUp(findUser);// (회원가입이 완료된 경우) 사용자 추가정보 입력 필요
+                return getLoginResponseNeedSignUp(findUser);
+            // 회원탈퇴된 사용자인 경우, 사용자 신규 생성
             if(findUser.getUserStatus().equals(UserStatus.EXIT)){
-                //회원탈퇴했던 사용자도 사용자 생성부터 시작
                 User createdUser = createUser(authPlatform, authMemberResponse);
                 return getLoginResponseNeedSignUp(createdUser);
             }
@@ -145,19 +144,17 @@ public class UserServiceImpl implements UserService{
     }
 
     private LoginResponseWithRefreshToken getLoginResponseNeedSignUp(User user) {
-        String userUuid = String.valueOf(uuidService.getUuidByUserId(user.getUserId()));
-        LoginResponse loginResponse = new LoginResponse(userUuid, null,null,false);
+        LoginResponse loginResponse = new LoginResponse(user.getUserId(), null,null,false);
         return new LoginResponseWithRefreshToken(loginResponse,null);
     }
 
     private LoginResponseWithRefreshToken getLoginResponse(User user) {
-        String userUuid = String.valueOf(uuidService.getUuidByUserId(user.getUserId()));
-        JwtPairDto jwtPair = jwtService.createJwtPair(userUuid, new ArrayList<UserRole>(Arrays.asList(UserRole.USER)));
+        JwtPairDto jwtPair = jwtService.createJwtPair(user.getUserId(), new ArrayList<UserRole>(Arrays.asList(UserRole.USER)));
 
         String accessToken = jwtPair.getAccessToken();
         String refreshToken = jwtPair.getRefreshToken();
 
-        LoginResponse loginResponse = new LoginResponse(userUuid, user.getUserGrade(), accessToken,true);
+        LoginResponse loginResponse = new LoginResponse(user.getUserId(), user.getUserGrade(), accessToken,true);
 
         return new LoginResponseWithRefreshToken(loginResponse,refreshToken);
     }
@@ -169,19 +166,20 @@ public class UserServiceImpl implements UserService{
                 .nickName(authMemberResponse.getNickname())
                 .build();
         userRepository.save(user);
-        Long savedId = user.getUserId();
+        Long savedUserId = user.getUserId();
 
-        Auth auth = Auth.createAuth(savedId, authPlatform, authMemberResponse.getPlatformId());
+        Auth auth = Auth.createAuth(savedUserId, authPlatform, authMemberResponse.getPlatformId());
         authService.save(auth);
 
         Profile profile = Profile.builder()
-                .userId(savedId)
+                .userId(savedUserId)
                 .profileImageUrl(authMemberResponse.getProfile_image())
                 .profileActiveFlag(false)
                 .build();
         profileService.saveProfile(profile);
 
-        uuidService.createUuid(savedId);
+        // TODO : [24-07-12] UUID 가 아닌 TSID 를 사용하도록 변경되어 해당 코드는 주석처리. 추후 정상 동작 확인 후, 삭제될 예정.
+//        uuidService.createUuid(savedUserId);
         return user;
     }
 }

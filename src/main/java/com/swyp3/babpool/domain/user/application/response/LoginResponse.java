@@ -6,7 +6,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class LoginResponse {
-    private String userUuid;
+
+    private Long userId;
     private String userGrade;
     private String accessToken;
     private Boolean isRegistered;
