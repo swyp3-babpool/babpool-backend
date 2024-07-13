@@ -64,7 +64,6 @@ public class UserApi {
     /**
      * 마이프로필 조회 api
      */
-
     @GetMapping("/mypage")
     public ApiResponse<MyPageResponse> getMyPage(@RequestAttribute(value = "userId") Long userId){
         MyPageResponse myPageResponse = userService.getMyPage(userId);
