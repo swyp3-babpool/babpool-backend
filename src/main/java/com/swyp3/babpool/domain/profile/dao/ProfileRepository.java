@@ -61,6 +61,7 @@ public interface ProfileRepository {
     void deletePossibleTimes(Long profileId);
     void savePossibleTimes(@Param("possibleTimeStart") Integer possibleTimeStart,@Param("possibleDateId") Long possibleDateId);
     ProfileKeywordsResponse findKeywords(Long profileId);
+    ProfileKeywordsResponse findKeywordsByUserId(Long userId);
     ProfileDefault findProfileDefault(Long profileId);
     Boolean findProfileIsRegistered(Long profileId);
 

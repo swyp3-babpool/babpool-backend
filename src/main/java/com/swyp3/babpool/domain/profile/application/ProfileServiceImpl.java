@@ -84,8 +84,7 @@ public class ProfileServiceImpl implements ProfileService{
     public ProfileDefaultResponse getProfileDefault(Long userId) {
         Profile profile = profileRepository.findByUserId(userId);
         ProfileDefault daoResponse= profileRepository.findProfileDefault(profile.getProfileId());
-        ProfileKeywordsResponse keywords = profileRepository.findKeywords(profile.getProfileId());
-
+        ProfileKeywordsResponse keywords = profileRepository.findKeywordsByUserId(userId);
         return new ProfileDefaultResponse(daoResponse,keywords);
     }
 
