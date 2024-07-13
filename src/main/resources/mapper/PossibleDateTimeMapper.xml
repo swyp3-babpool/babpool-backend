@@ -93,14 +93,20 @@
 
     <insert id="insertPossibleDate" parameterType="com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateInsertDto"
             useGeneratedKeys="true" keyProperty="possibleDateId">
-        INSERT INTO t_possible_date(possible_date,profile_id)
-        VALUES ( #{date},#{profileId} )
+        INSERT INTO t_possible_datetime(possible_date,profile_id)
+        VALUES (#{date}, #{profileId})
     </insert>
 
     <insert id="insertPossibleTime" parameterType="map">
         INSERT INTO t_possible_time
             (possible_date_id, possible_time_start, possible_time_range)
         VALUES (#{dateId}, #{time}, 1)
+    </insert>
+
+    <insert id="insertPossibleDateTime" parameterType="com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateTime"
+            useGeneratedKeys="true" keyProperty="possibleDateTimeId">
+        INSERT INTO t_possible_datetime(possible_datetime_id, possible_datetime, possible_datetime_status, user_id)
+        VALUES (#{possibleDateTimeId}, #{possibleDateTime}, #{possibleDateTimeStatus}, #{userId})
     </insert>
 
 </mapper>
