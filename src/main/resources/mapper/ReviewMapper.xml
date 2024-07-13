@@ -19,15 +19,21 @@
         );
     </select>
 
+<!--    <select id="isReviewCreateAvailableTime" resultType="Boolean">-->
+<!--        SELECT-->
+<!--            CASE-->
+<!--                WHEN DATE_ADD(DATE_FORMAT(CONCAT(t_datetime.possible_datetime_date, ' ', t_datetime.possible_datetime_time), '%Y-%m-%d %H:%i:%s'), INTERVAL 3 DAY) > NOW()-->
+<!--                THEN 1 ELSE 0-->
+<!--            END AS result-->
+<!--        FROM t_appointment-->
+<!--            INNER JOIN t_possible_datetime t_datetime ON t_datetime.possible_datetime_id = t_appointment.possible_datetime_id-->
+<!--        WHERE appointment_id = #{appointmentId};-->
+<!--    </select>-->
+
     <select id="isReviewCreateAvailableTime" resultType="Boolean">
-        SELECT
-            CASE
-                WHEN DATE_ADD(DATE_FORMAT(CONCAT(pdate.possible_date, ' ', ptime.possible_time_start), '%Y-%m-%d %H:%i:%s'), INTERVAL 3 DAY) > NOW()
-                THEN 1 ELSE 0
-            END AS result
+        SELECT CASE WHEN DATE_ADD(t_datetime.possible_datetime, INTERVAL 3 DAY) > NOW() THEN 1 ELSE 0 END AS result
         FROM t_appointment
-            INNER JOIN t_possible_time ptime ON ptime.possible_time_id = t_appointment.possible_time_id
-            INNER JOIN t_possible_date pdate ON pdate.possible_date_id = ptime.possible_date_id
+            INNER JOIN t_possible_datetime t_datetime ON t_datetime.possible_datetime_id = t_appointment.possible_datetime_id
         WHERE appointment_id = #{appointmentId};
     </select>
 
