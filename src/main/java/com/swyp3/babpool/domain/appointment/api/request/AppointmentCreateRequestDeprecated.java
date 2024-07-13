@@ -25,17 +25,17 @@ public class AppointmentCreateRequestDeprecated {
     @NotEmpty(message = "가능한 시간 리스트가 비어있습니다.")
     private List<Long> possibleTimeIdList;
     @NotBlank(message = "질문 내용이 비어있습니다.")
-    private String questionContents;
+    private String appointmentContent;
     private Long appointmentRequestId; // Not include in request body
 
     @Builder
-    public AppointmentCreateRequestDeprecated(Long appointmentId, Long requesterUserId, Long receiverUserId, Long targetProfileId, List<Long> possibleTimeIdList, String questionContents, Long appointmentRequestId) {
+    public AppointmentCreateRequestDeprecated(Long appointmentId, Long requesterUserId, Long receiverUserId, Long targetProfileId, List<Long> possibleTimeIdList, String appointmentContent, Long appointmentRequestId) {
         this.appointmentId = appointmentId;
         this.requesterUserId = requesterUserId;
         this.receiverUserId = receiverUserId;
         this.targetProfileId = targetProfileId;
         this.possibleTimeIdList = possibleTimeIdList;
-        this.questionContents = questionContents;
+        this.appointmentContent = appointmentContent;
         this.appointmentRequestId = appointmentRequestId;
     }
 

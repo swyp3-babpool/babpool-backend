@@ -200,7 +200,7 @@
             appointment_receiver_id,
             possible_datetime_id,
             appointment_status,
-            appointment_question,
+            appointment_content,
             appointment_create_date,
             appointment_modify_date
         FROM t_appointment
@@ -236,7 +236,7 @@
             appointment_sender_id,
             appointment_receiver_id,
             appointment_status,
-            appointment_question,
+            appointment_content,
             appointment_create_date,
             appointment_modify_date,
             possible_datetime_id
@@ -258,11 +258,11 @@
         INSERT INTO t_appointment_request
         (
             appointment_id,
-            appointment_question
+            appointment_content
         )
         VALUES (
                    #{appointmentId},
-                   #{questionContents}
+                   #{appointmentContent}
                );
     </insert>
 
@@ -331,7 +331,7 @@
                pt.possible_time_start AS time,
                p.profile_contact_phone AS requesterContactPhone,
                p.profile_contact_chat AS requesterContactChat,
-               ar.appointment_question AS question
+               ar.appointment_content AS content
         FROM t_appointment a
                  INNER JOIN t_appointment_request ar ON a.appointment_id = ar.appointment_id
                  INNER JOIN t_possible_time pt ON pt.possible_time_id = a.possible_time_id

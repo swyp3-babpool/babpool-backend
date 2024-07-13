@@ -1,10 +1,7 @@
 package com.swyp3.babpool.domain.appointment.api.request;
 
 import com.swyp3.babpool.domain.appointment.domain.AppointmentV1;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Null;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -32,7 +29,7 @@ public class AppointmentCreateRequest {
     @Positive(message = "가능한 일정 식별 값이 올바르지 않습니다.")
     private Long possibleDateTimeId;
 
-    @NotEmpty(message = "가능한 시간 리스트가 비어있습니다.")
+    @NotNull(message = "가능한 일정 값이 비어있습니다.")
     private LocalDateTime possibleDateTime;
 
     @NotBlank(message = "질문 내용이 비어있습니다.")

@@ -41,7 +41,7 @@ public class AppointmentApi {
      * 밥약 요청 API : 동시성 처리를 위한 버전
      */
     @PostMapping("/api/v2/appointment")
-    public ApiResponse<AppointmentCreateResponse> createAppointment(@RequestBody @Valid AppointmentCreateRequest appointmentCreateRequest) {
+    public ApiResponse<AppointmentCreateResponse> createAppointment(@RequestBody @Validated AppointmentCreateRequest appointmentCreateRequest) {
         return ApiResponse.ok(appointmentService.makeAppointmentResolveConcurrency(appointmentCreateRequest));
     }
 
