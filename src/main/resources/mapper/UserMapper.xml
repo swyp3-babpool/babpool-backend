@@ -34,11 +34,6 @@
         where user_id = #{userId}
     </update>
 
-    <insert id="saveKeyword">
-        insert into t_m_user_keyword(user_id,keyword_id)
-        values ( #{userId},#{keywordId})
-    </insert>
-
     <select id="findMyProfile" resultType="com.swyp3.babpool.domain.user.application.response.MyPageUserDto">
         SELECT
             p.profile_id AS profileId,

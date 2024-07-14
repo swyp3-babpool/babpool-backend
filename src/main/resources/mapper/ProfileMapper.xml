@@ -115,36 +115,6 @@
         where user_id = #{userId}
     </select>
 
-<!--    <select id="findKeywords" resultType="com.swyp3.babpool.domain.profile.application.response.ProfileKeywordsResponse">-->
-<!--        SELECT JSON_OBJECTAGG(subject_name,keyword_name_list) AS keywords-->
-<!--        FROM (-->
-<!--                 SELECT-->
-<!--                     s.subject_name,-->
-<!--                     JSON_ARRAYAGG(k.keyword_name) AS keyword_name_list-->
-<!--                 FROM-->
-<!--                     t_profile p-->
-<!--                         INNER JOIN t_user_account u on u.user_id = p.user_id-->
-<!--                         INNER JOIN t_m_user_keyword muk ON u.user_id = muk.user_id-->
-<!--                         INNER JOIN t_keyword k ON muk.keyword_id = k.keyword_id-->
-<!--                         INNER JOIN t_subject s ON k.subject_id = s.subject_id-->
-<!--                 WHERE p.profile_id = #{profileId}-->
-<!--                 GROUP BY-->
-<!--                     s.subject_name-->
-<!--             )tb_json_arrayagg-->
-<!--    </select>-->
-
-    <select id="findKeywordsByUserId" resultType="com.swyp3.babpool.domain.profile.application.response.ProfileKeywordsResponse">
-        SELECT JSON_OBJECTAGG(subject_name: keyword_name_list) AS keywords
-        FROM (
-                 SELECT tk.keyword_subject AS subject_name,
-                        JSON_ARRAYAGG(tk.keyword_name) AS keyword_name_list
-                 FROM t_keyword tk
-                          INNER JOIN t_m_user_keyword tmuk ON tk.keyword_id = tmuk.keyword_id
-                 WHERE tmuk.user_id = #{userId}
-                 GROUP BY tk.keyword_subject
-             )tb_json_arrayagg
-    </select>
-
     <select id="findProfileDefault" resultType="com.swyp3.babpool.domain.profile.domain.ProfileDefault">
         SELECT
             ua.user_nick_name AS userNickName,

@@ -2,6 +2,7 @@ package com.swyp3.babpool.domain.user.application;
 
 import com.swyp3.babpool.domain.appointment.application.response.AppointmentHistoryDoneResponse;
 import com.swyp3.babpool.domain.appointment.dao.AppointmentRepository;
+import com.swyp3.babpool.domain.keyword.application.KeywordService;
 import com.swyp3.babpool.domain.profile.application.ProfileService;
 import com.swyp3.babpool.domain.profile.domain.Profile;
 import com.swyp3.babpool.domain.review.application.ReviewService;
@@ -42,6 +43,7 @@ public class UserServiceImpl implements UserService{
     private final JwtService jwtService;
     private final ProfileService profileService;
     private final ReviewService reviewService;
+    private final KeywordService keywordService;
 
     private final UserRepository userRepository;
     private final AppointmentRepository appointmentRepository;
@@ -116,7 +118,7 @@ public class UserServiceImpl implements UserService{
         userRepository.updateSignUpInfo(userId, signUpRequest.getUserGrade());
 
         for (Long keywordId : signUpRequest.getKeywords()) {
-            userRepository.saveKeyword(userId, keywordId);
+            keywordService.saveUserAndKeywordMapping(userId, keywordId);
         }
 
         return userRepository.findById(userId);
