@@ -30,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 
@@ -106,6 +107,15 @@ public class UserServiceImpl implements UserService{
     public UserGradeResponse getUserGrade(Long userId) {
         String userGrade = userRepository.findUserGradeById(userId);
         return new UserGradeResponse(userGrade);
+    }
+
+    @Override
+    public void updateUserNickNameAndGrade(Long userId, String userNickName, String userGrade) {
+        User targetUser = userRepository.findById(userId);
+        userRepository.updateUserNickNameAndGrade(userId,
+                !targetUser.getUserNickName().equals(userNickName) && StringUtils.hasText(userNickName) ? userNickName : targetUser.getUserNickName(),
+                !targetUser.getUserGrade().equals(userGrade) && StringUtils.hasText(userGrade) ? userGrade : targetUser.getUserGrade());
+
     }
 
     private UserStatus getUserStatus(Long userId) {

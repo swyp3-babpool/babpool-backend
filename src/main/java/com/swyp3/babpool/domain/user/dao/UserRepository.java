@@ -9,21 +9,30 @@ import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface UserRepository {
+
+    // 테스트 코드 작성 완료
     void save(User user);
 
+    // 테스트 코드 작성 완료
     Long findUserIdByPlatformAndPlatformId(@Param("platformName") AuthPlatform authPlatform,@Param("platformId") String platformId);
 
+    // 테스트 코드 작성 완료
     User findById(Long userId);
 
+    // 테스트 코드 작성 완료
     void updateSignUpInfo(@Param("userId") Long userId, @Param("userGrade") String userGrade);
 
-    void saveKeyword(@Param("userId") Long userId, @Param("keywordId") Long keywordId);
 
     MyPageUserDto findMyProfile(Long userId);
 
+    // 테스트 코드 작성 완료
     String findUserGradeById(Long userId);
 
+    // 테스트 코드 작성 완료
     int updateUserStateByUserId(@Param("userId") Long userId, @Param("userStatus") UserStatus userStatus);
 
-    User findActiveUserByUserEmail(String email);
+    // 테스트 코드 작성 완료
+    User findActiveUserByUserEmail(String userEmail);
+
+    int updateUserNickNameAndGrade(Long userId, String userNickName, String userGrade);
 }

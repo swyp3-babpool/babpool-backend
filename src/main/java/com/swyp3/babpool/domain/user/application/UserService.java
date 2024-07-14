@@ -15,4 +15,6 @@ public interface UserService {
     MyPageResponse getMyPage(Long userId);
 
     UserGradeResponse getUserGrade(Long userId);
+
+    void updateUserNickNameAndGrade(Long userId, String userNickName, String userGrade);
 }

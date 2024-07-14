@@ -1,6 +1,5 @@
 package com.swyp3.babpool.domain.user.domain;
 
-import com.swyp3.babpool.infra.auth.response.AuthMemberResponse;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -44,4 +43,5 @@ public class User {
         this.userCreateDate = userCreateDate;
         this.userModifyDate = userModifyDate;
     }
+
 }
