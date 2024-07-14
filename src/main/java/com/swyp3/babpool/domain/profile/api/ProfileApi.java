@@ -1,5 +1,6 @@
 package com.swyp3.babpool.domain.profile.api;
 
+import com.swyp3.babpool.domain.facade.UserProfileFacade;
 import com.swyp3.babpool.domain.profile.api.request.ProfileUpdateRequest;
 import com.swyp3.babpool.domain.profile.application.ProfileService;
 import com.swyp3.babpool.domain.profile.application.response.ProfileDefaultResponse;
@@ -16,13 +17,14 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/profile")
 public class ProfileApi {
     private final ProfileService profileService;
+    private final UserProfileFacade userProfileFacade;
 
     @PostMapping("/update")
     public ApiResponse<ProfileUpdateResponse> updateProfileCard(@RequestAttribute(value = "userId") Long userId,
                                                                 @RequestPart(value = "profileImageFile", required = false) MultipartFile multipartFile,
                                                                 @RequestPart(value = "profileInfo") ProfileUpdateRequest profileUpdateRequest) {
         profileService.updateProfileImage(userId, multipartFile);
-        ProfileUpdateResponse response =  profileService.updateProfileInfo(userId, profileUpdateRequest);
+        ProfileUpdateResponse response =  userProfileFacade.updateProfileInfo(userId, profileUpdateRequest);
         return ApiResponse.ok(response);
     }
 

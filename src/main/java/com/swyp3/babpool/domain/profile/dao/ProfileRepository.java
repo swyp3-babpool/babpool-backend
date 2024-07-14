@@ -41,29 +41,37 @@ public interface ProfileRepository {
      */
     int countByPageable(ProfilePagingConditions profilePagingConditions);
 
+    // 테스트 코드 작성 완료
     /**
-     * 프로필 정보 조회
-     * @param targetProfileId : 조회 대상 프로필 식별 값
-     * @return
+     * 프로필 식별 값으로 사용자 식별 값을 조회한다.
+     * @param profileId : 조회 대상 프로필 식별 값
+     * @return 사용자 식별 값
      */
-    Long findUserIdByProfileId(Long targetProfileId);
+    Long findUserIdByProfileId(Long profileId);
 
+    // 테스트 코드 작성 완료
+    /**
+     * 프로필 식별 값으로 프로필을 조회한다.
+     * @param profileId 조회 대상 프로필 식별 값
+     * @return {@code Profile} 도메인
+     */
     Profile findById(Long profileId);
+
+    // 테스트 코드 작성 완료
     Profile findByUserId(Long userId);
+
     ProfileDetail findProfileDetail(Long profileId);
 
-    void updateUserAccount(@Param("userId") Long userId,@Param("request") ProfileUpdateRequest profileUpdateRequest);
-    void updateProfile(@Param("profileId") Long profileId,@Param("request") ProfileUpdateRequest profileUpdateRequest);
-    void deleteUserKeywords(Long userId);
-    void saveUserKeywords(@Param("userId")Long userId,@Param("keywords") List<Integer> keywords);
-    void deletePossibleDates(Long profileId);
-    void savePossibleDates(PossibleDate possibleDate);
-    void deletePossibleTimes(Long profileId);
-    void savePossibleTimes(@Param("possibleTimeStart") Integer possibleTimeStart,@Param("possibleDateId") Long possibleDateId);
-    ProfileKeywordsResponse findKeywords(Long profileId);
-    ProfileKeywordsResponse findKeywordsByUserId(Long userId);
     ProfileDefault findProfileDefault(Long profileId);
-    Boolean findProfileIsRegistered(Long profileId);
 
+    void updateProfileByProfileId(@Param("profileId") Long profileId, @Param("request") ProfileUpdateRequest profileUpdateRequest);
+
+    // 테스트 코드 작성 완료
     int updateProfileActiveFlag(@Param("userId") Long userId, @Param("activeFlag") Boolean activeFlag);
+
+//    void deletePossibleDates(Long profileId);
+//    void savePossibleDates(PossibleDate possibleDate);
+//    void deletePossibleTimes(Long profileId);
+//    void savePossibleTimes(@Param("possibleTimeStart") Integer possibleTimeStart,@Param("possibleDateId") Long possibleDateId);
+
 }

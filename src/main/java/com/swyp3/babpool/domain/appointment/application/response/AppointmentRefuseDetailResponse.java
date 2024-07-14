@@ -1,9 +1,6 @@
 package com.swyp3.babpool.domain.appointment.application.response;
 
-import com.swyp3.babpool.domain.user.application.response.MyPageUserDto;
 import lombok.Getter;
-
-import java.util.List;
 
 @Getter
 public class AppointmentRefuseDetailResponse {

@@ -15,7 +15,6 @@ import com.swyp3.babpool.domain.appointment.exception.AppointmentException;
 import com.swyp3.babpool.domain.appointment.exception.errorcode.AppointmentErrorCode;
 import com.swyp3.babpool.domain.possibledatetime.application.PossibleDateTimeService;
 import com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateTime;
-import com.swyp3.babpool.domain.profile.application.ProfileService;
 import com.swyp3.babpool.domain.profile.dao.ProfileRepository;
 import com.swyp3.babpool.domain.profile.domain.Profile;
 import com.swyp3.babpool.domain.user.application.response.MyPageUserDto;
@@ -42,7 +41,6 @@ public class AppointmentServiceImpl implements AppointmentService{
 
     private final UuidService uuidService;
     private final PossibleDateTimeService possibleDateTimeService;
-    private final ProfileService profileService;
 
     private final AppointmentRepository appointmentRepository;
     private final ProfileRepository profileRepository;
@@ -95,8 +93,8 @@ public class AppointmentServiceImpl implements AppointmentService{
     @Override
     public AppointmentCreateResponse makeAppointmentResolveConcurrency(AppointmentCreateRequest appointmentCreateRequest) {
         // 요청한 프로필 식별 번호로, 수신자의 식별 값(user_id) 조회.
-        Profile profileByProfileId = profileService.getProfileByProfileId(appointmentCreateRequest.getTargetProfileId());
-        appointmentCreateRequest.setReceiverUserId(profileByProfileId.getUserId());
+//        Profile profileByProfileId = profileService.getProfileByProfileId(appointmentCreateRequest.getTargetProfileId());
+//        appointmentCreateRequest.setReceiverUserId(profileByProfileId.getUserId());
 
         // 요청 송신자와 수신자가 다르게 요청되었는지 검증.
         if(appointmentCreateRequest.getSenderUserId().equals(appointmentCreateRequest.getReceiverUserId())){

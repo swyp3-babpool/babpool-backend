@@ -7,6 +7,7 @@ import com.swyp3.babpool.domain.appointment.api.request.AppointmentRejectRequest
 import com.swyp3.babpool.domain.appointment.application.AppointmentService;
 import com.swyp3.babpool.domain.appointment.application.response.*;
 import com.swyp3.babpool.domain.appointment.application.response.appointmentdetail.AppointmentDetailResponse;
+import com.swyp3.babpool.domain.facade.ProfilePossibleDateTimeFacade;
 import com.swyp3.babpool.global.common.response.ApiResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -24,6 +25,7 @@ import java.util.List;
 public class AppointmentApi {
 
     private final AppointmentService appointmentService;
+    private final ProfilePossibleDateTimeFacade profilePossibleDateTimeFacade;
 
     /**
      * 밥약 요청 API
@@ -42,6 +44,7 @@ public class AppointmentApi {
      */
     @PostMapping("/api/v2/appointment")
     public ApiResponse<AppointmentCreateResponse> createAppointment(@RequestBody @Validated AppointmentCreateRequest appointmentCreateRequest) {
+        appointmentCreateRequest.setReceiverUserId(profilePossibleDateTimeFacade.getProfileByProfileId(appointmentCreateRequest.getTargetProfileId()));
         return ApiResponse.ok(appointmentService.makeAppointmentResolveConcurrency(appointmentCreateRequest));
     }
 

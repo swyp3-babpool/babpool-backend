@@ -1,6 +1,9 @@
 package com.swyp3.babpool.domain.profile.application;
 
+import com.swyp3.babpool.domain.appointment.application.AppointmentService;
 import com.swyp3.babpool.domain.appointment.dao.AppointmentRepository;
+import com.swyp3.babpool.domain.keyword.application.KeywordService;
+import com.swyp3.babpool.domain.possibledatetime.application.PossibleDateTimeService;
 import com.swyp3.babpool.domain.possibledatetime.dao.PossibleDateTimeRepository;
 import com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateInsertDto;
 import com.swyp3.babpool.domain.profile.api.request.ProfilePagingConditions;
@@ -37,10 +40,18 @@ import java.util.stream.Collectors;
 public class ProfileServiceImpl implements ProfileService{
 
     private final AwsS3Provider awsS3Provider;
+
+    private final ReviewService reviewService;
+    private final KeywordService keywordService;
+
+    // TODO : PossibleDateTimeRepository, AppointmentRepository 와 같은 타 도메인의 레포지토리에 의존하지 않고, 도메인 서비스를 통해 의존성 주입하는 것으로 변경 요망.
+    private final PossibleDateTimeService possibleDateTimeService;
+    private final AppointmentService appointmentService;
+
     private final ProfileRepository profileRepository;
     private final PossibleDateTimeRepository possibleDateTimeRepository;
     private final AppointmentRepository appointmentRepository;
-    private final ReviewService reviewService;
+
     @Override
     public Page<ProfilePagingResponse> getProfileListWithPageable(ProfilePagingConditions profilePagingConditions, Pageable pageable) {
         PagingRequestList<?> pagingRequest = PagingRequestList.builder()
@@ -54,7 +65,6 @@ public class ProfileServiceImpl implements ProfileService{
             counts = profileRepository.countByPageable(profilePagingConditions);
         } catch (Exception e) {
             log.error("프로필 리스트 조회 중 오류 발생. {}", e.getMessage());
-            log.error("{}", e.getStackTrace());
             throw new ProfileException(ProfileErrorCode.PROFILE_LIST_ERROR, "프로필 리스트 조회 중 오류가 발생했습니다.");
         }
         List<ProfilePagingResponse> profilePagingResponse = profilePagingDtoList.stream()
@@ -84,16 +94,13 @@ public class ProfileServiceImpl implements ProfileService{
     public ProfileDefaultResponse getProfileDefault(Long userId) {
         Profile profile = profileRepository.findByUserId(userId);
         ProfileDefault daoResponse= profileRepository.findProfileDefault(profile.getProfileId());
-        ProfileKeywordsResponse keywords = profileRepository.findKeywordsByUserId(userId);
+        ProfileKeywordsResponse keywords = keywordService.getKeywordsAndSubjectsByUserId(userId);
         return new ProfileDefaultResponse(daoResponse,keywords);
     }
 
     @Override
     public ProfileRegistrationResponse getProfileisRegistered(Long userId) {
-        Profile profile = profileRepository.findByUserId(userId);
-        Boolean isRegistered = profileRepository.findProfileIsRegistered(profile.getProfileId());
-
-        return new ProfileRegistrationResponse(isRegistered);
+        return new ProfileRegistrationResponse(profileRepository.findByUserId(userId).getProfileActiveFlag());
     }
 
     private boolean isExistProfile(Long profileId) {
@@ -152,13 +159,20 @@ public class ProfileServiceImpl implements ProfileService{
 
     @Override
     public ProfileUpdateResponse updateProfileInfo(Long userId, ProfileUpdateRequest profileUpdateRequest) {
+
         validateRequestPossibleDateTime(profileUpdateRequest.getPossibleDate());
+
         Long profileId = profileRepository.findByUserId(userId).getProfileId();
-        profileRepository.updateUserAccount(userId,profileUpdateRequest);
-        profileRepository.updateProfile(profileId,profileUpdateRequest);
-        profileRepository.deleteUserKeywords(userId);
-        profileRepository.saveUserKeywords(userId,profileUpdateRequest.getKeywords());
+
+        profileRepository.updateProfileByProfileId(profileId,profileUpdateRequest);
+
+        // 사용자가 설정해둔 키워드 일괄 삭제 후, 새로운 키워드로 저장
+        keywordService.deleteAllKeywordsOf(userId);
+        keywordService.saveUserAndKeywordMapping(userId, profileUpdateRequest.getKeywords());
+
+        // TODO : 프로필 수정과, 일정 수정 분리 필요.
         updatePossibleDateTime(userId, profileId,profileUpdateRequest);
+
         return new ProfileUpdateResponse(profileId);
     }
 

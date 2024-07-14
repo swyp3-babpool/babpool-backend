@@ -37,6 +37,7 @@ class PossibleDateTimeServiceImplTest {
 
     @Autowired
     AppointmentRepository appointmentRepository;
+
     @Autowired
     TsidKeyGenerator tsidKeyGenerator;
 
