@@ -22,9 +22,9 @@ public class PossibleDateTimeServiceImpl implements PossibleDateTimeService{
 
 
     @Override
-    public PossibleDateTime throwExceptionIfAppointmentAlreadyAcceptedAtSameTime(Long targetProfileId, Long possibleDateTimeId, LocalDateTime possibleDateTime) {
+    public PossibleDateTime throwExceptionIfAppointmentAlreadyAcceptedAtSameTime(Long targetUserId, Long possibleDateTimeId, LocalDateTime possibleDateTime) {
         PossibleDateTime possibleDateTimeEntity = possibleDateTimeRepository.findByProfileIdAndDateTimeForUpdate(
-                targetProfileId, possibleDateTimeId).orElseThrow(
+                targetUserId, possibleDateTimeId).orElseThrow(
                 () -> new PossibleDateTimeException(PossibleDateTimeErrorCode.POSSIBLE_DATETIME_NOT_FOUND, "조회된 PossibleDateTime 이 존재하지 않습니다.")
         );
         if (possibleDateTimeEntity.getPossibleDateTimeStatus().equals(PossibleDateTimeStatusType.RESERVED.getStatus())){

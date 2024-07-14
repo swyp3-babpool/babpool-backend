@@ -30,9 +30,9 @@ public interface PossibleDateTimeRepository {
 
     boolean checkExistPossibleTime(Long profileId, String possibleDate, Integer possibleTimeStart);
 
-    Optional<PossibleDateTime> findByProfileIdAndDateTimeForUpdate(Long targetProfileId, Long possibleDateTimeId);
+    Optional<PossibleDateTime> findByProfileIdAndDateTimeForUpdate(Long targetUserId, Long possibleDateTimeId);
 
     int updatePossibleDateTimeStatus(Long possibleDateTimeId, String status);
 
-    List<PossibleDateTime> findAllByProfileId(Long profileId);
+    List<PossibleDateTime> findAllByUserId(Long userId);
 }

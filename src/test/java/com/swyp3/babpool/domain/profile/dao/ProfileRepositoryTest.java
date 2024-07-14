@@ -62,14 +62,14 @@ class ProfileRepositoryTest {
     @Test
     void updateProfileActiveFlag() {
         // given
-        Long profileId = 200000000000000001L;
+        Long userId = 100000000000000001L;
         Boolean targetActiveFlag = false;
 
         // when
-        profileRepository.updateProfileActiveFlag(profileId, targetActiveFlag);
+        profileRepository.updateProfileActiveFlag(userId, targetActiveFlag);
 
         // then
-        Profile profile = profileRepository.findById(profileId);
+        Profile profile = profileRepository.findByUserId(userId);
         assertThat(profile.getProfileActiveFlag()).isFalse();
     }
 

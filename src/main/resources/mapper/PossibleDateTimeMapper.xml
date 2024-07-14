@@ -58,17 +58,17 @@
             AND possible_time_start = #{possibleTimeStart}) as exist;
     </select>
 
-    <select id="findAllByProfileId" resultType="com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateTime">
-        SELECT possible_datetime_id, possible_datetime_date, possible_datetime_time, possible_datetime_range, possible_datetime_status, profile_id
+    <select id="findAllByUserId" resultType="com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateTime">
+        SELECT possible_datetime_id, possible_datetime, possible_datetime_status, user_id
         FROM t_possible_datetime
-        WHERE profile_id = #{profileId}
+        WHERE user_id = #{userId}
     </select>
 
     <select id="findByProfileIdAndDateTimeForUpdate" resultType="com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateTime">
-        SELECT possible_datetime_id, possible_datetime_date, possible_datetime_time, possible_datetime_range, possible_datetime_status, profile_id
+        SELECT possible_datetime_id, possible_datetime, possible_datetime_status, user_id
         FROM t_possible_datetime
         WHERE possible_datetime_id = #{possibleDateTimeId}
-          AND profile_id = #{targetProfileId}
+          AND user_id = #{targetUserId}
         FOR UPDATE;
     </select>
 

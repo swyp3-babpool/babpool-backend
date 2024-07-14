@@ -46,10 +46,12 @@ class PossibleDateTimeServiceImplTest {
     @Test
     void throwExceptionIfAppointmentAlreadyAcceptedAtSameTime2() throws InterruptedException {
         // given
+        Long senderUserId = 100000000000000003L;
+        Long receiverUserId = 100000000000000002L;
         AppointmentCreateRequest appointmentCreateRequest = AppointmentCreateRequest.builder()
                 .appointmentId(null)
-                .senderUserId(100000000000000001L)
-                .receiverUserId(100000000000000002L)
+                .senderUserId(senderUserId)
+                .receiverUserId(receiverUserId)
                 .targetProfileId(200000000000000002L)
                 .possibleDateTimeId(300000000000000002L)
                 .possibleDateTime(LocalDateTime.of(2024, 7, 3, 3, 0))
@@ -74,12 +76,12 @@ class PossibleDateTimeServiceImplTest {
         countDownLatch.await();
 
         // then
-        PossibleDateTime possibleDateTime = possibleDateTimeRepository.findAllByProfileId(200000000000000002L).stream()
+        PossibleDateTime possibleDateTime = possibleDateTimeRepository.findAllByUserId(receiverUserId).stream()
                 .filter(entity -> entity.getPossibleDateTimeStatus().equals("RESERVED"))
                 .findFirst().get();
         assertThat(possibleDateTime).isNotNull();
 
-        List<AppointmentV1> allBySenderUserId = appointmentRepository.findAllBySenderUserId(100000000000000001L);
+        List<AppointmentV1> allBySenderUserId = appointmentRepository.findAllBySenderUserId(senderUserId);
         assertThat(allBySenderUserId.size()).isEqualTo(1);
 
     }
@@ -87,8 +89,9 @@ class PossibleDateTimeServiceImplTest {
     @Transactional
     protected void aaa(AppointmentCreateRequest appointmentCreateRequest) {
         PossibleDateTime possibleDateTimeEntity = possibleDateTimeService.throwExceptionIfAppointmentAlreadyAcceptedAtSameTime(
-                appointmentCreateRequest.getTargetProfileId(), appointmentCreateRequest.getPossibleDateTimeId(), appointmentCreateRequest.getPossibleDateTime());
+                appointmentCreateRequest.getReceiverUserId(), appointmentCreateRequest.getPossibleDateTimeId(), appointmentCreateRequest.getPossibleDateTime());
         boolean isStatusUpdated = possibleDateTimeService.changeStatusAsReserved(possibleDateTimeEntity.getPossibleDateTimeId());
+        log.info("isStatusUpdated : " + isStatusUpdated);
         if (!isStatusUpdated){
             throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_CREATE_FAILED, "밥약 가능한 일정 상태 변경에 실패하였습니다.");
         }

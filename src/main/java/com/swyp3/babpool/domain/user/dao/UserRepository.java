@@ -34,5 +34,6 @@ public interface UserRepository {
     // 테스트 코드 작성 완료
     User findActiveUserByUserEmail(String userEmail);
 
-    int updateUserNickNameAndGrade(Long userId, String userNickName, String userGrade);
+    // 테스트 코드 작성 완료
+    void updateUserNickNameAndGrade(Long userId, String userNickName, String userGrade);
 }
