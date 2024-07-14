@@ -127,9 +127,7 @@ public class UserServiceImpl implements UserService{
         Long userId = signUpRequest.getUserId();
         userRepository.updateSignUpInfo(userId, signUpRequest.getUserGrade());
 
-        for (Long keywordId : signUpRequest.getKeywords()) {
-            keywordService.saveUserAndKeywordMapping(userId, keywordId);
-        }
+        keywordService.saveUserAndKeywordMapping(userId, signUpRequest.getKeywords());
 
         return userRepository.findById(userId);
     }

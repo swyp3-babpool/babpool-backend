@@ -17,11 +17,32 @@
              )tb_json_arrayagg
     </select>
 
+    <select id="findAllByUserId" resultType="com.swyp3.babpool.domain.keyword.dao.response.KeywordAndUserResponseDto">
+        SELECT tmuk.keyword_id AS keywordId,
+               tmuk.user_id AS userId,
+               tmuk.mapping_id AS mappingId,
+               tk.keyword_name AS keywordName,
+               tk.keyword_subject AS keywordSubject
+        FROM t_m_user_keyword tmuk
+                 INNER JOIN t_keyword tk ON tk.keyword_id = tmuk.keyword_id
+        WHERE tmuk.user_id = #{userId}
+    </select>
+
     <!-- ==============================  INSERT  ============================== -->
 
-    <insert id="saveUserAndKeywordMapping">
-        insert into t_m_user_keyword (mapping_id, user_id,keyword_id)
-        values (#{mappingId}, #{userId}, #{keywordId})
+    <insert id="saveUserAndKeywordMappingForEach">
+        INSERT INTO t_m_user_keyword (mapping_id, user_id, keyword_id)
+        VALUES
+        <foreach item="ele" index="index" collection="mappingList" separator=",">
+            (#{ele.mappingId}, #{ele.userId}, #{ele.keywordId})
+        </foreach>
     </insert>
+
+    <!-- ==============================  DELETE  ============================== -->
+
+    <delete id="deleteAllKeywordMappingByUserId">
+        DELETE FROM t_m_user_keyword
+        WHERE user_id = #{userId}
+    </delete>
 
 </mapper>
