@@ -53,7 +53,7 @@ class ReviewRepositoryTest {
         Long targetAppointmentId = 700000000000000007L;
 
         String query = "SELECT CASE WHEN TIMESTAMPADD(DAY, 3, t_datetime.possible_datetime) > NOW() THEN 1 ELSE 0 END AS result" +
-                " FROM t_appointment INNER JOIN t_possible_datetime t_datetime ON t_datetime.possible_datetime_id = t_appointment.possible_datetime_id" +
+                " FROM t_appointment appointment INNER JOIN t_possible_datetime t_datetime ON t_datetime.possible_datetime_id = appointment.possible_datetime_id" +
                 " WHERE appointment_id = " + targetAppointmentId;
         //when
         boolean result = jdbcTemplate.queryForObject(query, Boolean.class);
