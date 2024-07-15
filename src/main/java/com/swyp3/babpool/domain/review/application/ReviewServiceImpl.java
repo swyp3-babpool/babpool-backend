@@ -32,20 +32,20 @@ public class ReviewServiceImpl implements ReviewService{
 
     @Override
     public ReviewCountByTypeResponse getReviewCountByType(Long profileId) {
-        return reviewRepository.countReviewByType(profileId)
+        return reviewRepository.countByTypeAndProfileId(profileId)
                 .orElseThrow(() -> new ReviewException(ReviewErrorCode.NOT_FOUND_REVIEW,"요청된 프로필에 리뷰가 존재하지 않습니다."));
     }
 
     @Override
     public ReviewSaveResponse createReview(ReviewCreateRequest reviewCreateRequest) {
-        validateIsSameAppointmentRequest(reviewCreateRequest.getTargetAppointmentId(), reviewCreateRequest.getReviewerUserId());
+        validateIsSameAppointmentRequest(reviewCreateRequest.getAppointmentId(), reviewCreateRequest.getReviewerUserId());
 
-        reviewRepository.findByAppointmentId(reviewCreateRequest.getTargetAppointmentId()).ifPresent(review -> {
+        reviewRepository.findByAppointmentId(reviewCreateRequest.getAppointmentId()).ifPresent(review -> {
             throw new ReviewException(ReviewErrorCode.ALREADY_EXIST_REVIEW,"잘못된 요청. 이미 리뷰가 존재합니다.");
         });
 
         // 리뷰 작성 가능 시간 체크
-        if(!reviewRepository.isReviewCreateAvailableTime(reviewCreateRequest.getTargetAppointmentId())){
+        if(!reviewRepository.isReviewCreateAvailableTime(reviewCreateRequest.getAppointmentId())){
             throw new ReviewException(ReviewErrorCode.REVIEW_CREATE_REQUEST_FAIL,"리뷰 작성 가능 시간이 아닙니다.");
         }
 
@@ -56,7 +56,7 @@ public class ReviewServiceImpl implements ReviewService{
         }
 
         // 리뷰 생성 후 appointment 테이블에 DONE 상태로 변경
-        int updatedRows = appointmentRepository.updateAppointmentStatus(reviewCreateRequest.getTargetAppointmentId(), "DONE");
+        int updatedRows = appointmentRepository.updateAppointmentStatus(reviewCreateRequest.getAppointmentId(), "DONE");
         if(updatedRows != 1){
             throw new ReviewException(ReviewErrorCode.REVIEW_CREATE_REQUEST_FAIL,"리뷰 작성에 실패하였습니다. appointment 테이블 상태 변경 실패.");
         }
@@ -68,7 +68,7 @@ public class ReviewServiceImpl implements ReviewService{
 
     @Override
     public ReviewSaveResponse updateReview(ReviewUpdateRequest reviewUpdateRequest) {
-        validateIsSameAppointmentRequest(reviewUpdateRequest.getTargetAppointmentId(), reviewUpdateRequest.getReviewerUserId());
+        validateIsSameAppointmentRequest(reviewUpdateRequest.getAppointmentId(), reviewUpdateRequest.getReviewerUserId());
 
         // 리뷰 수정 가능 시간 체크
         Optional<Boolean> isReviewUpdateAvailable = reviewRepository.isReviewUpdateAvailableTime(reviewUpdateRequest.getReviewId());
@@ -131,7 +131,7 @@ public class ReviewServiceImpl implements ReviewService{
 
     @Override
     public List<ReviewPagingResponse> getReviewListForProfileDetail(Long profileId, Integer limit) {
-        return reviewRepository.findAllByProfileIdAndLimit(profileId, limit);
+        return reviewRepository.findAllByProfileIdWithLimit(profileId, limit);
     }
 
 }
