@@ -19,6 +19,7 @@ import com.swyp3.babpool.domain.user.exception.errorcode.SignDownExceptionErrorC
 import com.swyp3.babpool.domain.user.exception.errorcode.SignUpExceptionErrorCode;
 import com.swyp3.babpool.global.jwt.application.JwtService;
 import com.swyp3.babpool.global.jwt.application.response.JwtPairDto;
+import com.swyp3.babpool.global.tsid.TsidKeyGenerator;
 import com.swyp3.babpool.global.uuid.application.UuidService;
 import com.swyp3.babpool.infra.auth.AuthPlatform;
 import com.swyp3.babpool.infra.auth.domain.Auth;
@@ -39,6 +40,8 @@ import java.util.*;
 @Transactional
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
+
+    private final TsidKeyGenerator tsidKeyGenerator;
 
     private final AuthService authService;
     private final JwtService jwtService;
@@ -79,7 +82,7 @@ public class UserServiceImpl implements UserService{
         if(updatedRows!=1){
             throw new SignDownException(SignDownExceptionErrorCode.FAILED_TO_UPDATE_USER_STATE, "회원탈퇴에 실패하였습니다");
         }
-        exitInfoRepository.saveExitInfo(userId, exitReason);
+        exitInfoRepository.saveExitInfo(tsidKeyGenerator.generateTsid(), userId, exitReason);
         jwtService.logout(refreshTokenFromCookie);
     }
 
