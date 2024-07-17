@@ -3,8 +3,8 @@ package com.swyp3.babpool.domain.review.dao;
 import com.swyp3.babpool.domain.appointment.dao.AppointmentRepository;
 import com.swyp3.babpool.domain.appointment.domain.AppointmentV1;
 import com.swyp3.babpool.domain.possibledatetime.dao.PossibleDateTimeRepository;
-import com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateInsertDto;
 import com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateTime;
+import com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateTimeStatusType;
 import com.swyp3.babpool.domain.review.api.request.ReviewCreateRequest;
 import com.swyp3.babpool.domain.review.api.request.ReviewUpdateRequest;
 import com.swyp3.babpool.domain.review.application.response.ReviewCountByTypeResponse;
@@ -13,9 +13,7 @@ import com.swyp3.babpool.domain.review.domain.Review;
 import com.swyp3.babpool.domain.review.domain.ReviewRateType;
 import com.swyp3.babpool.global.tsid.TsidKeyGenerator;
 import lombok.extern.slf4j.Slf4j;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
@@ -80,11 +78,11 @@ class ReviewRepositoryTest {
         Long senderUserId = 100000000000000001L;
         Long receiverUserId = 100000000000000002L;
         Long possibleDateTimeId = tsidKeyGenerator.generateTsid();
-        possibleDateTimeRepository.insertPossibleDateTime(PossibleDateTime.builder()
+        possibleDateTimeRepository.save(PossibleDateTime.builder()
                 .possibleDateTimeId(possibleDateTimeId)
                 .userId(senderUserId)
-                .possibleDateTime(String.valueOf(LocalDateTime.now()))
-                .possibleDateTimeStatus("RESERVED")
+                .possibleDateTime(LocalDateTime.now())
+                .possibleDateTimeStatus(PossibleDateTimeStatusType.RESERVED)
                 .build());
 
         Long targetAppointmentId = tsidKeyGenerator.generateTsid();

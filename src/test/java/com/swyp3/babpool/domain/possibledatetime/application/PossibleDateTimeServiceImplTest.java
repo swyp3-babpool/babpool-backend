@@ -7,6 +7,7 @@ import com.swyp3.babpool.domain.appointment.exception.AppointmentException;
 import com.swyp3.babpool.domain.appointment.exception.errorcode.AppointmentErrorCode;
 import com.swyp3.babpool.domain.possibledatetime.dao.PossibleDateTimeRepository;
 import com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateTime;
+import com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateTimeStatusType;
 import com.swyp3.babpool.global.tsid.TsidKeyGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
@@ -77,7 +78,7 @@ class PossibleDateTimeServiceImplTest {
 
         // then
         PossibleDateTime possibleDateTime = possibleDateTimeRepository.findAllByUserId(receiverUserId).stream()
-                .filter(entity -> entity.getPossibleDateTimeStatus().equals("RESERVED"))
+                .filter(entity -> entity.getPossibleDateTimeStatus() == PossibleDateTimeStatusType.RESERVED)
                 .findFirst().get();
         assertThat(possibleDateTime).isNotNull();
 
