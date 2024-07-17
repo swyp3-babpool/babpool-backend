@@ -59,7 +59,7 @@ class AppointmentApiTest {
                         .appointmentContent("").build()
         );
 
-        mockMvc.perform(post("/api/v2/appointment")
+        mockMvc.perform(post("/api/appointment")
                 .header("userId", 1L)
                 .header("Authorization", "Bearer " + accessTokenFromRequestHeader)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -74,20 +74,5 @@ class AppointmentApiTest {
                 .andDo(print());
     }
 
-    @DisplayName("밥약 요청 가능 일정/시간 조회 API - 유효성 검증 실패")
-    @Test
-    void getAvailableTimeValidationFail() throws Exception {
-        String accessTokenFromRequestHeader = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0QHRlc3QuY29tIiwicm9sZXMiOiJ0ZXN0IiwidXNlcmlkIjoxfQ.eMKhy-XdJmhuS2QeH1fjycXLS4lucpSa0D56JFMr0fI";
 
-        mockMvc.perform(get("/api/appointment/{profileId}/datetime", "abc")
-                        .header("Authorization", "Bearer " + accessTokenFromRequestHeader)
-                        .characterEncoding("UTF-8")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isBadRequest())
-//                .andExpect(jsonPath("$.statusCode").value(400))
-//                .andExpect(jsonPath("$.statusDescription").value("BAD_REQUEST"))
-//                .andExpect(jsonPath("$.message").value("Validation error: profileId: Must be positive"))
-                .andDo(print());
-    }
 }

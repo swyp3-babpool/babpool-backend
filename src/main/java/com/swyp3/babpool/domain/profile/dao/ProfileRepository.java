@@ -2,7 +2,6 @@ package com.swyp3.babpool.domain.profile.dao;
 
 import com.swyp3.babpool.domain.profile.api.request.ProfilePagingConditions;
 import com.swyp3.babpool.domain.profile.api.request.ProfileUpdateRequest;
-import com.swyp3.babpool.domain.profile.application.response.ProfileKeywordsResponse;
 import com.swyp3.babpool.domain.profile.domain.*;
 import com.swyp3.babpool.domain.profile.application.response.ProfilePagingDto;
 import com.swyp3.babpool.global.common.request.PagingRequestList;
@@ -15,6 +14,7 @@ import java.util.List;
 public interface ProfileRepository {
 
     void saveProfile(Profile profile);
+
     void updateProfileImageUrl(Profile profile);
 
     /**
@@ -68,10 +68,5 @@ public interface ProfileRepository {
 
     // 테스트 코드 작성 완료
     int updateProfileActiveFlag(@Param("userId") Long userId, @Param("activeFlag") Boolean activeFlag);
-
-//    void deletePossibleDates(Long profileId);
-//    void savePossibleDates(PossibleDate possibleDate);
-//    void deletePossibleTimes(Long profileId);
-//    void savePossibleTimes(@Param("possibleTimeStart") Integer possibleTimeStart,@Param("possibleDateId") Long possibleDateId);
 
 }

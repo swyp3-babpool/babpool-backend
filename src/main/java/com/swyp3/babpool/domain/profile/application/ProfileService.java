@@ -31,7 +31,8 @@ public interface ProfileService {
 
     void updateProfileActiveFlag(Long userId, Boolean activeFlag);
 
-    void updatePossibleDateTime(Long userId, Long profileId, ProfileUpdateRequest profileUpdateRequest);
+//    @Deprecated
+//    void updatePossibleDateTime(Long userId, Long profileId, ProfileUpdateRequest profileUpdateRequest);
 
     Profile getProfileByProfileId(Long profileId);
 }

@@ -13,7 +13,7 @@ public class ProfilePossibleDateTimeFacade {
     private final ProfileService profileService;
     private final PossibleDateTimeService possibleDateTimeService;
 
-    public Long getProfileByProfileId(Long targetProfileId) {
+    public Long getUserIdByProfileId(Long targetProfileId) {
         Profile profileByProfileId = profileService.getProfileByProfileId(targetProfileId);
         return profileByProfileId.getUserId();
     }
