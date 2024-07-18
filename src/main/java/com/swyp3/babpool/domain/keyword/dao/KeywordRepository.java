@@ -16,12 +16,12 @@ public interface KeywordRepository {
     // 테스트 코드 작성 완료
     Optional<ProfileKeywordsResponse> findKeywordsByUserId(Long userId);
 
+    // 테스트 코드 작성 완료
     List<KeywordAndUserResponseDto> findAllByUserId(Long userId);
-
-    void saveKeyword(Keyword keyword);
 
     // 테스트 코드 작성 완료
     void saveUserAndKeywordMappingForEach(@Param("mappingList") List<MappingUserKeyword> mappingList);
 
+    // 테스트 코드 작성 완료
     void deleteAllKeywordMappingByUserId(Long userId);
 }
