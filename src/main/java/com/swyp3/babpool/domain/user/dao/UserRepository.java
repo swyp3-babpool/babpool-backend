@@ -11,7 +11,7 @@ import org.apache.ibatis.annotations.Param;
 public interface UserRepository {
 
     // 테스트 코드 작성 완료
-    void save(User user);
+    Integer save(User user);
 
     // 테스트 코드 작성 완료
     Long findUserIdByPlatformAndPlatformId(@Param("platformName") AuthPlatform authPlatform,@Param("platformId") String platformId);

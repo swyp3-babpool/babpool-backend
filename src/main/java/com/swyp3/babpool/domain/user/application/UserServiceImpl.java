@@ -20,7 +20,6 @@ import com.swyp3.babpool.domain.user.exception.errorcode.SignUpExceptionErrorCod
 import com.swyp3.babpool.global.jwt.application.JwtService;
 import com.swyp3.babpool.global.jwt.application.response.JwtPairDto;
 import com.swyp3.babpool.global.tsid.TsidKeyGenerator;
-import com.swyp3.babpool.global.uuid.application.UuidService;
 import com.swyp3.babpool.infra.auth.AuthPlatform;
 import com.swyp3.babpool.infra.auth.domain.Auth;
 import com.swyp3.babpool.domain.user.api.requset.LoginRequestDTO;
@@ -174,25 +173,34 @@ public class UserServiceImpl implements UserService{
 
     @Transactional
     public User createUser(AuthPlatform authPlatform, AuthMemberResponse authMemberResponse) {
-        User user = User.builder()
-                .email(authMemberResponse.getEmail())
-                .nickName(authMemberResponse.getNickname())
-                .build();
-        userRepository.save(user);
-        Long savedUserId = user.getUserId();
+        // 신규 사용자 정보 저장
+        Long targetUserId = tsidKeyGenerator.generateTsid();
+        User targetUser = User.allArgsBuilder()
+                            .userId(targetUserId)
+                            .userEmail(authMemberResponse.getEmail())
+                            .userNickName(authMemberResponse.getNickname())
+                            .allArgsBuild();
+        Integer insertedRows = userRepository.save(targetUser);
+        if (insertedRows != 1) {
+            throw new SignUpException(SignUpExceptionErrorCode.SIGNUP_CREATE_FAILED, "신규 사용자 DB 삽입 실패.");
+        }
 
-        Auth auth = Auth.createAuth(savedUserId, authPlatform, authMemberResponse.getPlatformId());
-        authService.save(auth);
+        // 신규 사용자의 Auth 정보 저장
+        authService.createAuth(Auth.builder()
+                        .userId(targetUserId)
+                        .oauthPlatformName(authPlatform)
+                        .oauthPlatformId(authMemberResponse.getPlatformId())
+                        .build());
 
-        Profile profile = Profile.builder()
-                .userId(savedUserId)
-                .profileImageUrl(authMemberResponse.getProfile_image())
-                .profileActiveFlag(false)
-                .build();
-        profileService.saveProfile(profile);
+        // 신규 사용자의 프로필 정보 저장
+        profileService.createInitProfile(Profile.builder()
+                                        .profileId(tsidKeyGenerator.generateTsid())
+                                        .userId(targetUserId)
+                                        .profileImageUrl(authMemberResponse.getProfile_image())
+                                        .profileActiveFlag(false)
+                                        .build());
 
-        // TODO : [24-07-12] UUID 가 아닌 TSID 를 사용하도록 변경되어 해당 코드는 주석처리. 추후 정상 동작 확인 후, 삭제될 예정.
-//        uuidService.createUuid(savedUserId);
-        return user;
+        return targetUser;
     }
+
 }
