@@ -12,28 +12,19 @@ import java.util.Optional;
 
 @Mapper
 public interface PossibleDateTimeRepository {
-    List<PossibleDateAndTime> findAllPossibleDateAndTimeByProfileIdAndNowDateWithoutAcceptOrDone(Long profileId);
 
-//    void deletePossibleDate(@Param("profileId") Long profileId, @Param("dateId") Long dateId);
-//
-//    void deletePossibleTime(@Param("dateId") Long dateId, @Param("timeId") Long timeId);
-//
-//    void insertPossibleDate(PossibleDateInsertDto possibleDateInsertDto);
-//
-//    void insertPossibleTime(@Param("dateId") Long dateId, @Param("time") Integer time);
-    boolean checkReferenceInAppointmentRequestDate(Long possibleDateId);
-
-    Long checkExistPossibleDate(Long profileId, String possibleDate);
-
-    boolean checkExistPossibleTime(Long profileId, String possibleDate, Integer possibleTimeStart);
-
+    // 테스트 코드 작성 완료
     Optional<PossibleDateTime> findById(Long possibleDateTimeId);
 
-    void save(PossibleDateTime possibleDateTime);
+    // 테스트 코드 작성 완료
+    List<PossibleDateTime> findAllByUserIdWhereFromThisMonth(Long userId);
 
+    // 테스트 코드 작성 완료
     Optional<PossibleDateTime> findByUserIdAndDateTimeForUpdate(@Param("userId") Long receiverUserId, @Param("possibleDateTimeId") Long possibleDateTimeId);
 
+    // 테스트 코드 작성 완료
     Optional<PossibleDateTime> findByUserIdAndDateTime(@Param("userId") Long receiverUserId, @Param("possibleDateTimeId") Long possibleDateTimeId);
+
     // 테스트 코드 작성 완료
     int updatePossibleDateTimeStatus(Long possibleDateTimeId, PossibleDateTimeStatusType status);
 
@@ -44,7 +35,18 @@ public interface PossibleDateTimeRepository {
     int deletePossibleDateTimeWhereStatusIsNotReserved(Long userId, List<LocalDateTime> possibleDateTimeDelList);
 
     // 테스트 코드 작성 완료
+    void save(PossibleDateTime possibleDateTime);
+
+    // 테스트 코드 작성 완료
     void savePossibleDateTimeList(List<PossibleDateTime> possibleDateTimeList);
 
-    List<PossibleDateTime> findAllByUserIdWhereFromThisMonth(Long userId);
+
+    @Deprecated
+    List<PossibleDateAndTime> findAllPossibleDateAndTimeByProfileIdAndNowDateWithoutAcceptOrDone(Long profileId);
+    @Deprecated
+    boolean checkReferenceInAppointmentRequestDate(Long possibleDateId);
+    @Deprecated
+    Long checkExistPossibleDate(Long profileId, String possibleDate);
+    @Deprecated
+    boolean checkExistPossibleTime(Long profileId, String possibleDate, Integer possibleTimeStart);
 }
