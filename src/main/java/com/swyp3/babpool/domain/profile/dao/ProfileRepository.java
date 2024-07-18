@@ -13,9 +13,11 @@ import java.util.List;
 @Mapper
 public interface ProfileRepository {
 
+    // 테스트 코드 작성 완료
     void saveProfile(Profile profile);
 
-    void updateProfileImageUrl(Profile profile);
+    // 테스트 코드 작성 완료
+    void updateProfileImageUrl(Long userId, String profileImageUrl);
 
     /**
      * 프로필 리스트 조회
@@ -64,7 +66,8 @@ public interface ProfileRepository {
 
     ProfileDefault findProfileDefault(Long profileId);
 
-    void updateProfileByProfileId(@Param("profileId") Long profileId, @Param("request") ProfileUpdateRequest profileUpdateRequest);
+    // 테스트 코드 작성 완료
+    void updateProfileByProfileIdAndUpdateRequestDto(@Param("profileId") Long profileId, @Param("request") ProfileUpdateRequest profileUpdateRequest);
 
     // 테스트 코드 작성 완료
     int updateProfileActiveFlag(@Param("userId") Long userId, @Param("activeFlag") Boolean activeFlag);

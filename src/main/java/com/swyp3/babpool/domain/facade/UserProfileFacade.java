@@ -17,10 +17,10 @@ public class UserProfileFacade {
 
 
     @Transactional
-    public ProfileUpdateResponse updateProfileInfo(Long userId, ProfileUpdateRequest profileUpdateRequest) {
-        ProfileUpdateResponse profileUpdateResponse = profileService.updateProfileInfo(userId, profileUpdateRequest);
+    public Long updateProfileInfo(Long userId, ProfileUpdateRequest profileUpdateRequest) {
+        Long updatedProfileId = profileService.updateProfileInfo(userId, profileUpdateRequest);
         // 사용자 닉네임, 등급 수정
         userService.updateUserNickNameAndGrade(userId, profileUpdateRequest.getUserNickName(), profileUpdateRequest.getUserGrade());
-        return profileUpdateResponse;
+        return updatedProfileId;
     }
 }

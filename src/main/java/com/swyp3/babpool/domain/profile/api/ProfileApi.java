@@ -19,13 +19,23 @@ public class ProfileApi {
     private final ProfileService profileService;
     private final UserProfileFacade userProfileFacade;
 
+
+    /**
+     * 프로필 정보 수정 API
+     * @param userId
+     * @param multipartFile
+     * @param profileUpdateRequest
+     * @return
+     */
     @PostMapping("/update")
-    public ApiResponse<ProfileUpdateResponse> updateProfileCard(@RequestAttribute(value = "userId") Long userId,
+    public ApiResponse<ProfileUpdateResponse> updateProfileInfo(@RequestAttribute(value = "userId") Long userId,
                                                                 @RequestPart(value = "profileImageFile", required = false) MultipartFile multipartFile,
-                                                                @RequestPart(value = "profileInfo") ProfileUpdateRequest profileUpdateRequest) {
-        profileService.updateProfileImage(userId, multipartFile);
-        ProfileUpdateResponse response =  userProfileFacade.updateProfileInfo(userId, profileUpdateRequest);
-        return ApiResponse.ok(response);
+                                                                @RequestBody ProfileUpdateRequest profileUpdateRequest) {
+
+        return ApiResponse.ok(ProfileUpdateResponse.builder()
+                .profileId(userProfileFacade.updateProfileInfo(userId, profileUpdateRequest))
+                .profileImageUrl(profileService.updateProfileImage(userId, multipartFile))
+                .build());
     }
 
     @GetMapping("/default")

@@ -145,14 +145,22 @@
         GROUP BY p.profile_id
     </select>
 
+    <select id="findProfileIsRegistered">
+        SELECT profile_active_flag
+        FROM t_profile
+        WHERE profile_id=#{profileId}
+    </select>
+
     <!-- ==============================  INSERT  ============================== -->
 
     <insert id="saveProfile" parameterType="com.swyp3.babpool.domain.profile.domain.Profile">
-        INSERT INTO t_profile (user_id, profile_image_url,profile_active_flag )
-        VALUES (#{userId}, #{profileImageUrl},#{profileActiveFlag} )
+        INSERT INTO t_profile (profile_id, user_id, profile_image_url, profile_active_flag )
+        VALUES (#{profileId}, #{userId}, #{profileImageUrl},#{profileActiveFlag})
     </insert>
 
-    <update id="updateProfileImageUrl" parameterType="com.swyp3.babpool.domain.profile.domain.Profile">
+    <!-- ==============================  UPDATE  ============================== -->
+
+    <update id="updateProfileImageUrl">
         UPDATE t_profile SET profile_image_url = #{profileImageUrl} where user_id = #{userId}
     </update>
 
@@ -166,7 +174,7 @@
             user_id = #{userId}
     </update>
 
-    <update id="updateProfile">
+    <update id="updateProfileByProfileIdAndUpdateRequestDto">
         UPDATE t_profile
         SET
             profile_intro = #{request.profileIntro},
@@ -178,34 +186,6 @@
         WHERE
             profile_id = #{profileId};
     </update>
-
-<!--    <delete id="deleteUserKeywords" parameterType="long">-->
-<!--        DELETE FROM t_m_user_keyword WHERE user_id = #{userId}-->
-<!--    </delete>-->
-
-<!--    <delete id="deletePossibleDates" parameterType="long">-->
-<!--        DELETE FROM t_possible_date WHERE profile_id = #{profileId};-->
-<!--    </delete>-->
-
-<!--    <insert id="savePossibleDates"  parameterType="com.swyp3.babpool.domain.profile.domain.PossibleDate" useGeneratedKeys="true" keyProperty="id">-->
-<!--        INSERT INTO t_possible_date (possible_date, profile_id)-->
-<!--        VALUES (#{possibleDate}, #{profileId})-->
-<!--    </insert>-->
-
-<!--    <delete id="deletePossibleTimes" parameterType="long">-->
-<!--        DELETE FROM t_possible_time WHERE possible_date_id IN (SELECT possible_date_id FROM t_possible_date WHERE profile_id = #{profileId});-->
-<!--    </delete>-->
-
-<!--    <insert id="savePossibleTimes">-->
-<!--        INSERT INTO t_possible_time (possible_time_start,possible_date_id,possible_time_range)-->
-<!--        VALUES ( #{possibleTimeStart},#{possibleDateId},1 )-->
-<!--    </insert>-->
-
-    <select id="findProfileIsRegistered">
-        SELECT profile_active_flag
-        FROM t_profile
-        WHERE profile_id=#{profileId}
-    </select>
 
     <update id="updateProfileActiveFlag">
         UPDATE t_profile
