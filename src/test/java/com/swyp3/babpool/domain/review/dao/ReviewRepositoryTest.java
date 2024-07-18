@@ -1,7 +1,7 @@
 package com.swyp3.babpool.domain.review.dao;
 
 import com.swyp3.babpool.domain.appointment.dao.AppointmentRepository;
-import com.swyp3.babpool.domain.appointment.domain.AppointmentV1;
+import com.swyp3.babpool.domain.appointment.domain.Appointment;
 import com.swyp3.babpool.domain.possibledatetime.dao.PossibleDateTimeRepository;
 import com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateTime;
 import com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateTimeStatusType;
@@ -86,7 +86,7 @@ class ReviewRepositoryTest {
                 .build());
 
         Long targetAppointmentId = tsidKeyGenerator.generateTsid();
-        appointmentRepository.saveAppointment(AppointmentV1.builder()
+        appointmentRepository.saveAppointment(Appointment.builder()
                 .appointmentId(targetAppointmentId)
                 .appointmentSenderId(senderUserId)
                 .appointmentReceiverId(receiverUserId)

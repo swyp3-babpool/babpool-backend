@@ -193,7 +193,7 @@
         )
     </select>
 
-    <select id="findAllBySenderUserId" resultType="com.swyp3.babpool.domain.appointment.domain.AppointmentV1" parameterType="long">
+    <select id="findAllBySenderUserId" resultType="com.swyp3.babpool.domain.appointment.domain.Appointment" parameterType="long">
         SELECT
             appointment_id,
             appointment_sender_id,
@@ -209,26 +209,7 @@
 
     <!-- ######################################## INSERT ######################################## -->
 
-<!--    <insert id="saveAppointment" parameterType="com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequestDeprecated"-->
-<!--            useGeneratedKeys="true" keyProperty="appointmentId">-->
-<!--        INSERT INTO t_appointment-->
-<!--        (-->
-<!--            appointment_requester_id,-->
-<!--            appointment_receiver_id,-->
-<!--            appointment_status,-->
-<!--            appointment_create_date,-->
-<!--            appointment_modify_date-->
-<!--        )-->
-<!--        VALUES-->
-<!--            (-->
-<!--                #{requesterUserId},-->
-<!--                #{receiverUserId},-->
-<!--                'WAITING',-->
-<!--                CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP()-->
-<!--            );-->
-<!--    </insert>-->
-
-    <insert id="saveAppointment" parameterType="com.swyp3.babpool.domain.appointment.domain.AppointmentV1"
+    <insert id="saveAppointment" parameterType="com.swyp3.babpool.domain.appointment.domain.Appointment"
             useGeneratedKeys="true" keyProperty="appointmentId">
         INSERT INTO t_appointment
         (
@@ -251,34 +232,6 @@
             CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(),
              #{possibleDateTimeId}
         );
-    </insert>
-
-    <insert id="saveAppointmentRequest" parameterType="com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequestDeprecated"
-            useGeneratedKeys="true" keyProperty="appointmentRequestId">
-        INSERT INTO t_appointment_request
-        (
-            appointment_id,
-            appointment_content
-        )
-        VALUES (
-                   #{appointmentId},
-                   #{appointmentContent}
-               );
-    </insert>
-
-    <insert id="saveAppointmentRequestTime" parameterType="com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequestDeprecated">
-        INSERT INTO t_appointment_request_time
-        (
-        appointment_request_id,
-        possible_time_id
-        )
-        VALUES
-        <foreach collection="possibleTimeIdList" item="possibleTimeId" separator=",">
-            (
-            #{appointmentRequestId},
-            #{possibleTimeId}
-            )
-        </foreach>
     </insert>
 
     <insert id="saveRejectData" parameterType="com.swyp3.babpool.domain.appointment.api.request.AppointmentRejectRequest">

@@ -11,20 +11,22 @@ import java.time.LocalDateTime;
 public class Appointment {
 
     private Long appointmentId;
-    private Long appointmentRequesterUserId;
-    private Long appointmentReceiverUserId;
-    private Long appointmentFixTimeId;
+    private Long appointmentSenderId;
+    private Long appointmentReceiverId;
+    private Long possibleDateTimeId;  // FK
     private String appointmentStatus;
+    private String appointmentQuestion;
     private LocalDateTime appointmentCreateDate;
     private LocalDateTime appointmentModifyDate;
 
     @Builder
-    public Appointment(Long appointmentId, Long appointmentRequesterUserId, Long appointmentReceiverUserId, Long appointmentFixTimeId, String appointmentStatus, LocalDateTime appointmentCreateDate, LocalDateTime appointmentModifyDate) {
+    public Appointment(Long appointmentId, Long appointmentSenderId, Long appointmentReceiverId, Long possibleDateTimeId, String appointmentStatus, String appointmentQuestion, LocalDateTime appointmentCreateDate, LocalDateTime appointmentModifyDate) {
         this.appointmentId = appointmentId;
-        this.appointmentRequesterUserId = appointmentRequesterUserId;
-        this.appointmentReceiverUserId = appointmentReceiverUserId;
-        this.appointmentFixTimeId = appointmentFixTimeId;
+        this.appointmentSenderId = appointmentSenderId;
+        this.appointmentReceiverId = appointmentReceiverId;
+        this.possibleDateTimeId = possibleDateTimeId;
         this.appointmentStatus = appointmentStatus;
+        this.appointmentQuestion = appointmentQuestion;
         this.appointmentCreateDate = appointmentCreateDate;
         this.appointmentModifyDate = appointmentModifyDate;
     }

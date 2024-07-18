@@ -96,7 +96,7 @@ public class ReviewServiceImpl implements ReviewService{
      */
     private void validateIsSameAppointmentRequest(Long targetAppointmentId, Long reviewerUserId) {
         Appointment targetAppointment = appointmentRepository.findByAppointmentId(targetAppointmentId);
-        if(targetAppointment.getAppointmentRequesterUserId() != reviewerUserId){
+        if(targetAppointment.getAppointmentSenderId() != reviewerUserId){
             throw new ReviewException(ReviewErrorCode.NOT_VALID_REVIEW_REQUEST,"appointment_request_id 와 리뷰 요청자가 일치하지 않습니다.");
         }
     }

@@ -2,7 +2,7 @@ package com.swyp3.babpool.domain.possibledatetime.application;
 
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
 import com.swyp3.babpool.domain.appointment.dao.AppointmentRepository;
-import com.swyp3.babpool.domain.appointment.domain.AppointmentV1;
+import com.swyp3.babpool.domain.appointment.domain.Appointment;
 import com.swyp3.babpool.domain.appointment.exception.AppointmentException;
 import com.swyp3.babpool.domain.appointment.exception.errorcode.AppointmentErrorCode;
 import com.swyp3.babpool.domain.possibledatetime.dao.PossibleDateTimeRepository;
@@ -82,7 +82,7 @@ class PossibleDateTimeServiceImplTest {
                 .findFirst().get();
         assertThat(possibleDateTime).isNotNull();
 
-        List<AppointmentV1> allBySenderUserId = appointmentRepository.findAllBySenderUserId(senderUserId);
+        List<Appointment> allBySenderUserId = appointmentRepository.findAllBySenderUserId(senderUserId);
         assertThat(allBySenderUserId.size()).isEqualTo(1);
 
     }

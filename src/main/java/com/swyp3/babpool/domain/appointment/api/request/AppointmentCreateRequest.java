@@ -1,6 +1,6 @@
 package com.swyp3.babpool.domain.appointment.api.request;
 
-import com.swyp3.babpool.domain.appointment.domain.AppointmentV1;
+import com.swyp3.babpool.domain.appointment.domain.Appointment;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
@@ -46,8 +46,8 @@ public class AppointmentCreateRequest {
         this.appointmentContent = appointmentContent;
     }
 
-    public AppointmentV1 toEntity(Long appointmentId) {
-        return AppointmentV1.builder()
+    public Appointment toEntity(Long appointmentId) {
+        return Appointment.builder()
                 .appointmentId(appointmentId)
                 .appointmentSenderId(senderUserId)
                 .appointmentReceiverId(receiverUserId)

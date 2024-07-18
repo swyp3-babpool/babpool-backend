@@ -1,14 +1,10 @@
 package com.swyp3.babpool.domain.appointment.application;
 
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
-import com.swyp3.babpool.domain.appointment.application.response.AppointmentCreateResponse;
 import com.swyp3.babpool.domain.appointment.dao.AppointmentRepository;
-import com.swyp3.babpool.domain.appointment.domain.AppointmentV1;
 import com.swyp3.babpool.domain.possibledatetime.application.PossibleDateTimeService;
-import com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateTime;
 import com.swyp3.babpool.domain.profile.application.ProfileService;
 import com.swyp3.babpool.domain.profile.dao.ProfileRepository;
-import com.swyp3.babpool.domain.profile.domain.Profile;
 import com.swyp3.babpool.domain.user.dao.UserRepository;
 import com.swyp3.babpool.global.uuid.application.UuidService;
 import lombok.extern.slf4j.Slf4j;
@@ -18,14 +14,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 
 @Slf4j
