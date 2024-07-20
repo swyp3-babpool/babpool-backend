@@ -52,7 +52,7 @@ public class AppointmentCreateRequest {
                 .appointmentSenderId(senderUserId)
                 .appointmentReceiverId(receiverUserId)
                 .possibleDateTimeId(possibleDateTimeId)
-                .appointmentQuestion(appointmentContent)
+                .appointmentContent(appointmentContent)
                 .build();
     }
 

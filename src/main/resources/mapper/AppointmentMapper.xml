@@ -42,14 +42,13 @@
             appoint.appointment_status AS appointmentStatus,
             appoint.appointment_create_date AS appointmentCreateDate,
             IF(appoint.appointment_status = 'ACCEPT' OR appoint.appointment_status = 'DONE',
-               DATE_FORMAT(CONCAT(pdate.possible_date, ' ', ptime.possible_time_start), '%Y-%m-%d %H:%i:%s'),
+               DATE_FORMAT(datetime.possible_datetime, '%Y-%m-%d %H:%i:%s'),
                NULL
             ) AS appointmentFixDateTime
         FROM t_appointment appoint
             INNER JOIN t_profile profile ON appoint.appointment_receiver_id = profile.user_id
             INNER JOIN t_user_account account ON appoint.appointment_receiver_id = account.user_id
-            LEFT JOIN t_possible_time ptime ON ptime.possible_time_id = appoint.possible_time_id
-            LEFT JOIN t_possible_date pdate ON pdate.possible_date_id = ptime.possible_date_id
+            LEFT JOIN t_possible_datetime datetime ON datetime.possible_datetime_id = appoint.possible_datetime_id
         WHERE
             appoint.appointment_requester_id = #{requesterUserId}
         AND appoint.appointment_status IN ('WAITING', 'ACCEPT')
@@ -97,13 +96,14 @@
 
     <select id="findByAppointmentId" resultType="com.swyp3.babpool.domain.appointment.domain.Appointment" parameterType="long">
         SELECT
-            appointment_id AS appointmentId,
-            appointment_requester_id AS appointmentRequesterUserId,
-            appointment_receiver_id AS appointmentReceiverUserId,
-            possible_time_id AS appointmentFixTimeId,
-            appointment_status AS appointmentStatus,
-            appointment_create_date AS appointmentCreateDate,
-            appointment_modify_date AS appointmentModifyDate
+            appointment_id,
+            appointment_sender_id,
+            appointment_receiver_id,
+            possible_datetime_id,
+            appointment_status,
+            appointment_content,
+            appointment_create_date,
+            appointment_modify_date,
         FROM t_appointment
         WHERE
             appointment_id = #{appointmentId}
@@ -117,13 +117,12 @@
             account.user_nick_name AS appointmentReceiverUserNickname,
             profile.profile_image_url AS appointmentReceiverProfileImageUrl,
             appoint.appointment_status AS appointmentStatus,
-            DATE_FORMAT(CONCAT(pdate.possible_date, ' ', ptime.possible_time_start), '%Y-%m-%d %H:%i:%s') as appointmentFixDateTime,
-            IF(review.review_id is NULL AND DATE_ADD(DATE_FORMAT(CONCAT(pdate.possible_date, ' ', ptime.possible_time_start), '%Y-%m-%d %H:%i:%s'), INTERVAL 3 DAY) > NOW(), 'REVIEW_REQUIRED', 'REVIEW_NOT_REQUIRED') AS reviewRequired
+            DATE_FORMAT(pdatetime.possible_datetime, '%Y-%m-%d %H:%i:%s') as appointmentFixDateTime,
+            IF(review.review_id is NULL AND DATE_ADD(DATE_FORMAT(pdatetime.possible_datetime, '%Y-%m-%d %H:%i:%s'), INTERVAL 3 DAY) > NOW(), 'REVIEW_REQUIRED', 'REVIEW_NOT_REQUIRED') AS reviewRequired
         FROM t_appointment appoint
                  INNER JOIN t_profile profile ON appoint.appointment_receiver_id = profile.user_id
                  INNER JOIN t_user_account account ON appoint.appointment_receiver_id = account.user_id
-                 LEFT JOIN t_possible_time ptime ON ptime.possible_time_id = appoint.possible_time_id
-                 LEFT JOIN t_possible_date pdate ON pdate.possible_date_id = ptime.possible_date_id
+                 LEFT JOIN t_possible_datetime pdatetime ON pdatetime.possible_time_id = appoint.possible_time_id
                  LEFT JOIN t_review review ON appoint.appointment_id = review.appointment_id
         WHERE
             appoint.appointment_requester_id = #{requesterUserId}
@@ -147,43 +146,23 @@
         ORDER BY reject.reject_create_date DESC;
     </select>
 
-    <select id="findAppointmentPossibleDateTimeByProfileId" parameterType="long" resultType="com.swyp3.babpool.domain.appointment.application.response.AppointmentPossibleDateTimeResponse">
-        SELECT
-            pdate.profile_id AS profileId,
-            ptime.possible_time_id AS possibleTimeId,
-            pdate.possible_date_id AS possibleDateId,
-            pdate.possible_date AS possibleDate,
-            ptime.possible_time_start AS possibleTime
-        FROM t_possible_date pdate
-            INNER JOIN t_possible_time ptime ON pdate.possible_date_id = ptime.possible_date_id
-            LEFT JOIN t_appointment appoint ON ptime.possible_time_id = appoint.possible_time_id
-                        AND appoint.appointment_status IN ('ACCEPT', 'DONE')
-        WHERE
-            pdate.profile_id = #{profileId}
-        AND pdate.possible_date >= DATE_FORMAT(NOW() ,'%Y-%m-01')
-        AND appoint.appointment_id IS NULL
-        ORDER BY pdate.possible_date ASC, ptime.possible_time_start ASC;
-    </select>
-
-    <select id="findRequesterPossibleTime" parameterType="com.swyp3.babpool.domain.appointment.domain.Appointment"
-            resultType="com.swyp3.babpool.domain.appointment.application.response.AppointmentRequesterPossibleDateTimeResponse">
-        SELECT pd.possible_date_id AS possibleDateId,
-               pt.possible_time_id AS possibleTimeId,
-               pd.possible_date AS possibleDate,
-               pt.possible_time_start AS possibleTimeStart
-        FROM t_appointment a
-                 INNER JOIN t_appointment_request ar ON a.appointment_id = ar.appointment_id
-                 INNER JOIN t_appointment_request_time art ON ar.appointment_request_id = art.appointment_request_id
-                 INNER JOIN t_possible_time pt ON pt.possible_time_id = art.possible_time_id
-                 INNER JOIN t_possible_date pd ON pd.possible_date_id = pt.possible_date_id
-        WHERE a.appointment_id = #{appointmentId}
-    </select>
-
-    <select id="findQuestion">
-        SELECT appointment_question
-        FROM t_appointment_request
-        WHERE appointment_id = #{appointmentId}
-    </select>
+<!--    <select id="findAppointmentPossibleDateTimeByProfileId" parameterType="long" resultType="com.swyp3.babpool.domain.appointment.application.response.AppointmentPossibleDateTimeResponse">-->
+<!--        SELECT-->
+<!--            pdate.profile_id AS profileId,-->
+<!--            ptime.possible_time_id AS possibleTimeId,-->
+<!--            pdate.possible_date_id AS possibleDateId,-->
+<!--            pdate.possible_date AS possibleDate,-->
+<!--            ptime.possible_time_start AS possibleTime-->
+<!--        FROM t_possible_date pdate-->
+<!--            INNER JOIN t_possible_time ptime ON pdate.possible_date_id = ptime.possible_date_id-->
+<!--            LEFT JOIN t_appointment appoint ON ptime.possible_time_id = appoint.possible_time_id-->
+<!--                        AND appoint.appointment_status IN ('ACCEPT', 'DONE')-->
+<!--        WHERE-->
+<!--            pdate.profile_id = #{profileId}-->
+<!--        AND pdate.possible_date >= DATE_FORMAT(NOW() ,'%Y-%m-01')-->
+<!--        AND appoint.appointment_id IS NULL-->
+<!--        ORDER BY pdate.possible_date ASC, ptime.possible_time_start ASC;-->
+<!--    </select>-->
 
     <select id="checkReferenceInAppointmentRequestTime" resultType="boolean" parameterType="long">
         SELECT EXISTS(
@@ -207,7 +186,63 @@
         WHERE appointment_sender_id = #{senderUserId}
     </select>
 
-    <!-- ######################################## INSERT ######################################## -->
+    <select id="findAcceptAppointment" resultType="com.swyp3.babpool.domain.appointment.application.response.AppointmentAcceptResponse">
+        SELECT tappointment.appointment_id AS appointmentId,
+            tappointment.appointment_content AS appointmentContent
+            tuser.user_nick_name AS requesterNickName,
+            tuser.user_grade AS requesterGrade,
+            tprofile.profile_image_url AS requesterProfileImageUrl,
+            tprofile.profile_intro AS requesterIntro,
+            tprofile.profile_contact_phone AS requesterContactPhone,
+            tprofile.profile_contact_chat AS requesterContactChat,
+            tdatetime.possible_datetime AS possibleDateTime
+        FROM t_appointment tappointment
+            INNER JOIN t_possible_datetime tdatetime ON tdatetime.possible_time_id = tappointment.possible_time_id
+            INNER JOIN t_user_account tuser ON tappointment.appointment_requester_id = tuser.user_id
+            INNER JOIN t_profile tprofile ON tprofile.user_id = tuser.user_id
+        WHERE tappointment.appointment_id = #{appointmentId}
+    </select>
+
+    <select id="findRejectAppointmentDetail">
+        SELECT
+            ua.user_nick_name AS receiverNickName,
+            p.profile_image_url AS receiverProfileImage,
+            ua.user_grade AS receiverGrade,
+            p.profile_intro AS receiverProfileIntro,
+            GROUP_CONCAT(k.keyword_name) AS keywords,
+            r.reject_cause_content AS message
+        FROM
+            t_appointment tappointment
+                INNER JOIN t_user_account ua ON ua.user_id = tappointment.appointment_receiver_id
+                INNER JOIN t_profile p ON ua.user_id = p.user_id
+                LEFT JOIN t_m_user_keyword muk ON ua.user_id = muk.user_id
+                LEFT JOIN t_keyword k ON muk.keyword_id = k.keyword_id
+                LEFT JOIN t_reject r ON r.appointment_id = tappointment.appointment_id
+        WHERE
+            tappointment.appointment_id = #{appointmentId}
+        GROUP BY
+            ua.user_id
+    </select>
+
+    <select id="findExpireAppointmentDetail" resultType="com.swyp3.babpool.domain.appointment.application.response.AppointmentRefuseDetailResponse">
+        SELECT
+            tuser.user_nick_name AS receiverNickName,
+            tprofile.profile_image_url AS receiverProfileImage,
+            tuser.user_grade AS receiverGrade,
+            tprofile.profile_intro AS receiverProfileIntro,
+            GROUP_CONCAT(tkeyword.keyword_name) AS keywords,
+            '시간만료' AS message
+        FROM t_appointment tappointment
+                 INNER JOIN t_user_account tuser ON tuser.user_id = tappointment.appointment_receiver_id
+                 INNER JOIN t_profile tprofile ON ua.user_id = tprofile.user_id
+                 LEFT JOIN t_m_user_keyword muk ON tuser.user_id = muk.user_id
+                 LEFT JOIN t_keyword tkeyword ON muk.keyword_id = tkeyword.keyword_id
+        WHERE tappointment.appointment_id = #{appointmentId}
+        GROUP BY
+            tuser.user_id
+    </select>
+
+    <!-- =================================== INSERT =================================== -->
 
     <insert id="saveAppointment" parameterType="com.swyp3.babpool.domain.appointment.domain.Appointment"
             useGeneratedKeys="true" keyProperty="appointmentId">
@@ -228,71 +263,26 @@
             #{appointmentSenderId},
             #{appointmentReceiverId},
             'WAITING',
-            #{appointmentQuestion},
-            CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(),
+            #{appointmentContent},
+            #{appointmentCreateDate}, #{appointmentModifyDate},
              #{possibleDateTimeId}
         );
     </insert>
 
-    <insert id="saveRejectData" parameterType="com.swyp3.babpool.domain.appointment.api.request.AppointmentRejectRequest">
-        INSERT INTO t_reject(appointment_id,reject_cause_content)
-        VALUES ( #{appointmentId}, #{rejectMessage} )
-    </insert>
+
 
     <!-- ######################################## UPDATE ######################################## -->
 
-    <update id="updateAppointmentReject" parameterType="com.swyp3.babpool.domain.appointment.api.request.AppointmentRejectRequest">
-        UPDATE t_appointment
-        SET appointment_status='REJECT',
-            appointment_modify_date=CURRENT_TIMESTAMP()
-        WHERE appointment_id=#{appointmentId}
-    </update>
-
-    <update id="updateExpiredStatus">
+    <update id="updateStatusToExpiredWhereStatusIsWaitingAndAppointmentCreateDatePassedOneDay">
         <![CDATA[
         UPDATE t_appointment
-            SET appointment_status='EXPIRE',
-                appointment_modify_date=CURRENT_TIMESTAMP()
+        SET appointment_status='EXPIRED',
+            appointment_modify_date=CURRENT_TIMESTAMP()
         WHERE
             appointment_status='WAITING'
-        AND DATE_ADD(appointment_create_date, INTERVAL 1 DAY) < CURRENT_TIMESTAMP();
+            AND DATE_ADD(appointment_create_date, INTERVAL 1 DAY) < CURRENT_TIMESTAMP();
         ]]>
     </update>
-
-    <update id="updateAppointment" parameterType="com.swyp3.babpool.domain.appointment.api.request.AppointmentAcceptRequest">
-        UPDATE t_appointment
-        SET appointment_status = 'ACCEPT',
-            possible_time_id=#{possibleTimeId},
-            appointment_modify_date = CURRENT_TIMESTAMP()
-        WHERE appointment_id=#{appointmentId}
-    </update>
-
-    <update id="updateAppointmentCancel">
-        UPDATE t_appointment
-        SET appointment_status='CANCEL',
-            appointment_modify_date=CURRENT_TIMESTAMP()
-        WHERE appointment_id=#{appointmentId}
-    </update>
-
-    <select id="findAcceptAppointment" resultType="com.swyp3.babpool.domain.appointment.application.response.AppointmentAcceptResponse">
-        SELECT a.appointment_id AS appointmentId,
-               ua.user_nick_name AS requesterNickName,
-               p.profile_image_url AS requesterProfileImageUrl,
-               ua.user_grade AS requesterGrade,
-               p.profile_intro AS requesterIntro,
-               pd.possible_date AS date,
-               pt.possible_time_start AS time,
-               p.profile_contact_phone AS requesterContactPhone,
-               p.profile_contact_chat AS requesterContactChat,
-               ar.appointment_content AS content
-        FROM t_appointment a
-                 INNER JOIN t_appointment_request ar ON a.appointment_id = ar.appointment_id
-                 INNER JOIN t_possible_time pt ON pt.possible_time_id = a.possible_time_id
-                 INNER JOIN t_possible_date pd ON pd.possible_date_id = pt.possible_date_id
-                 INNER JOIN t_user_account ua ON a.appointment_requester_id = ua.user_id
-                 INNER JOIN t_profile p ON p.user_id = ua.user_id
-        WHERE a.appointment_id = #{appointmentId}
-    </select>
 
     <update id="updateAppointmentStatus">
         UPDATE t_appointment
@@ -301,47 +291,11 @@
         WHERE appointment_id = #{targetAppointmentId}
     </update>
 
-    <select id="findRejectAppointmentDetail">
-        SELECT
-            ua.user_nick_name AS receiverNickName,
-            p.profile_image_url AS receiverProfileImage,
-            ua.user_grade AS receiverGrade,
-            p.profile_intro AS receiverProfileIntro,
-            GROUP_CONCAT(k.keyword_name) AS keywords,
-            r.reject_cause_content AS message
-        FROM
-            t_appointment a
-                INNER JOIN t_user_account ua ON ua.user_id = a.appointment_receiver_id
-                INNER JOIN t_profile p ON ua.user_id = p.user_id
-                LEFT JOIN t_m_user_keyword muk ON ua.user_id = muk.user_id
-                LEFT JOIN t_keyword k ON muk.keyword_id = k.keyword_id
-                LEFT JOIN t_reject r ON r.appointment_id = a.appointment_id
-        WHERE
-            a.appointment_requester_id= #{userId}
-          and a.appointment_id = #{appointmentId}
-        GROUP BY
-            ua.user_id
-    </select>
+    <!-- =================================== DELETE =================================== -->
 
-    <select id="findExpireAppointmentDetail">
-        SELECT
-            ua.user_nick_name AS receiverNickName,
-            p.profile_image_url AS receiverProfileImage,
-            ua.user_grade AS receiverGrade,
-            p.profile_intro AS receiverProfileIntro,
-            GROUP_CONCAT(k.keyword_name) AS keywords,
-            '시간만료' AS message
-        FROM
-            t_appointment a
-                INNER JOIN t_user_account ua ON ua.user_id = a.appointment_receiver_id
-                INNER JOIN t_profile p ON ua.user_id = p.user_id
-                LEFT JOIN t_m_user_keyword muk ON ua.user_id = muk.user_id
-                LEFT JOIN t_keyword k ON muk.keyword_id = k.keyword_id
-        WHERE
-            a.appointment_requester_id= #{userId}
-          and a.appointment_id = #{appointmentId}
-        GROUP BY
-            ua.user_id
-    </select>
+    <delete id="deleteAppointmentById" parameterType="long">
+        DELETE FROM t_appointment
+        WHERE appointment_id = #{appointmentId}
+    </delete>
 
 </mapper>

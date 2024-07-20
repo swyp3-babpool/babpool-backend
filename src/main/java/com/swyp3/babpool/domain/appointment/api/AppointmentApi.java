@@ -82,16 +82,14 @@ public class AppointmentApi {
         return ApiResponse.ok(appointmentService.getRefusedAppointmentList(userId));
     }
 
-//    /**
-//     * 특정 프로필 카드가 활성화 해둔, 밥약 가능한 possibleTimeId와 식별값에 따른 날짜 및 시간 조회 API
-//     * @param profileId 프로필 식별값
-//     * @deprecated [2024.07.16] possibledatetime 패키지에서 제공하는 API로 대체
-//     */
-//    @Deprecated
-//    @GetMapping("/api/deprecated/appointment/{profileId}/datetime")
-//    public ApiResponse<List<AppointmentPossibleDateTimeResponse>> getAppointmentPossibleDateTime(@PathVariable @Positive(message = "Must be positive") Long profileId) {
-//        return ApiResponse.ok(appointmentService.getAppointmentPossibleDateTime(profileId));
-//    }
+    /**
+     * 밥약 거절 사유 조회 API
+     */
+    @GetMapping("/api/appointment/refuse/{appointmentId}")
+    public ApiResponse<AppointmentRefuseDetailResponse> getRefuseAppointmentDetail(@RequestAttribute(value="userId", required = false) Long userId,
+                                                                                   @PathVariable("appointmentId") Long appointmentId){
+        return ApiResponse.ok(appointmentService.getRefuseAppointmentDetail(userId, appointmentId));
+    }
 
     /**
      * 밥약 요청 거절 API
@@ -130,12 +128,5 @@ public class AppointmentApi {
         return ApiResponse.ok(appointmentService.cancelAppointmentRequested(userId,appointmentId));
     }
 
-    /**
-     * 밥약 거절 사유 조회 API
-     */
-    @GetMapping("/api/appointment/refuse/{appointmentId}")
-    public ApiResponse<AppointmentRefuseDetailResponse> getRefuseAppointmentDetail(@RequestAttribute(value="userId", required = false) Long userId,
-                                                                                   @PathVariable("appointmentId") Long appointmentId){
-        return ApiResponse.ok(appointmentService.getRefuseAppointmentDetail(userId,appointmentId));
-    }
+
 }

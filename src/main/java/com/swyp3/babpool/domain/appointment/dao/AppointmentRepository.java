@@ -4,60 +4,47 @@ import com.swyp3.babpool.domain.appointment.api.request.AppointmentAcceptRequest
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentRejectRequest;
 import com.swyp3.babpool.domain.appointment.application.response.*;
 import com.swyp3.babpool.domain.appointment.domain.Appointment;
+import com.swyp3.babpool.domain.appointment.domain.AppointmentStatus;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 @Mapper
 public interface AppointmentRepository {
 
-    int saveAppointment(Appointment appointmentEntity);
+    // 테스트 코드 작성 완료
+    int saveAppointment(Appointment appointment);
+
+    // 테스트 코드 작성 완료
+    List<Appointment> findAllBySenderUserId(Long senderUserId);
+
+    AppointmentAcceptResponse findAcceptAppointment(Long appointmentId); // 밥약 요청 수락 후 응답을 위해 4개 테이블 조인 조회
+
+    AppointmentRefuseDetailResponse findRejectAppointmentDetail(@Param("appointmentId") Long appointmentId); // 거절당한 밥약 요청의 상세 정보 조회
+
+    AppointmentRefuseDetailResponse findExpireAppointmentDetail(@Param("appointmentId") Long appointmentId); // 시간만료된 밥약 요청의 상세 정보 조회
 
     List<AppointmentSendResponse> findAppointmentListByRequesterId(Long requesterUserId);
 
     List<AppointmentReceiveResponse> findAppointmentListByReceiverId(Long receiverUserId);
 
-    Appointment findByAppointmentId(Long appointmentId);
-
     List<AppointmentHistoryDoneResponse> findDoneAppointmentListByRequesterId(Long requesterUserId);
 
     List<AppointmentHistoryRefuseResponse> findRefuseAppointmentListByRequesterId(Long requesterUserId);
 
-    List<AppointmentPossibleDateTimeResponse> findAppointmentPossibleDateTimeByProfileId(Long profileId);
+    // 테스트 코드 작성 완료
+    Optional<Appointment> findByAppointmentId(Long appointmentId);
 
-    /**
-     * 특정 사용자의 특정 시간에 확정된 약속이 있는지 조회
-     * @param targetReceiverUserId
-     * @param possibleTimeIdList
-     * @return
-     */
-    Integer countAcceptedAppointmentByReceiverIdAndPossibleTimeId(@Param("targetReceiverUserId") Long targetReceiverUserId,
-                                                                  @Param("possibleTimeIdList") List<Long> possibleTimeIdList);
+//    List<AppointmentPossibleDateTimeResponse> findAppointmentPossibleDateTimeByProfileId(Long profileId);
 
+    // 테스트 코드 작성 완료
+    int updateStatusToExpiredWhereStatusIsWaitingAndAppointmentCreateDatePassedOneDay();
 
-    void updateAppointmentReject(AppointmentRejectRequest appointmentRejectRequest);
-  
-    int updateExpiredStatus();
-  
-    void saveRejectData(AppointmentRejectRequest appointmentRejectRequest);
+    // 테스트 코드 작성 완료
+    int updateAppointmentStatus(@Param("targetAppointmentId") Long targetAppointmentId, @Param("status") AppointmentStatus status);
 
-    void updateAppointment(AppointmentAcceptRequest request);
-
-    List<AppointmentRequesterPossibleDateTimeResponse> findRequesterPossibleTime(Appointment appointment);
-  
-    String findQuestion(Appointment appointment);
-
-    AppointmentAcceptResponse findAcceptAppointment(Long appointmentId);
-
-    int updateAppointmentCancel(Long appointmentId);
-
-    boolean checkReferenceInAppointmentRequestTime(@Param("timeId") Long timeId);
-
-    int updateAppointmentStatus(@Param("targetAppointmentId") Long targetAppointmentId, @Param("status") String status);
-
-    AppointmentRefuseDetailResponse findRejectAppointmentDetail(@Param("appointmentId") Long appointmentId, @Param("userId") Long userId);
-    AppointmentRefuseDetailResponse findExpireAppointmentDetail(@Param("appointmentId") Long appointmentId, @Param("userId") Long userId);
-
-    List<Appointment> findAllBySenderUserId(long senderUserId);
+    // 테스트 코드 작성 완료
+    int deleteAppointmentById(Long appointmentId);
 }

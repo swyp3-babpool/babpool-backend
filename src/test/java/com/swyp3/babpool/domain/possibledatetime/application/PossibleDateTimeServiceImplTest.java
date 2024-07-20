@@ -45,7 +45,7 @@ class PossibleDateTimeServiceImplTest {
 
     @DisplayName("동시 요청발생 시, 최초의 요청만 성공해 생성된 약속의 개수는 1개여야 한다.")
     @Test
-    void throwExceptionIfAppointmentAlreadyAcceptedAtSameTime2() throws InterruptedException {
+    void throwExceptionIfAppointmentAlreadyAcceptedAtSameTime() throws InterruptedException {
         // given
         Long senderUserId = 100000000000000003L;
         Long receiverUserId = 100000000000000002L;

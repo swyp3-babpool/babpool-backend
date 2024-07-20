@@ -1,5 +1,6 @@
 package com.swyp3.babpool.domain.appointment.application.response;
 
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
@@ -20,4 +21,14 @@ public class AppointmentRefuseDetailResponse {
         this.message = message;
         this.keywords = keywords.split(",");
     }
+
+//    @Builder
+//    public AppointmentRefuseDetailResponse(String receiverNickName, String receiverProfileImage, String receiverGrade, String receiverProfileIntro, String[] keywords, String message) {
+//        this.receiverNickName = receiverNickName;
+//        this.receiverProfileImage = receiverProfileImage;
+//        this.receiverGrade = receiverGrade;
+//        this.receiverProfileIntro = receiverProfileIntro;
+//        this.keywords = keywords;
+//        this.message = message;
+//    }
 }

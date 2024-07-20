@@ -15,4 +15,6 @@ public interface PossibleDateTimeService {
     List<PossibleDateTimeResponse> updatePossibleDateTime(Long userId, PossibleDateTimeUpdateRequest possibleDateTimeUpdateRequest);
 
     List<PossibleDateTimeResponse> getPossibleDateTimeList(Long userId);
+
+    LocalDateTime getPossibleDateTimeByDateTimeId(Long possibleDateTimeId);
 }
