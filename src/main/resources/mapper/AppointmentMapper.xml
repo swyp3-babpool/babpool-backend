@@ -50,7 +50,7 @@
             INNER JOIN t_user_account account ON appoint.appointment_receiver_id = account.user_id
             LEFT JOIN t_possible_datetime datetime ON datetime.possible_datetime_id = appoint.possible_datetime_id
         WHERE
-            appoint.appointment_requester_id = #{requesterUserId}
+            appoint.appointment_sender_id = #{requesterUserId}
         AND appoint.appointment_status IN ('WAITING', 'ACCEPT')
         ORDER BY appoint.appointment_create_date DESC;
     </select>
@@ -65,34 +65,33 @@
             appoint.appointment_status AS appointmentStatus,
             appoint.appointment_create_date AS appointmentCreateDate,
             IF(appoint.appointment_status = 'ACCEPT' OR appoint.appointment_status = 'DONE',
-               DATE_FORMAT(CONCAT(pdate.possible_date, ' ', ptime.possible_time_start), '%Y-%m-%d %H:%i:%s'),
+               DATE_FORMAT(pdatetime.possible_datetime, '%Y-%m-%d %H:%i:%s'),
                NULL
             ) AS appointmentFixDateTime
         FROM t_appointment appoint
-            INNER JOIN t_profile profile ON appoint.appointment_requester_id = profile.user_id
-            INNER JOIN t_user_account account ON appoint.appointment_requester_id = account.user_id
-            LEFT JOIN t_possible_time ptime ON ptime.possible_time_id = appoint.possible_time_id
-            LEFT JOIN t_possible_date pdate ON pdate.possible_date_id = ptime.possible_date_id
+            INNER JOIN t_profile profile ON appoint.appointment_sender_id = profile.user_id
+            INNER JOIN t_user_account account ON appoint.appointment_sender_id = account.user_id
+            LEFT JOIN t_possible_time pdatetime ON pdatetime.possible_datetime_id = appoint.possible_datetime_id
         WHERE
             appoint.appointment_receiver_id = #{receiverUserId}
         AND appoint.appointment_status IN ('WAITING', 'ACCEPT')
         ORDER BY appoint.appointment_create_date DESC;
     </select>
 
-    <select id="countAcceptedAppointmentByReceiverIdAndPossibleTimeId" resultType="int" parameterType="map">
-        SELECT
-            COUNT(*) AS count
-        FROM t_appointment
-        <where>
-            appointment_receiver_id = #{targetReceiverUserId}
-          AND appointment_status = 'ACCEPT'
-            <if test="possibleTimeIdList != null and !possibleTimeIdList.isEmpty()">
-                <foreach collection="possibleTimeIdList" item="possibleTimeId" open="AND possible_time_id IN (" close=")" separator=",">
-                    #{possibleTimeId}
-                </foreach>
-            </if>
-        </where>
-    </select>
+<!--    <select id="countAcceptedAppointmentByReceiverIdAndPossibleTimeId" resultType="int" parameterType="map">-->
+<!--        SELECT-->
+<!--            COUNT(*) AS count-->
+<!--        FROM t_appointment-->
+<!--        <where>-->
+<!--            appointment_receiver_id = #{targetReceiverUserId}-->
+<!--          AND appointment_status = 'ACCEPT'-->
+<!--            <if test="possibleTimeIdList != null and !possibleTimeIdList.isEmpty()">-->
+<!--                <foreach collection="possibleTimeIdList" item="possibleTimeId" open="AND possible_time_id IN (" close=")" separator=",">-->
+<!--                    #{possibleTimeId}-->
+<!--                </foreach>-->
+<!--            </if>-->
+<!--        </where>-->
+<!--    </select>-->
 
     <select id="findByAppointmentId" resultType="com.swyp3.babpool.domain.appointment.domain.Appointment" parameterType="long">
         SELECT
@@ -122,10 +121,10 @@
         FROM t_appointment appoint
                  INNER JOIN t_profile profile ON appoint.appointment_receiver_id = profile.user_id
                  INNER JOIN t_user_account account ON appoint.appointment_receiver_id = account.user_id
-                 LEFT JOIN t_possible_datetime pdatetime ON pdatetime.possible_time_id = appoint.possible_time_id
+                 LEFT JOIN t_possible_datetime pdatetime ON pdatetime.possible_datetime_id = appoint.possible_datetime_id
                  LEFT JOIN t_review review ON appoint.appointment_id = review.appointment_id
         WHERE
-            appoint.appointment_requester_id = #{requesterUserId}
+            appoint.appointment_sender_id = #{requesterUserId}
           AND appoint.appointment_status IN ('DONE', 'ACCEPT');
     </select>
 
@@ -141,7 +140,7 @@
                  inner join t_profile profile on appoint.appointment_receiver_id = profile.user_id
                  inner join t_user_account account on appoint.appointment_receiver_id = account.user_id
                  left join t_reject reject on appoint.appointment_id = reject.appointment_id
-        where appoint.appointment_requester_id = #{requesterUserId}
+        where appoint.appointment_sender_id = #{requesterUserId}
           and appoint.appointment_status IN ('REJECT', 'EXPIRE')
         ORDER BY reject.reject_create_date DESC;
     </select>
@@ -164,13 +163,13 @@
 <!--        ORDER BY pdate.possible_date ASC, ptime.possible_time_start ASC;-->
 <!--    </select>-->
 
-    <select id="checkReferenceInAppointmentRequestTime" resultType="boolean" parameterType="long">
-        SELECT EXISTS(
-            SELECT 1
-            FROM t_appointment_request_time
-            WHERE possible_time_id = #{timeId}
-        )
-    </select>
+<!--    <select id="checkReferenceInAppointmentRequestTime" resultType="boolean" parameterType="long">-->
+<!--        SELECT EXISTS(-->
+<!--            SELECT 1-->
+<!--            FROM t_appointment_request_time-->
+<!--            WHERE possible_time_id = #{timeId}-->
+<!--        )-->
+<!--    </select>-->
 
     <select id="findAllBySenderUserId" resultType="com.swyp3.babpool.domain.appointment.domain.Appointment" parameterType="long">
         SELECT
@@ -197,8 +196,8 @@
             tprofile.profile_contact_chat AS requesterContactChat,
             tdatetime.possible_datetime AS possibleDateTime
         FROM t_appointment tappointment
-            INNER JOIN t_possible_datetime tdatetime ON tdatetime.possible_time_id = tappointment.possible_time_id
-            INNER JOIN t_user_account tuser ON tappointment.appointment_requester_id = tuser.user_id
+            INNER JOIN t_possible_datetime tdatetime ON tdatetime.possible_datetime_id = tappointment.possible_datetime_id
+            INNER JOIN t_user_account tuser ON tappointment.appointment_sender_id = tuser.user_id
             INNER JOIN t_profile tprofile ON tprofile.user_id = tuser.user_id
         WHERE tappointment.appointment_id = #{appointmentId}
     </select>

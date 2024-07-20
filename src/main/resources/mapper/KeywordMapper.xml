@@ -6,7 +6,7 @@
     <!-- ==============================  SELECT  ============================== -->
 
     <select id="findKeywordsByUserId" resultType="com.swyp3.babpool.domain.profile.application.response.ProfileKeywordsResponse">
-        SELECT JSON_OBJECTAGG(subject_name: keyword_name_list) AS keywords
+        SELECT JSON_OBJECTAGG(subject_name, keyword_name_list) AS keywords
         FROM (
                  SELECT tk.keyword_subject AS subject_name,
                         JSON_ARRAYAGG(tk.keyword_name) AS keyword_name_list
