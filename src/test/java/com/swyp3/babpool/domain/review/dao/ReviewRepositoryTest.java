@@ -2,6 +2,7 @@ package com.swyp3.babpool.domain.review.dao;
 
 import com.swyp3.babpool.domain.appointment.dao.AppointmentRepository;
 import com.swyp3.babpool.domain.appointment.domain.Appointment;
+import com.swyp3.babpool.domain.appointment.domain.AppointmentStatus;
 import com.swyp3.babpool.domain.possibledatetime.dao.PossibleDateTimeRepository;
 import com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateTime;
 import com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateTimeStatusType;
@@ -90,8 +91,8 @@ class ReviewRepositoryTest {
                 .appointmentId(targetAppointmentId)
                 .appointmentSenderId(senderUserId)
                 .appointmentReceiverId(receiverUserId)
-                        .appointmentQuestion("약속 문의")
-                        .appointmentStatus("DONE")
+                        .appointmentContent("약속 문의")
+                        .appointmentStatus(AppointmentStatus.DONE)
                         .possibleDateTimeId(possibleDateTimeId)
                 .build());
 
