@@ -34,6 +34,6 @@ public class WebMvcInterceptJwtConfig implements WebMvcConfigurer {
                 .excludePathPatterns(MONITORING)
                 .excludePathPatterns(TESTING);
         registry.addInterceptor(swaggerAccessInterceptor)
-                .addPathPatterns("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**");
+                .addPathPatterns("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/docs/**");
     }
 }
