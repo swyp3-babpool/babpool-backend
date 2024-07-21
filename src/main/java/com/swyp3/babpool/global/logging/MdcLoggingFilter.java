@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -31,7 +32,9 @@ public class MdcLoggingFilter extends OncePerRequestFilter{
     private static ArrayList<String> MONITORING_ALLOWED_IPS = new ArrayList<>(Arrays.asList(
             "34.168.207.216"
     ));
-    private static final String LOCAL_HOST_5173 = "http://localhost:5173";
+
+    @Value("${property.header.x-babpool-local-front}")
+    private String X_BABPOOL_LOCAL_FRONT_VALUE;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -66,8 +69,8 @@ public class MdcLoggingFilter extends OncePerRequestFilter{
      * @param requestWrapper
      */
     void setOriginAttributeAtRequest(ContentCachingRequestWrapper requestWrapper) {
-        String requestOrigin = requestWrapper.getHeader("origin");
-        if (StringUtils.hasText(requestOrigin) && requestOrigin.equals(LOCAL_HOST_5173)) {
+        String requestOrigin = requestWrapper.getHeader("x-babpool-local-front");
+        if (StringUtils.hasText(requestOrigin) && requestOrigin.equals(X_BABPOOL_LOCAL_FRONT_VALUE)) {
             requestWrapper.setAttribute("localhostFlag", "true");
         }
     }
