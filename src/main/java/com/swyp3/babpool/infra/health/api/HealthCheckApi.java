@@ -1,5 +1,6 @@
 package com.swyp3.babpool.infra.health.api;
 
+import com.swyp3.babpool.domain.user.dao.UserRepository;
 import com.swyp3.babpool.domain.user.domain.UserRole;
 import com.swyp3.babpool.global.common.response.ApiResponse;
 import com.swyp3.babpool.global.common.response.CookieProvider;
@@ -25,6 +26,7 @@ public class HealthCheckApi {
     private final HealthCheckService healthCheckService;
     private final JwtService jwtService;
     private final UuidService uuidService;
+    private final UserRepository userRepository;
 
     @GetMapping("/api/test/connection")
     public ResponseEntity<Integer> testConnection() {
@@ -54,9 +56,20 @@ public class HealthCheckApi {
      * Test for generating JWT tokens
      * @apiNote : JWT token 생성 테스트
      */
-    @PostMapping("/api/test/jwt/tokens")
-    public ResponseEntity<JwtPairDto> testGenerateJwtTokens(@RequestBody Map<String, String> requestBody) {
-        return ResponseEntity.ok(jwtService.createJwtPair(Long.valueOf(requestBody.get("userId")), List.of(UserRole.USER)));
+    @GetMapping("/api/test/jwt/tokens/{userId}")
+    public ResponseEntity<ApiResponse<JwtPairDto>> testGenerateJwtTokens(@PathVariable Long userId) {
+        UserRole userRole = userRepository.findById(userId).getUserRole();
+        JwtPairDto jwtPair;
+        if(userRole == UserRole.ADMIN) {
+            jwtPair = jwtService.createJwtPairAdmin(userId, List.of(UserRole.ADMIN));
+        } else {
+            jwtPair = jwtService.createJwtPair(userId, List.of(UserRole.USER));
+        }
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .header(HttpHeaders.SET_COOKIE, CookieProvider.ofRefreshToken(jwtPair.getRefreshToken()).toString())
+                .body(ApiResponse.ok(jwtPair));
+//        return ResponseEntity.ok(jwtService.createJwtPair(Long.valueOf(requestBody.get("userId")), List.of(UserRole.USER)));
     }
 
     @PostMapping("/api/test/jwt/tokens/admin")
