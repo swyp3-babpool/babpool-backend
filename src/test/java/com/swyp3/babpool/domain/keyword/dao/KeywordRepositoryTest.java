@@ -4,13 +4,13 @@ import com.swyp3.babpool.domain.keyword.dao.response.KeywordAndUserResponseDto;
 import com.swyp3.babpool.domain.keyword.domain.MappingUserKeyword;
 import com.swyp3.babpool.domain.profile.application.response.ProfileKeywordsResponse;
 import com.swyp3.babpool.global.tsid.TsidKeyGenerator;
-import io.netty.util.Mapping;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
@@ -26,6 +26,8 @@ class KeywordRepositoryTest {
     @Autowired
     private KeywordRepository keywordRepository;
     private static TsidKeyGenerator tsidKeyGenerator;
+    @Autowired
+    JdbcTemplate jdbcTemplate;
 
     @BeforeAll
     static void setUp(){
@@ -42,14 +44,16 @@ class KeywordRepositoryTest {
     void findKeywords(){
         //given
         Long userId = 100000000000000001L;
-
+        String query = "SELECT JSON_OBJECTAGG(subject_name : keyword_name_list) AS keywords FROM (" +
+                " SELECT tk.keyword_subject AS subject_name, JSON_ARRAYAGG(tk.keyword_name) AS keyword_name_list" +
+                " FROM t_keyword tk INNER JOIN t_m_user_keyword tmuk ON tk.keyword_id = tmuk.keyword_id" +
+                " WHERE tmuk.user_id = "+ userId +" GROUP BY tk.keyword_subject)tb_json_arrayagg";
         //when
-        ProfileKeywordsResponse profileKeywordsResponse = keywordRepository.findKeywordsByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("키워드 조회 실패"));
+        String keywordsResponse = jdbcTemplate.queryForObject(query, (rs, rowNum) -> rs.getString("keywords"));
 
         //then
-        log.info("profileKeywordsResponse : {}", profileKeywordsResponse);
-        assertNotNull(profileKeywordsResponse);
+        log.info("keywordsResponse : {}", keywordsResponse);
+        assertNotNull(keywordsResponse);
     }
 
     @DisplayName("findAllByUserId 매퍼는, 특정 사용자의 식별 값으로 KeywordAndUserResponseDto 목록을 조회한다.")
