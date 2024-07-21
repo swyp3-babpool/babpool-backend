@@ -1,5 +1,6 @@
 package com.swyp3.babpool.global.config;
 
+import com.swyp3.babpool.global.config.swagger.SwaggerAccessInterceptor;
 import com.swyp3.babpool.global.jwt.JwtTokenInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +12,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebMvcInterceptJwtConfig implements WebMvcConfigurer {
 
     private final JwtTokenInterceptor jwtTokenInterceptor;
+    private final SwaggerAccessInterceptor swaggerAccessInterceptor;
     private static final String[] EXCLUDE_PATHS = {
         "/api/user/sign/in", "/api/user/sign/up", "/api/user/sign/out", "/api/token/access/refresh",
         "/api/profile/list"
@@ -22,8 +24,6 @@ public class WebMvcInterceptJwtConfig implements WebMvcConfigurer {
 
     private static final String[] TESTING = {
         "/api/test/**"
-//        "/api/test/connection", "/api/test/jwt/permitted", "/api/test/uuid", "/api/test/jwt/tokens", "/api/test/image/upload",
-//        "/api/test/image/delete", "/api/test/cookie", "/api/test/from/uuid/to/id", "/api/test/stomp/send", "/api/test/jwt/tokens/admin",
     };
 
     @Override
@@ -33,5 +33,7 @@ public class WebMvcInterceptJwtConfig implements WebMvcConfigurer {
                 .excludePathPatterns(EXCLUDE_PATHS)
                 .excludePathPatterns(MONITORING)
                 .excludePathPatterns(TESTING);
+        registry.addInterceptor(swaggerAccessInterceptor)
+                .addPathPatterns("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**");
     }
 }

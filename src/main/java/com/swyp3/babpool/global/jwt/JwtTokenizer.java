@@ -22,7 +22,7 @@ public class JwtTokenizer {
     private final byte[] refreshSecret;
 
     public final static Long ACCESS_TOKEN_EXPIRE_COUNT = 15 * 60 * 1000L; // 15 minutes
-    public final static Long ACCESS_TOKEN_EXPIRE_COUNT_ADMIN = 1 * 24 * 60 * 60 * 1000L; // 1 day
+    public final static Long ACCESS_TOKEN_EXPIRE_COUNT_ADMIN = 7 * 24 * 60 * 60 * 1000L; // 7 day
     public final static Long REFRESH_TOKEN_EXPIRE_COUNT = 7 * 24 * 60 * 60 * 1000L; // 7 days
 
     public JwtTokenizer(@Value("${property.jwt.secretKey}") String accessSecret, @Value("${property.jwt.refreshKey}") String refreshSecret) {
