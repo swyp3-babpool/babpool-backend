@@ -4,6 +4,7 @@ import com.swyp3.babpool.domain.possibledatetime.api.request.PossibleDateTimeUpd
 import com.swyp3.babpool.domain.possibledatetime.application.PossibleDateTimeService;
 import com.swyp3.babpool.domain.possibledatetime.application.response.PossibleDateTimeResponse;
 import com.swyp3.babpool.global.common.response.ApiResponse;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,7 @@ public class PossibleDateTimeApi {
      * @param userId : 조회할 사용자의 userId
      * @return : 조회한 사용자의 이달부터의 모든 일정 리스트를 반환한다.
      */
+    @Parameter(name = "userId", description = "조회할 사용자의 userId", required = true, example = "598129329137778868")
     @GetMapping("/api/possible/datetime/{userId}")
     public ApiResponse<List<PossibleDateTimeResponse>> getPossibleDateTimeList(@PathVariable @Positive(message = "Must be positive") Long userId){
         return ApiResponse.ok(possibleDateTimeService.getPossibleDateTimeList(userId));

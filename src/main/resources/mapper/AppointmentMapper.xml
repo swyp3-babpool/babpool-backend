@@ -41,17 +41,18 @@
             profile.profile_image_url AS appointmentReceiverProfileImageUrl,
             appoint.appointment_status AS appointmentStatus,
             appoint.appointment_create_date AS appointmentCreateDate,
-            IF(appoint.appointment_status = 'ACCEPT' OR appoint.appointment_status = 'DONE',
-               DATE_FORMAT(datetime.possible_datetime, '%Y-%m-%d %H:%i:%s'),
-               NULL
-            ) AS appointmentFixDateTime
+            DATE_FORMAT(datetime.possible_datetime, '%Y-%m-%d %H:00:00') as appointmentFixDateTime
+--             IF(appoint.appointment_status = 'ACCEPT' OR appoint.appointment_status = 'DONE',
+--                DATE_FORMAT(datetime.possible_datetime, '%Y-%m-%d %H:%i:%s'),
+--                NULL
+--             ) AS appointmentFixDateTime
         FROM t_appointment appoint
             INNER JOIN t_profile profile ON appoint.appointment_receiver_id = profile.user_id
             INNER JOIN t_user_account account ON appoint.appointment_receiver_id = account.user_id
             LEFT JOIN t_possible_datetime datetime ON datetime.possible_datetime_id = appoint.possible_datetime_id
         WHERE
             appoint.appointment_sender_id = #{requesterUserId}
-        AND appoint.appointment_status IN ('WAITING', 'ACCEPT')
+--         AND appoint.appointment_status IN ('WAITING', 'ACCEPTED')
         ORDER BY appoint.appointment_create_date DESC;
     </select>
 
@@ -65,16 +66,16 @@
             appoint.appointment_status AS appointmentStatus,
             appoint.appointment_create_date AS appointmentCreateDate,
             IF(appoint.appointment_status = 'ACCEPT' OR appoint.appointment_status = 'DONE',
-               DATE_FORMAT(pdatetime.possible_datetime, '%Y-%m-%d %H:%i:%s'),
+               DATE_FORMAT(pdatetime.possible_datetime, '%Y-%m-%d %H:00:00'),
                NULL
             ) AS appointmentFixDateTime
         FROM t_appointment appoint
             INNER JOIN t_profile profile ON appoint.appointment_sender_id = profile.user_id
             INNER JOIN t_user_account account ON appoint.appointment_sender_id = account.user_id
-            LEFT JOIN t_possible_time pdatetime ON pdatetime.possible_datetime_id = appoint.possible_datetime_id
+            LEFT JOIN t_possible_datetime pdatetime ON pdatetime.possible_datetime_id = appoint.possible_datetime_id
         WHERE
             appoint.appointment_receiver_id = #{receiverUserId}
-        AND appoint.appointment_status IN ('WAITING', 'ACCEPT')
+        AND appoint.appointment_status IN ('WAITING', 'ACCEPTED')
         ORDER BY appoint.appointment_create_date DESC;
     </select>
 
@@ -102,7 +103,7 @@
             appointment_status,
             appointment_content,
             appointment_create_date,
-            appointment_modify_date,
+            appointment_modify_date
         FROM t_appointment
         WHERE
             appointment_id = #{appointmentId}
@@ -116,8 +117,8 @@
             account.user_nick_name AS appointmentReceiverUserNickname,
             profile.profile_image_url AS appointmentReceiverProfileImageUrl,
             appoint.appointment_status AS appointmentStatus,
-            DATE_FORMAT(pdatetime.possible_datetime, '%Y-%m-%d %H:%i:%s') as appointmentFixDateTime,
-            IF(review.review_id is NULL AND DATE_ADD(DATE_FORMAT(pdatetime.possible_datetime, '%Y-%m-%d %H:%i:%s'), INTERVAL 3 DAY) > NOW(), 'REVIEW_REQUIRED', 'REVIEW_NOT_REQUIRED') AS reviewRequired
+            DATE_FORMAT(pdatetime.possible_datetime, '%Y-%m-%d %H:00:00') as appointmentFixDateTime,
+            IF(review.review_id is NULL AND DATE_ADD(DATE_FORMAT(pdatetime.possible_datetime, '%Y-%m-%d %H:00:00'), INTERVAL 3 DAY) > NOW(), 'REVIEW_REQUIRED', 'REVIEW_NOT_REQUIRED') AS reviewRequired
         FROM t_appointment appoint
                  INNER JOIN t_profile profile ON appoint.appointment_receiver_id = profile.user_id
                  INNER JOIN t_user_account account ON appoint.appointment_receiver_id = account.user_id
@@ -125,7 +126,7 @@
                  LEFT JOIN t_review review ON appoint.appointment_id = review.appointment_id
         WHERE
             appoint.appointment_sender_id = #{requesterUserId}
-          AND appoint.appointment_status IN ('DONE', 'ACCEPT');
+          AND appoint.appointment_status IN ('DONE', 'ACCEPTED');
     </select>
 
     <!--  밥약 히스토리 - 거절 당한 요청 리스트  -->
@@ -141,7 +142,7 @@
                  inner join t_user_account account on appoint.appointment_receiver_id = account.user_id
                  left join t_reject reject on appoint.appointment_id = reject.appointment_id
         where appoint.appointment_sender_id = #{requesterUserId}
-          and appoint.appointment_status IN ('REJECT', 'EXPIRE')
+          and appoint.appointment_status IN ('REJECTED', 'EXPIRED')
         ORDER BY reject.reject_create_date DESC;
     </select>
 

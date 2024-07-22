@@ -23,7 +23,7 @@ public interface PossibleDateTimeRepository {
     Optional<PossibleDateTime> findByUserIdAndDateTimeForUpdate(@Param("userId") Long receiverUserId, @Param("possibleDateTimeId") Long possibleDateTimeId);
 
     // 테스트 코드 작성 완료
-    Optional<PossibleDateTime> findByUserIdAndDateTime(@Param("userId") Long receiverUserId, @Param("possibleDateTimeId") Long possibleDateTimeId);
+    Optional<PossibleDateTime> findByUserIdAndDateTimeId(@Param("userId") Long receiverUserId, @Param("possibleDateTimeId") Long possibleDateTimeId);
 
     // 테스트 코드 작성 완료
     int updatePossibleDateTimeStatus(Long possibleDateTimeId, PossibleDateTimeStatusType status);
@@ -49,4 +49,6 @@ public interface PossibleDateTimeRepository {
     Long checkExistPossibleDate(Long profileId, String possibleDate);
     @Deprecated
     boolean checkExistPossibleTime(Long profileId, String possibleDate, Integer possibleTimeStart);
+
+    Optional<PossibleDateTime> findByUserIdAndDateTimeWhereStatus(Long receiverUserId, LocalDateTime possibleDateTime, PossibleDateTimeStatusType possibleDateTimeStatus);
 }

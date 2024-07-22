@@ -14,6 +14,7 @@ import com.swyp3.babpool.domain.appointment.exception.AppointmentException;
 import com.swyp3.babpool.domain.appointment.exception.errorcode.AppointmentErrorCode;
 import com.swyp3.babpool.domain.possibledatetime.application.PossibleDateTimeService;
 import com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateTime;
+import com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateTimeStatusType;
 import com.swyp3.babpool.domain.profile.application.ProfileService;
 import com.swyp3.babpool.domain.reject.application.RejectService;
 import com.swyp3.babpool.domain.user.application.UserService;
@@ -59,6 +60,8 @@ public class AppointmentServiceImpl implements AppointmentService{
 
         // 요청 송신자와 수신자 동일한 요청일 경우 예외를 발생한다.
         throwExceptionIfSenderAndReceiverAreSame(appointmentCreateRequest);
+        appointmentCreateRequest.setPossibleDateTimeId(possibleDateTimeService.findPossibleDateTimeIdByReceiverAndDateTimeAndStatus(
+                appointmentCreateRequest.getReceiverUserId(), appointmentCreateRequest.getPossibleDateTime(), PossibleDateTimeStatusType.AVAILABLE));
 
         // 약속 요청한 일정이 이미 다른 사용자에 의해 예약 신청된 시간대인지 조회. 이미 예약된 일정이면 예외 발생.
         PossibleDateTime possibleDateTimeEntity = possibleDateTimeService.throwExceptionIfAppointmentAlreadyAcceptedAtSameTime(
@@ -71,7 +74,8 @@ public class AppointmentServiceImpl implements AppointmentService{
         }
 
         // 약속 생성 및 저장.
-        int insertedRows = appointmentRepository.saveAppointment(appointmentCreateRequest.toEntity(tsidKeyGenerator.generateTsid()));
+        appointmentCreateRequest.setAppointmentId(tsidKeyGenerator.generateTsid());
+        int insertedRows = appointmentRepository.saveAppointment(appointmentCreateRequest.toEntity());
         if(insertedRows != 1){
             throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_CREATE_FAILED, "밥약 요청. t_appointment insert fail.");
         }
