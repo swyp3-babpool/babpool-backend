@@ -19,7 +19,6 @@ public class AppointmentHistoryDoneResponse {
     private String reviewRequired;
 
     @Builder
-
     public AppointmentHistoryDoneResponse(Long appointmentId, Long appointmentReceiverProfileId, String appointmentReceiverUserNickname, String appointmentReceiverProfileImageUrl, String appointmentStatus, LocalDateTime appointmentFixDateTime, String reviewRequired) {
         this.appointmentId = appointmentId;
         this.appointmentReceiverProfileId = appointmentReceiverProfileId;

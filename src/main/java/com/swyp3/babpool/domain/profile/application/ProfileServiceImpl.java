@@ -1,8 +1,6 @@
 package com.swyp3.babpool.domain.profile.application;
 
-import com.swyp3.babpool.domain.appointment.dao.AppointmentRepository;
-import com.swyp3.babpool.domain.possibledatetime.dao.PossibleDateTimeRepository;
-import com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateInsertDto;
+import com.swyp3.babpool.domain.keyword.application.KeywordService;
 import com.swyp3.babpool.domain.profile.api.request.ProfilePagingConditions;
 import com.swyp3.babpool.domain.profile.api.request.ProfileUpdateRequest;
 import com.swyp3.babpool.domain.profile.application.response.*;
@@ -28,7 +26,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -37,10 +34,12 @@ import java.util.stream.Collectors;
 public class ProfileServiceImpl implements ProfileService{
 
     private final AwsS3Provider awsS3Provider;
-    private final ProfileRepository profileRepository;
-    private final PossibleDateTimeRepository possibleDateTimeRepository;
-    private final AppointmentRepository appointmentRepository;
+
     private final ReviewService reviewService;
+    private final KeywordService keywordService;
+
+    private final ProfileRepository profileRepository;
+
     @Override
     public Page<ProfilePagingResponse> getProfileListWithPageable(ProfilePagingConditions profilePagingConditions, Pageable pageable) {
         PagingRequestList<?> pagingRequest = PagingRequestList.builder()
@@ -54,7 +53,6 @@ public class ProfileServiceImpl implements ProfileService{
             counts = profileRepository.countByPageable(profilePagingConditions);
         } catch (Exception e) {
             log.error("프로필 리스트 조회 중 오류 발생. {}", e.getMessage());
-            log.error("{}", e.getStackTrace());
             throw new ProfileException(ProfileErrorCode.PROFILE_LIST_ERROR, "프로필 리스트 조회 중 오류가 발생했습니다.");
         }
         List<ProfilePagingResponse> profilePagingResponse = profilePagingDtoList.stream()
@@ -84,17 +82,13 @@ public class ProfileServiceImpl implements ProfileService{
     public ProfileDefaultResponse getProfileDefault(Long userId) {
         Profile profile = profileRepository.findByUserId(userId);
         ProfileDefault daoResponse= profileRepository.findProfileDefault(profile.getProfileId());
-        ProfileKeywordsResponse keywords = profileRepository.findKeywords(profile.getProfileId());
-
+        ProfileKeywordsResponse keywords = keywordService.getKeywordsAndSubjectsByUserId(userId);
         return new ProfileDefaultResponse(daoResponse,keywords);
     }
 
     @Override
     public ProfileRegistrationResponse getProfileisRegistered(Long userId) {
-        Profile profile = profileRepository.findByUserId(userId);
-        Boolean isRegistered = profileRepository.findProfileIsRegistered(profile.getProfileId());
-
-        return new ProfileRegistrationResponse(isRegistered);
+        return new ProfileRegistrationResponse(profileRepository.findByUserId(userId).getProfileActiveFlag());
     }
 
     private boolean isExistProfile(Long profileId) {
@@ -103,6 +97,12 @@ public class ProfileServiceImpl implements ProfileService{
         return true;
     }
 
+    /**
+     * 사용자가 직접 업로드한(소셜서비스로 부터 제공받은 이미지가 아닌) 이미지로 프로필 이미지를 수정합니다.
+     * @param userId : 사용자 식별 값
+     * @param multipartFile : 사용자가 업로드한 이미지 파일
+     * @return : AWS S3 Bucket 에 업로드된 이미지 URL
+     */
     @Override
     public String updateProfileImage(Long userId, MultipartFile multipartFile) {
         if(verifyNoImageFile(multipartFile)){
@@ -112,10 +112,7 @@ public class ProfileServiceImpl implements ProfileService{
         deleteExistImageIfUserSelfUploaded(userId);
         String uploadedImageUrl = awsS3Provider.uploadImage(multipartFile);
 
-        profileRepository.updateProfileImageUrl(Profile.builder()
-                .userId(userId)
-                .profileImageUrl(uploadedImageUrl)
-                .build());
+        profileRepository.updateProfileImageUrl(userId, uploadedImageUrl);
         return uploadedImageUrl;
     }
 
@@ -142,7 +139,7 @@ public class ProfileServiceImpl implements ProfileService{
     }
 
     @Override
-    public void saveProfile(Profile profile) {
+    public void createInitProfile(Profile profile) {
         profileRepository.saveProfile(profile);
     }
 
@@ -152,15 +149,18 @@ public class ProfileServiceImpl implements ProfileService{
     }
 
     @Override
-    public ProfileUpdateResponse updateProfileInfo(Long userId, ProfileUpdateRequest profileUpdateRequest) {
-        validateRequestPossibleDateTime(profileUpdateRequest.getPossibleDate());
-        Long profileId = profileRepository.findByUserId(userId).getProfileId();
-        profileRepository.updateUserAccount(userId,profileUpdateRequest);
-        profileRepository.updateProfile(profileId,profileUpdateRequest);
-        profileRepository.deleteUserKeywords(userId);
-        profileRepository.saveUserKeywords(userId,profileUpdateRequest.getKeywords());
-        updatePossibleDateTime(userId, profileId,profileUpdateRequest);
-        return new ProfileUpdateResponse(profileId);
+    public Long updateProfileInfo(Long userId, ProfileUpdateRequest profileUpdateRequest) {
+        // 프로필 식별 값 조회
+        Long targetProfileId = profileRepository.findByUserId(userId).getProfileId();
+
+        // 프로필 정보 수정
+        profileRepository.updateProfileByProfileIdAndUpdateRequestDto(targetProfileId,profileUpdateRequest);
+
+        // 사용자가 설정해둔 키워드 일괄 삭제 후, 새로운 키워드로 저장
+        keywordService.deleteAllKeywordsOf(userId);
+        keywordService.saveUserAndKeywordMapping(userId, profileUpdateRequest.getKeywords());
+
+        return targetProfileId;
     }
 
     @Override
@@ -171,137 +171,126 @@ public class ProfileServiceImpl implements ProfileService{
         }
     }
 
-    private void validateRequestPossibleDateTime(Map<String, List<Integer>> possibleDateMap) {
-        if(possibleDateMap.isEmpty()){
-            throw new ProfileException(ProfileErrorCode.PROFILE_POSSIBLE_DATE_ERROR,"가능한 날짜와 시간을 최소 1개 이상 선택해주세요.");
-        }
-        // time : 8 ~ 22 only
-        possibleDateMap.values().stream()
-                .flatMap(List::stream)
-                .forEach(time -> {
-                    if(time < 8 || time > 22){
-                        throw new ProfileException(ProfileErrorCode.PROFILE_POSSIBLE_DATE_ERROR,"가능한 시간은 8시부터 22시까지만 선택 가능합니다.");
-                    }
-                });
-    }
-
+    /**
+     * @deprecated [2024-07-16] 프로필 수정과, 일정 수정 API 를 분리하며 해당 메서드는 사용되지 않음. possibledatetime패키지의
+     * 메서드가 개선된 정도를 확인하기 위해 남겨둠.
+     */
+    @Deprecated
     @Transactional
-    @Override
     public void updatePossibleDateTime(Long userId, Long profileId, ProfileUpdateRequest profileUpdateRequest) {
-        // 특정 프로필이 활성화한 가능한 날짜와 시간 리스트를 조회 (오늘 날짜를 포함한 미래의 가능한 날짜와 시간 리스트만 조회)
-        List<PossibleDateAndTime> existPossibleDateTimeLists = possibleDateTimeRepository.findAllPossibleDateAndTimeByProfileIdAndNowDateWithoutAcceptOrDone(profileId);
-        Map<String, List<Integer>> requestPossibleDateTime = profileUpdateRequest.getPossibleDate();
-
-        // Map<"2024-03-15", [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]>
-        List<PossibleDateAndTime> deleteTargets = new ArrayList<>(); // existPossibleDateTimeLists 에는 있지만 requestPossibleDateTime 에는 없는 것
-        Map<String, List<Integer>> insertTargets = new HashMap<>(); // requestPossibleDateTime 에는 있지만 existPossibleDateTimeLists 에는 없는 것
-
-        // existPossibleDateTimeLists 을 기준으로 순회하며 삭제 대상과 추가 대상을 구분
-        for (PossibleDateAndTime exist : existPossibleDateTimeLists) {
-            String existDate = exist.getPossibleDate();
-            List<Integer> existTimes = exist.getPossibleTimeList();
-
-            if (requestPossibleDateTime.containsKey(existDate)) { // 날짜는 같은데
-                List<Integer> requestTimes = requestPossibleDateTime.get(existDate);
-                
-                // requestPossibleTime 에는 있지만 existPossibleTimeList 에는 없는 것 : 추가 대상
-                List<Integer> insertTimeList = new ArrayList<>();
-                for (Integer time : requestTimes) {
-                    if (!existTimes.contains(time)) {
-                        insertTimeList.add(time);
-                    }
-                }
-                insertTargets.put(existDate, insertTimeList);
-
-                // existTimes 에는 있지만 requestTimes 에는 없는 것 : 삭제 대상
-                List<Integer> timesToDelete = existTimes.stream()
-                        .filter(time -> !requestTimes.contains(time))
-                        .collect(Collectors.toList());
-
-                // 삭제할 시간이 존재한다면, 해당 시간에 대한 ID를 찾아서 삭제 대상에 추가
-                if (!timesToDelete.isEmpty()) {
-                    List<Long> timeIdsToDelete = filterTimeIds(exist.getPossibleTimeIdList(), existTimes, timesToDelete);
-                    deleteTargets.add(new PossibleDateAndTime(exist.getPossibleDateId(), existDate, timeIdsToDelete, timesToDelete));
-                }
-            } else {
-                // 요청 받은 날짜에 기존에 존재하던 날짜가 없어졌다면 삭제 대상
-                deleteTargets.add(exist);
-            }
-        }
-
-        // requestPossibleDateTime 을 기준으로 순회하며 추가 대상을 구분
-        for (Map.Entry<String, List<Integer>> entry : requestPossibleDateTime.entrySet()) {
-            String requestPossibleDate = entry.getKey();
-            List<Integer> requestPossibleTime = entry.getValue();
-
-            // existPossibleDateTimeLists 에는 없는 날짜(requestPossibleDate)는 추가 대상
-            if(existPossibleDateTimeLists.stream().noneMatch(
-                    existPossibleDateTimeList -> existPossibleDateTimeList.getPossibleDate().equals(requestPossibleDate))
-            ){
-                insertTargets.put(requestPossibleDate, requestPossibleTime);
-            }
-        }
-
-        // 삭제 대상이 비어있지 않다면 삭제
-        if(!deleteTargets.isEmpty()){
-            // Map 순회하며 삭제 : 삭제할 때는 시간 먼저 삭제
-            deleteTargets.forEach((possibleDateAndTime) -> {
-                try {
-                    for (Long timeId : possibleDateAndTime.getPossibleTimeIdList()) {
-                        boolean isReferenced = appointmentRepository.checkReferenceInAppointmentRequestTime(timeId);
-                        if (isReferenced) {
-                            log.info("ProfileServiceImpl.updatePossibleDateTime, 참조키가 존재하여 삭제하지 않음. {}", timeId);
-                            continue;
-                        }
-                        possibleDateTimeRepository.deletePossibleTime(possibleDateAndTime.getPossibleDateId(), timeId);
-                    }
-                    boolean isReferenced = possibleDateTimeRepository.checkReferenceInAppointmentRequestDate(possibleDateAndTime.getPossibleDateId());
-                    if (isReferenced) {
-                        log.info("ProfileServiceImpl.updatePossibleDateTime, 참조키가 존재하여 삭제하지 않음. {}", possibleDateAndTime.getPossibleDateId());
-                        return;
-                    }
-                    possibleDateTimeRepository.deletePossibleDate(profileId, possibleDateAndTime.getPossibleDateId());
-                } catch (Exception e) {
-                    log.info("ProfileServiceImpl.updatePossibleDateTime, 가능한 날짜와 시간 삭제 중 오류 발생. {}", e.getMessage());
-                    log.info("참조키 오류 발생 : {}", possibleDateAndTime);
-                    throw new ProfileException(ProfileErrorCode.PROFILE_POSSIBLE_DATE_ERROR, "가능한 날짜와 시간 삭제 중 오류가 발생했습니다.");
-                }
-            });
-
-        }
-
-        // 추가 대상이 비어있지 않다면 추가
-        if(!insertTargets.isEmpty()){
-            // Map 순회하며 추가 : 추가할 때는 날짜 먼저 추가
-            insertTargets.forEach((date, timeList) -> {
-                PossibleDateInsertDto possibleDateInsertDto = PossibleDateInsertDto.builder()
-                        .profileId(profileId)
-                        .date(date)
-                        .build();
-                // 이미 존재하는 날짜라면 날짜를 추가하지는 않음. 이미 존재하는 날짜라면 해당 날짜의 ID를 가져온다. 존재하지 않는다면 0L 반환
-                Long isAlreadyExistDateId = possibleDateTimeRepository.checkExistPossibleDate(profileId, date);
-                // 존재하지 않는 날짜라면, 날짜를 DB에 저장
-                if (isAlreadyExistDateId == 0L) {
-                    // possibleDateInsertDto 에 GeneratedKey를 받아올 수 있도록 설정
-                    possibleDateTimeRepository.insertPossibleDate(possibleDateInsertDto);
-                }else{
-                    // 이미 존재하는 날짜라면 possibleDateInsertDto 에 해당 날짜의 ID로 세팅
-                    possibleDateInsertDto.setPossibleDateId(isAlreadyExistDateId);
-                    log.info("ProfileServiceImpl.updatePossibleDateTime, 이미 존재하는 가능한 날짜입니다. {}", date);
-                }
-
-                // 추가 대상인 시간을 순회하면서
-                for (Integer time : timeList) {
-                    boolean isAlreadyExistTime = possibleDateTimeRepository.checkExistPossibleTime(profileId, date, time);
-                    if (isAlreadyExistTime) {
-                        log.info("ProfileServiceImpl.updatePossibleDateTime, 이미 존재하는 가능한 시간입니다. {}", time);
-                        continue;
-                    }
-                    possibleDateTimeRepository.insertPossibleTime(possibleDateInsertDto.getPossibleDateId(), time);
-                }
-            });
-        }
-
+//        // 특정 프로필이 활성화한 가능한 날짜와 시간 리스트를 조회 (오늘 날짜를 포함한 미래의 가능한 날짜와 시간 리스트만 조회)
+//        List<PossibleDateAndTime> existPossibleDateTimeLists = possibleDateTimeRepository.findAllPossibleDateAndTimeByProfileIdAndNowDateWithoutAcceptOrDone(profileId);
+//        Map<String, List<Integer>> requestPossibleDateTime = profileUpdateRequest.getPossibleDate();
+//
+//        // Map<"2024-03-15", [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]>
+//        List<PossibleDateAndTime> deleteTargets = new ArrayList<>(); // existPossibleDateTimeLists 에는 있지만 requestPossibleDateTime 에는 없는 것
+//        Map<String, List<Integer>> insertTargets = new HashMap<>(); // requestPossibleDateTime 에는 있지만 existPossibleDateTimeLists 에는 없는 것
+//
+//        // existPossibleDateTimeLists 을 기준으로 순회하며 삭제 대상과 추가 대상을 구분
+//        for (PossibleDateAndTime exist : existPossibleDateTimeLists) {
+//            String existDate = exist.getPossibleDate();
+//            List<Integer> existTimes = exist.getPossibleTimeList();
+//
+//            if (requestPossibleDateTime.containsKey(existDate)) { // 날짜는 같은데
+//                List<Integer> requestTimes = requestPossibleDateTime.get(existDate);
+//
+//                // requestPossibleTime 에는 있지만 existPossibleTimeList 에는 없는 것 : 추가 대상
+//                List<Integer> insertTimeList = new ArrayList<>();
+//                for (Integer time : requestTimes) {
+//                    if (!existTimes.contains(time)) {
+//                        insertTimeList.add(time);
+//                    }
+//                }
+//                insertTargets.put(existDate, insertTimeList);
+//
+//                // existTimes 에는 있지만 requestTimes 에는 없는 것 : 삭제 대상
+//                List<Integer> timesToDelete = existTimes.stream()
+//                        .filter(time -> !requestTimes.contains(time))
+//                        .collect(Collectors.toList());
+//
+//                // 삭제할 시간이 존재한다면, 해당 시간에 대한 ID를 찾아서 삭제 대상에 추가
+//                if (!timesToDelete.isEmpty()) {
+//                    List<Long> timeIdsToDelete = filterTimeIds(exist.getPossibleTimeIdList(), existTimes, timesToDelete);
+//                    deleteTargets.add(new PossibleDateAndTime(exist.getPossibleDateId(), existDate, timeIdsToDelete, timesToDelete));
+//                }
+//            } else {
+//                // 요청 받은 날짜에 기존에 존재하던 날짜가 없어졌다면 삭제 대상
+//                deleteTargets.add(exist);
+//            }
+//        }
+//
+//        // requestPossibleDateTime 을 기준으로 순회하며 추가 대상을 구분
+//        for (Map.Entry<String, List<Integer>> entry : requestPossibleDateTime.entrySet()) {
+//            String requestPossibleDate = entry.getKey();
+//            List<Integer> requestPossibleTime = entry.getValue();
+//
+//            // existPossibleDateTimeLists 에는 없는 날짜(requestPossibleDate)는 추가 대상
+//            if(existPossibleDateTimeLists.stream().noneMatch(
+//                    existPossibleDateTimeList -> existPossibleDateTimeList.getPossibleDate().equals(requestPossibleDate))
+//            ){
+//                insertTargets.put(requestPossibleDate, requestPossibleTime);
+//            }
+//        }
+//
+//        // 삭제 대상이 비어있지 않다면 삭제
+//        if(!deleteTargets.isEmpty()){
+//            // Map 순회하며 삭제 : 삭제할 때는 시간 먼저 삭제
+//            deleteTargets.forEach((possibleDateAndTime) -> {
+//                try {
+//                    for (Long timeId : possibleDateAndTime.getPossibleTimeIdList()) {
+//                        boolean isReferenced = appointmentRepository.checkReferenceInAppointmentRequestTime(timeId);
+//                        if (isReferenced) {
+//                            log.info("ProfileServiceImpl.updatePossibleDateTime, 참조키가 존재하여 삭제하지 않음. {}", timeId);
+//                            continue;
+//                        }
+//                        possibleDateTimeRepository.deletePossibleTime(possibleDateAndTime.getPossibleDateId(), timeId);
+//                    }
+//                    boolean isReferenced = possibleDateTimeRepository.checkReferenceInAppointmentRequestDate(possibleDateAndTime.getPossibleDateId());
+//                    if (isReferenced) {
+//                        log.info("ProfileServiceImpl.updatePossibleDateTime, 참조키가 존재하여 삭제하지 않음. {}", possibleDateAndTime.getPossibleDateId());
+//                        return;
+//                    }
+//                    possibleDateTimeRepository.deletePossibleDate(profileId, possibleDateAndTime.getPossibleDateId());
+//                } catch (Exception e) {
+//                    log.info("ProfileServiceImpl.updatePossibleDateTime, 가능한 날짜와 시간 삭제 중 오류 발생. {}", e.getMessage());
+//                    log.info("참조키 오류 발생 : {}", possibleDateAndTime);
+//                    throw new ProfileException(ProfileErrorCode.PROFILE_POSSIBLE_DATE_ERROR, "가능한 날짜와 시간 삭제 중 오류가 발생했습니다.");
+//                }
+//            });
+//
+//        }
+//
+//        // 추가 대상이 비어있지 않다면 추가
+//        if(!insertTargets.isEmpty()){
+//            // Map 순회하며 추가 : 추가할 때는 날짜 먼저 추가
+//            insertTargets.forEach((date, timeList) -> {
+//                PossibleDateInsertDto possibleDateInsertDto = PossibleDateInsertDto.builder()
+//                        .profileId(profileId)
+//                        .date(date)
+//                        .build();
+//                // 이미 존재하는 날짜라면 날짜를 추가하지는 않음. 이미 존재하는 날짜라면 해당 날짜의 ID를 가져온다. 존재하지 않는다면 0L 반환
+//                Long isAlreadyExistDateId = possibleDateTimeRepository.checkExistPossibleDate(profileId, date);
+//                // 존재하지 않는 날짜라면, 날짜를 DB에 저장
+//                if (isAlreadyExistDateId == 0L) {
+//                    // possibleDateInsertDto 에 GeneratedKey를 받아올 수 있도록 설정
+//                    possibleDateTimeRepository.insertPossibleDate(possibleDateInsertDto);
+//                }else{
+//                    // 이미 존재하는 날짜라면 possibleDateInsertDto 에 해당 날짜의 ID로 세팅
+//                    possibleDateInsertDto.setPossibleDateId(isAlreadyExistDateId);
+//                    log.info("ProfileServiceImpl.updatePossibleDateTime, 이미 존재하는 가능한 날짜입니다. {}", date);
+//                }
+//
+//                // 추가 대상인 시간을 순회하면서
+//                for (Integer time : timeList) {
+//                    boolean isAlreadyExistTime = possibleDateTimeRepository.checkExistPossibleTime(profileId, date, time);
+//                    if (isAlreadyExistTime) {
+//                        log.info("ProfileServiceImpl.updatePossibleDateTime, 이미 존재하는 가능한 시간입니다. {}", time);
+//                        continue;
+//                    }
+//                    possibleDateTimeRepository.insertPossibleTime(possibleDateInsertDto.getPossibleDateId(), time);
+//                }
+//            });
+//        }
     }
 
     @Override

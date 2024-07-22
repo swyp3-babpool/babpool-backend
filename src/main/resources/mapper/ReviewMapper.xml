@@ -3,11 +3,13 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.swyp3.babpool.domain.review.dao.ReviewRepository">
 
-    <select id="countReviewByType" resultType="com.swyp3.babpool.domain.review.application.response.ReviewCountByTypeResponse"
+    <!-- ==============================  SELECT  ============================== -->
+
+    <select id="countByTypeAndProfileId" resultType="com.swyp3.babpool.domain.review.application.response.ReviewCountByTypeResponse"
             parameterType="long">
         SELECT
             COUNT(CASE WHEN review_rate = 'BEST' THEN 1 END) AS bestCount,
-            COUNT(CASE WHEN review_rate = 'GREAT' THEN 1 END) AS goodCount,
+            COUNT(CASE WHEN review_rate = 'GREAT' THEN 1 END) AS greatCount,
             COUNT(CASE WHEN review_rate = 'BAD' THEN 1 END) AS badCount
         FROM t_review
         WHERE appointment_id IN (
@@ -20,14 +22,9 @@
     </select>
 
     <select id="isReviewCreateAvailableTime" resultType="Boolean">
-        SELECT
-            CASE
-                WHEN DATE_ADD(DATE_FORMAT(CONCAT(pdate.possible_date, ' ', ptime.possible_time_start), '%Y-%m-%d %H:%i:%s'), INTERVAL 3 DAY) > NOW()
-                THEN 1 ELSE 0
-            END AS result
-        FROM t_appointment
-            INNER JOIN t_possible_time ptime ON ptime.possible_time_id = t_appointment.possible_time_id
-            INNER JOIN t_possible_date pdate ON pdate.possible_date_id = ptime.possible_date_id
+        SELECT CASE WHEN DATE_ADD(t_datetime.possible_datetime, INTERVAL 3 DAY) > NOW() THEN 1 ELSE 0 END AS result
+        FROM t_appointment appointment
+            INNER JOIN t_possible_datetime t_datetime ON t_datetime.possible_datetime_id = appointment.possible_datetime_id
         WHERE appointment_id = #{appointmentId};
     </select>
 
@@ -89,7 +86,7 @@
         AND review_delete_flag = 0;
     </select>
 
-    <select id="findAllByProfileIdAndLimit" resultType="com.swyp3.babpool.domain.review.application.response.ReviewPagingResponse">
+    <select id="findAllByProfileIdWithLimit" resultType="com.swyp3.babpool.domain.review.application.response.ReviewPagingResponse">
         SELECT
             review_id AS reviewId,
             appointment_id AS appointmentId,
@@ -104,7 +101,7 @@
                 WHERE profile_id = #{profileId}
             ) AND appointment_status = 'DONE'
         )
-        AND review_delete_flag = 0
+        AND review_delete_flag IS FALSE
         ORDER BY review_create_date DESC
         LIMIT #{limit};
     </select>
@@ -122,23 +119,24 @@
         WHERE appointment_id = #{appointmentId};
     </select>
 
-    <insert id="saveReview" parameterType="com.swyp3.babpool.domain.review.api.request.ReviewCreateRequest"
-            useGeneratedKeys="true" keyProperty="reviewId">
-        INSERT INTO t_review (appointment_id, review_rate, review_comment, review_delete_flag, review_create_date, review_modify_date)
-        VALUES (
-            #{targetAppointmentId},
-            #{rateType},
-            #{reviewContent},
-            0,
-            NOW(),
-            NOW()
-        );
+    <!-- ==============================  INSERT  ============================== -->
+
+    <insert id="save" parameterType="com.swyp3.babpool.domain.review.domain.Review">
+        INSERT INTO t_review (review_id, appointment_id, review_rate, review_comment, review_delete_flag, review_create_date, review_modify_date)
+        VALUES (#{reviewId}, #{appointmentId}, #{reviewRate}, #{reviewComment}, 0, #{reviewCreateDate}, #{reviewModifyDate});
     </insert>
+
+    <insert id="saveReview" parameterType="com.swyp3.babpool.domain.review.api.request.ReviewCreateRequest">
+        INSERT INTO t_review (review_id, appointment_id, review_rate, review_comment, review_delete_flag, review_create_date, review_modify_date)
+        VALUES (#{reviewId}, #{appointmentId}, #{reviewRate}, #{reviewComment}, 0, NOW(), NOW());
+    </insert>
+
+    <!-- ==============================  UPDATE  ============================== -->
 
     <update id="updateReview" parameterType="com.swyp3.babpool.domain.review.api.request.ReviewUpdateRequest">
         UPDATE t_review
-        SET review_rate = #{rateType},
-            review_comment = #{reviewContent},
+        SET review_rate = #{reviewRate},
+            review_comment = #{reviewComment},
             review_modify_date = NOW()
         WHERE review_id = #{reviewId};
     </update>

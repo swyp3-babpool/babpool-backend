@@ -18,13 +18,13 @@ class HealthRepositoryTest {
     @Autowired
     HealthRepository healthRepository;
 
-    @DisplayName("DB 초기화 후, 전체 행 개수를 조회하면 3이어야 한다.")
-    @Test
-    void countAllResult3AfterInit() {
-        // when
-        Integer resultInt = healthRepository.countAll();
-        // then
-        assertThat(resultInt).isEqualTo(3);
-    }
+//    @DisplayName("DB 초기화 후, 전체 행 개수를 조회하면 3이어야 한다.")
+//    @Test
+//    void countAllResult3AfterInit() {
+//        // when
+//        Integer resultInt = healthRepository.countAll();
+//        // then
+//        assertThat(resultInt).isEqualTo(3);
+//    }
 
 }

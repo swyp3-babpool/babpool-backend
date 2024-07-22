@@ -4,24 +4,22 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
+
 @ToString
 @Getter
 public class PossibleDateTime {
 
     private Long possibleDateTimeId;
-    private String possibleDateTimeDate;
-    private String possibleDateTimeTime;
-    private String possibleDateTimeRange;
-    private String possibleDateTimeStatus;
-    private Long profileId;
+    private LocalDateTime possibleDateTime;
+    private PossibleDateTimeStatusType possibleDateTimeStatus;
+    private Long userId;
 
     @Builder
-    public PossibleDateTime(Long possibleDateTimeId, String possibleDateTimeDate, String possibleDateTimeTime, String possibleDateTimeRange, String possibleDateTimeStatus, Long profileId) {
+    public PossibleDateTime(Long possibleDateTimeId, LocalDateTime possibleDateTime, PossibleDateTimeStatusType possibleDateTimeStatus, Long userId) {
         this.possibleDateTimeId = possibleDateTimeId;
-        this.possibleDateTimeDate = possibleDateTimeDate;
-        this.possibleDateTimeTime = possibleDateTimeTime;
-        this.possibleDateTimeRange = possibleDateTimeRange;
+        this.possibleDateTime = possibleDateTime;
         this.possibleDateTimeStatus = possibleDateTimeStatus;
-        this.profileId = profileId;
+        this.userId = userId;
     }
 }

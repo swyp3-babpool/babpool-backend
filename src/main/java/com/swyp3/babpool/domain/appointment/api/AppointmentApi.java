@@ -1,12 +1,12 @@
 package com.swyp3.babpool.domain.appointment.api;
 
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentAcceptRequest;
-import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequestDeprecated;
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentRejectRequest;
 import com.swyp3.babpool.domain.appointment.application.AppointmentService;
 import com.swyp3.babpool.domain.appointment.application.response.*;
 import com.swyp3.babpool.domain.appointment.application.response.appointmentdetail.AppointmentDetailResponse;
+import com.swyp3.babpool.domain.facade.ProfilePossibleDateTimeFacade;
 import com.swyp3.babpool.global.common.response.ApiResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -24,24 +24,29 @@ import java.util.List;
 public class AppointmentApi {
 
     private final AppointmentService appointmentService;
+    private final ProfilePossibleDateTimeFacade profilePossibleDateTimeFacade;
 
-    /**
-     * 밥약 요청 API
-     * @deprecated [2024.07.12] 동시성 처리를 위한 버전으로 대체
-     */
-    @Deprecated
-    @PostMapping("/api/v1/appointment")
-    public ApiResponse<AppointmentCreateResponse> makeAppointment(@RequestAttribute(value = "userId", required = false) Long userId,
-                                                                  @RequestBody @Valid AppointmentCreateRequestDeprecated appointmentCreateRequestDeprecated) {
-        appointmentCreateRequestDeprecated.setRequesterUserId(userId);
-        return ApiResponse.ok(appointmentService.makeAppointment(appointmentCreateRequestDeprecated));
-    }
+//    /**
+//     * 밥약 요청 API
+//     * @deprecated [2024.07.12] 동시성 처리를 위한 버전으로 대체
+//     */
+//    @Deprecated
+//    @PostMapping("/api/deprecated/appointment")
+//    public ApiResponse<AppointmentCreateResponse> makeAppointment(@RequestAttribute(value = "userId", required = false) Long userId,
+//                                                                  @RequestBody @Valid AppointmentCreateRequestDeprecated appointmentCreateRequestDeprecated) {
+//        appointmentCreateRequestDeprecated.setRequesterUserId(userId);
+//        return ApiResponse.ok(appointmentService.makeAppointment(appointmentCreateRequestDeprecated));
+//    }
 
     /**
      * 밥약 요청 API : 동시성 처리를 위한 버전
      */
-    @PostMapping("/api/v2/appointment")
-    public ApiResponse<AppointmentCreateResponse> createAppointment(@RequestBody @Valid AppointmentCreateRequest appointmentCreateRequest) {
+    @PostMapping("/api/appointment")
+    public ApiResponse<AppointmentCreateResponse> createAppointment(@RequestAttribute(value = "userId", required = false) Long userId,
+                                                                    @RequestBody @Validated AppointmentCreateRequest appointmentCreateRequest) {
+        appointmentCreateRequest.setSenderUserId(userId);
+        appointmentCreateRequest.setReceiverUserId(
+                profilePossibleDateTimeFacade.getUserIdByProfileId(appointmentCreateRequest.getTargetProfileId()));
         return ApiResponse.ok(appointmentService.makeAppointmentResolveConcurrency(appointmentCreateRequest));
     }
 
@@ -78,12 +83,12 @@ public class AppointmentApi {
     }
 
     /**
-     * 특정 프로필 카드가 활성화 해둔, 밥약 가능한 possibleTimeId와 식별값에 따른 날짜 및 시간 조회 API
-     * @param profileId 프로필 식별값
+     * 밥약 거절 사유 조회 API
      */
-    @GetMapping("/api/appointment/{profileId}/datetime")
-    public ApiResponse<List<AppointmentPossibleDateTimeResponse>> getAppointmentPossibleDateTime(@PathVariable @Positive(message = "Must be positive") Long profileId) {
-        return ApiResponse.ok(appointmentService.getAppointmentPossibleDateTime(profileId));
+    @GetMapping("/api/appointment/refuse/{appointmentId}")
+    public ApiResponse<AppointmentRefuseDetailResponse> getRefuseAppointmentDetail(@RequestAttribute(value="userId", required = false) Long userId,
+                                                                                   @PathVariable("appointmentId") Long appointmentId){
+        return ApiResponse.ok(appointmentService.getRefuseAppointmentDetail(userId, appointmentId));
     }
 
     /**
@@ -123,12 +128,5 @@ public class AppointmentApi {
         return ApiResponse.ok(appointmentService.cancelAppointmentRequested(userId,appointmentId));
     }
 
-    /**
-     * 밥약 거절 사유 조회 API
-     */
-    @GetMapping("/api/appointment/refuse/{appointmentId}")
-    public ApiResponse<AppointmentRefuseDetailResponse> getRefuseAppointmentDetail(@RequestAttribute(value="userId", required = false) Long userId,
-                                                                                   @PathVariable("appointmentId") Long appointmentId){
-        return ApiResponse.ok(appointmentService.getRefuseAppointmentDetail(userId,appointmentId));
-    }
+
 }

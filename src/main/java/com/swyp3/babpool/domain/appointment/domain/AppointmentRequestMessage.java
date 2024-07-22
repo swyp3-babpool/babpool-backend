@@ -8,12 +8,12 @@ import lombok.ToString;
 @Getter
 public class AppointmentRequestMessage {
 
-    private Long requesterProfileId;
+    private Long appointmentSenderUserId;
     private String messageType;
 
     @Builder
-    public AppointmentRequestMessage(Long requesterProfileId, AppointmentSocketMessageType messageType) {
-        this.requesterProfileId = requesterProfileId;
+    public AppointmentRequestMessage(Long appointmentSenderUserId, AppointmentSocketMessageType messageType) {
+        this.appointmentSenderUserId = appointmentSenderUserId;
         this.messageType = messageType.toString();
     }
 }

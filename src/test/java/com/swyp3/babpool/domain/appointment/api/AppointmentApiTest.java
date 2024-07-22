@@ -1,7 +1,8 @@
 package com.swyp3.babpool.domain.appointment.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequestDeprecated;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest;
 import com.swyp3.babpool.domain.appointment.application.AppointmentService;
 import com.swyp3.babpool.global.common.exception.handler.GlobalExceptionHandler;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,9 +17,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -41,6 +41,7 @@ class AppointmentApiTest {
                 .setValidator(new LocalValidatorFactoryBean())
                 .build();
         objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
     }
 
     @DisplayName("밥약 요청 API - 유효성 검증 실패")
@@ -48,10 +49,11 @@ class AppointmentApiTest {
     void makeAppointmentValidationFail() throws Exception {
         String accessTokenFromRequestHeader = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0QHRlc3QuY29tIiwicm9sZXMiOiJ0ZXN0IiwidXNlcmlkIjoxfQ.eMKhy-XdJmhuS2QeH1fjycXLS4lucpSa0D56JFMr0fI";
         String dto = objectMapper.writeValueAsString(
-                AppointmentCreateRequestDeprecated.builder()
-                        .targetProfileId(2L)
-                        .possibleTimeIdList(List.of(1L, 2L, 3L))
-                        .questionContents("").build()
+                AppointmentCreateRequest.builder()
+                        .targetProfileId(200000000000000001L)
+                        .possibleDateTimeId(300000000000000001L)
+                        .possibleDateTime(LocalDateTime.of(2024, 7, 12, 12, 0))
+                        .appointmentContent("").build()
         );
 
         mockMvc.perform(post("/api/appointment")
@@ -65,24 +67,9 @@ class AppointmentApiTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value(400))
                 .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
-                .andExpect(jsonPath("$.message").value("Validation error: questionContents: 질문 내용이 비어있습니다."))
+                .andExpect(jsonPath("$.message").value("Validation error: appointmentContent: 질문 내용이 비어있습니다."))
                 .andDo(print());
     }
 
-    @DisplayName("밥약 요청 가능 일정/시간 조회 API - 유효성 검증 실패")
-    @Test
-    void getAvailableTimeValidationFail() throws Exception {
-        String accessTokenFromRequestHeader = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0QHRlc3QuY29tIiwicm9sZXMiOiJ0ZXN0IiwidXNlcmlkIjoxfQ.eMKhy-XdJmhuS2QeH1fjycXLS4lucpSa0D56JFMr0fI";
 
-        mockMvc.perform(get("/api/appointment/{profileId}/datetime", "abc")
-                        .header("Authorization", "Bearer " + accessTokenFromRequestHeader)
-                        .characterEncoding("UTF-8")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isBadRequest())
-//                .andExpect(jsonPath("$.statusCode").value(400))
-//                .andExpect(jsonPath("$.statusDescription").value("BAD_REQUEST"))
-//                .andExpect(jsonPath("$.message").value("Validation error: profileId: Must be positive"))
-                .andDo(print());
-    }
 }

@@ -3,11 +3,13 @@ package com.swyp3.babpool.domain.profile.application.response;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.util.Map;
 
+@ToString
 @Slf4j
 @Getter
 public class ProfileKeywordsResponse {

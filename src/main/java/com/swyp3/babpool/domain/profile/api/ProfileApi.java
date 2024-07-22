@@ -1,5 +1,6 @@
 package com.swyp3.babpool.domain.profile.api;
 
+import com.swyp3.babpool.domain.facade.UserProfileFacade;
 import com.swyp3.babpool.domain.profile.api.request.ProfileUpdateRequest;
 import com.swyp3.babpool.domain.profile.application.ProfileService;
 import com.swyp3.babpool.domain.profile.application.response.ProfileDefaultResponse;
@@ -16,14 +17,25 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/profile")
 public class ProfileApi {
     private final ProfileService profileService;
+    private final UserProfileFacade userProfileFacade;
 
+
+    /**
+     * 프로필 정보 수정 API
+     * @param userId
+     * @param multipartFile
+     * @param profileUpdateRequest
+     * @return
+     */
     @PostMapping("/update")
-    public ApiResponse<ProfileUpdateResponse> updateProfileCard(@RequestAttribute(value = "userId") Long userId,
+    public ApiResponse<ProfileUpdateResponse> updateProfileInfo(@RequestAttribute(value = "userId") Long userId,
                                                                 @RequestPart(value = "profileImageFile", required = false) MultipartFile multipartFile,
-                                                                @RequestPart(value = "profileInfo") ProfileUpdateRequest profileUpdateRequest) {
-        profileService.updateProfileImage(userId, multipartFile);
-        ProfileUpdateResponse response =  profileService.updateProfileInfo(userId, profileUpdateRequest);
-        return ApiResponse.ok(response);
+                                                                @RequestBody ProfileUpdateRequest profileUpdateRequest) {
+
+        return ApiResponse.ok(ProfileUpdateResponse.builder()
+                .profileId(userProfileFacade.updateProfileInfo(userId, profileUpdateRequest))
+                .profileImageUrl(profileService.updateProfileImage(userId, multipartFile))
+                .build());
     }
 
     @GetMapping("/default")

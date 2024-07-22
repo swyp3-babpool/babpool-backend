@@ -1,7 +1,7 @@
 package com.swyp3.babpool.domain.possibledatetime.dao;
 
-import com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateInsertDto;
 import com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateTime;
+import com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateTimeStatusType;
 import com.swyp3.babpool.domain.profile.domain.PossibleDateAndTime;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -12,25 +12,41 @@ import java.util.Optional;
 
 @Mapper
 public interface PossibleDateTimeRepository {
+
+    // 테스트 코드 작성 완료
+    Optional<PossibleDateTime> findById(Long possibleDateTimeId);
+
+    // 테스트 코드 작성 완료
+    List<PossibleDateTime> findAllByUserIdWhereFromThisMonth(Long userId);
+
+    // 테스트 코드 작성 완료
+    Optional<PossibleDateTime> findByUserIdAndDateTimeForUpdate(@Param("userId") Long receiverUserId, @Param("possibleDateTimeId") Long possibleDateTimeId);
+
+    // 테스트 코드 작성 완료
+    Optional<PossibleDateTime> findByUserIdAndDateTime(@Param("userId") Long receiverUserId, @Param("possibleDateTimeId") Long possibleDateTimeId);
+
+    // 테스트 코드 작성 완료
+    int updatePossibleDateTimeStatus(Long possibleDateTimeId, PossibleDateTimeStatusType status);
+
+    // 테스트 코드 작성 완료
+    List<PossibleDateTime> findAllByUserId(Long userId);
+
+    // 테스트 코드 작성 완료
+    int deletePossibleDateTimeWhereStatusIsNotReserved(Long userId, List<LocalDateTime> possibleDateTimeDelList);
+
+    // 테스트 코드 작성 완료
+    void save(PossibleDateTime possibleDateTime);
+
+    // 테스트 코드 작성 완료
+    void savePossibleDateTimeList(List<PossibleDateTime> possibleDateTimeList);
+
+
+    @Deprecated
     List<PossibleDateAndTime> findAllPossibleDateAndTimeByProfileIdAndNowDateWithoutAcceptOrDone(Long profileId);
-
-    void deletePossibleDate(@Param("profileId") Long profileId, @Param("dateId") Long dateId);
-
-    void deletePossibleTime(@Param("dateId") Long dateId, @Param("timeId") Long timeId);
-
-    void insertPossibleDate(PossibleDateInsertDto possibleDateInsertDto);
-
-    void insertPossibleTime(@Param("dateId") Long dateId, @Param("time") Integer time);
-
+    @Deprecated
     boolean checkReferenceInAppointmentRequestDate(Long possibleDateId);
-
+    @Deprecated
     Long checkExistPossibleDate(Long profileId, String possibleDate);
-
+    @Deprecated
     boolean checkExistPossibleTime(Long profileId, String possibleDate, Integer possibleTimeStart);
-
-    Optional<PossibleDateTime> findByProfileIdAndDateTimeForUpdate(Long targetProfileId, Long possibleDateTimeId);
-
-    int updatePossibleDateTimeStatus(Long possibleDateTimeId, String status);
-
-    List<PossibleDateTime> findAllByProfileId(Long profileId);
 }

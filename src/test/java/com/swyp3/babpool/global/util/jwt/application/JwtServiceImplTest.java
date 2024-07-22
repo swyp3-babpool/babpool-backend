@@ -34,14 +34,14 @@ class JwtServiceImplTest {
     @Test
     void createJwtPair() {
         // given
-        String userUUID = "46707d92-02f4-4817-8116-a4c3b23e6266";
+        Long userId = 100000000000000001L;
         List<String> roles = List.of("ROLE_USER");
         // when
-        JwtPairDto jwtPairDto = jwtService.createJwtPair(userUUID, roles);
+        JwtPairDto jwtPairDto = jwtService.createJwtPair(userId, roles);
         // then
         assertNotNull(jwtPairDto);
         log.info("jwtPairDto : {}", jwtPairDto);
-        tokenRepository.findById(userUUID).ifPresent(tokenForRedis -> {
+        tokenRepository.findById(String.valueOf(userId)).ifPresent(tokenForRedis -> {
             log.info("tokenForRedis : {}", tokenForRedis);
             assertEquals(jwtPairDto.getRefreshToken(), tokenForRedis.getRefreshToken());
         });
@@ -51,18 +51,19 @@ class JwtServiceImplTest {
     @Test
     void extendLoginState() {
         // given
-        String uuid = "0123456789";
+        Long userId = 100000000000000001L;
+//        String uuid = "0123456789";
         List<String> roles = List.of("ROLE_USER");
         Integer refreshExpire = 7;
 
         JwtTokenizer jwtTokenizer = jwtTokenizer
                 = new JwtTokenizer("12345678901234567890123456789012","12345678901234567890123456789012");
-        String refreshToken = jwtTokenizer.createRefreshToken(uuid, roles);
+        String refreshToken = jwtTokenizer.createRefreshToken(userId, roles);
 
         tokenRepository.save(TokenForRedis.builder()
                 .refreshToken(refreshToken)
                 .refreshExpire(refreshExpire)
-                .userUUID(uuid)
+                .userId(userId)
                 .build());
         // when
         String accessToken = jwtService.extendLoginState(refreshToken);
@@ -76,18 +77,19 @@ class JwtServiceImplTest {
     @Test
     void logout() {
         // given
-        String uuid = "0123456789";
+        Long userId = 100000000000000001L;
+//        String uuid = "0123456789";
         List<String> roles = List.of("ROLE_USER");
         Integer refreshExpire = 7;
 
         JwtTokenizer jwtTokenizer = jwtTokenizer
                 = new JwtTokenizer("12345678901234567890123456789012","12345678901234567890123456789012");
-        String refreshToken = jwtTokenizer.createRefreshToken(uuid, roles);
+        String refreshToken = jwtTokenizer.createRefreshToken(userId, roles);
 
         tokenRepository.save(TokenForRedis.builder()
                 .refreshToken(refreshToken)
                 .refreshExpire(refreshExpire)
-                .userUUID(uuid)
+                .userId(userId)
                 .build());
         // when
         jwtService.logout(refreshToken);

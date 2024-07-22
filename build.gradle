@@ -38,7 +38,9 @@ dependencies {
     implementation 'com.mysql:mysql-connector-j'
     implementation group: 'org.bgee.log4jdbc-log4j2', name:'log4jdbc-log4j2-jdbc4.1', version: '1.16'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    implementation group: 'it.ozimov', name: 'embedded-redis', version: '0.7.3'
+    //    implementation group: 'it.ozimov', name: 'embedded-redis', version: '0.7.3' // Not working with Mac Silicon
+    implementation group: 'com.github.codemonstur', name: 'embedded-redis', version: '1.4.3'
+    runtimeOnly 'io.netty:netty-resolver-dns-native-macos:4.1.104.Final:osx-aarch_64'
 
     /* JWT */
     implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
