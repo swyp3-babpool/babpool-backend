@@ -1,6 +1,6 @@
 package com.swyp3.babpool.global.config;
 
-import com.swyp3.babpool.global.config.swagger.SwaggerAccessInterceptor;
+import com.swyp3.babpool.global.swagger.SwaggerAccessInterceptor;
 import com.swyp3.babpool.global.jwt.JwtTokenInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;

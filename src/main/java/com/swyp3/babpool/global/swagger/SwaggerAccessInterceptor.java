@@ -1,4 +1,4 @@
-package com.swyp3.babpool.global.config.swagger;
+package com.swyp3.babpool.global.swagger;
 
 import com.swyp3.babpool.domain.user.domain.UserRole;
 import com.swyp3.babpool.global.jwt.JwtAuthenticator;

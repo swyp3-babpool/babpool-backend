@@ -48,8 +48,18 @@ public class SwaggerConfig {
     @Bean
     public GroupedOpenApi api() {
         String[] paths = {"/api/**"};
-        String[] packagesToScan = {"com.swyp3.babpool.domain", "com.swyp3.babpool.global", "com.swyp3.babpool.infra"};
+        String[] packagesToScan = {"com.swyp3.babpool.domain", "com.swyp3.babpool.global"};
         return GroupedOpenApi.builder().group("springdoc-openapi")
+                .pathsToMatch(paths)
+                .packagesToScan(packagesToScan)
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi onlyForTestApi() {
+        String[] paths = {"/api/test/jwt/tokens/{userId}"};
+        String[] packagesToScan = {"com.swyp3.babpool.infra.health"};
+        return GroupedOpenApi.builder().group("springdoc-openapi-only-for-test")
                 .pathsToMatch(paths)
                 .packagesToScan(packagesToScan)
                 .build();

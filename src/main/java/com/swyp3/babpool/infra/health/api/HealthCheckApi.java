@@ -72,10 +72,6 @@ public class HealthCheckApi {
 //        return ResponseEntity.ok(jwtService.createJwtPair(Long.valueOf(requestBody.get("userId")), List.of(UserRole.USER)));
     }
 
-    @PostMapping("/api/test/jwt/tokens/admin")
-    public ResponseEntity<JwtPairDto> testGenerateJwtTokensAdmin(@RequestBody Map<String, String> requestBody) {
-        return ResponseEntity.ok(jwtService.createJwtPairAdmin(Long.valueOf(requestBody.get("userId")), List.of(UserRole.ADMIN)));
-    }
 
     /**
      * Test for generating UUID
