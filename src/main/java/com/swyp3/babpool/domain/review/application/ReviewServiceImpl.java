@@ -1,7 +1,5 @@
 package com.swyp3.babpool.domain.review.application;
 
-import com.swyp3.babpool.domain.appointment.dao.AppointmentRepository;
-import com.swyp3.babpool.domain.appointment.domain.Appointment;
 import com.swyp3.babpool.domain.review.api.request.ReviewCreateRequest;
 import com.swyp3.babpool.domain.review.api.request.ReviewUpdateRequest;
 import com.swyp3.babpool.domain.review.application.response.ReviewCountByTypeResponse;
@@ -28,24 +26,22 @@ import java.util.Optional;
 public class ReviewServiceImpl implements ReviewService{
 
     private final ReviewRepository reviewRepository;
-    private final AppointmentRepository appointmentRepository;
 
     @Override
     public ReviewCountByTypeResponse getReviewCountByType(Long profileId) {
-        return reviewRepository.countReviewByType(profileId)
+        return reviewRepository.countByTypeAndProfileId(profileId)
                 .orElseThrow(() -> new ReviewException(ReviewErrorCode.NOT_FOUND_REVIEW,"요청된 프로필에 리뷰가 존재하지 않습니다."));
     }
 
     @Override
     public ReviewSaveResponse createReview(ReviewCreateRequest reviewCreateRequest) {
-        validateIsSameAppointmentRequest(reviewCreateRequest.getTargetAppointmentId(), reviewCreateRequest.getReviewerUserId());
 
-        reviewRepository.findByAppointmentId(reviewCreateRequest.getTargetAppointmentId()).ifPresent(review -> {
+        reviewRepository.findByAppointmentId(reviewCreateRequest.getAppointmentId()).ifPresent(review -> {
             throw new ReviewException(ReviewErrorCode.ALREADY_EXIST_REVIEW,"잘못된 요청. 이미 리뷰가 존재합니다.");
         });
 
         // 리뷰 작성 가능 시간 체크
-        if(!reviewRepository.isReviewCreateAvailableTime(reviewCreateRequest.getTargetAppointmentId())){
+        if(!reviewRepository.isReviewCreateAvailableTime(reviewCreateRequest.getAppointmentId())){
             throw new ReviewException(ReviewErrorCode.REVIEW_CREATE_REQUEST_FAIL,"리뷰 작성 가능 시간이 아닙니다.");
         }
 
@@ -55,12 +51,6 @@ public class ReviewServiceImpl implements ReviewService{
             throw new ReviewException(ReviewErrorCode.REVIEW_CREATE_REQUEST_FAIL,"리뷰 작성에 실패하였습니다.");
         }
 
-        // 리뷰 생성 후 appointment 테이블에 DONE 상태로 변경
-        int updatedRows = appointmentRepository.updateAppointmentStatus(reviewCreateRequest.getTargetAppointmentId(), "DONE");
-        if(updatedRows != 1){
-            throw new ReviewException(ReviewErrorCode.REVIEW_CREATE_REQUEST_FAIL,"리뷰 작성에 실패하였습니다. appointment 테이블 상태 변경 실패.");
-        }
-
         return ReviewSaveResponse.of(reviewRepository.findByReviewId(reviewCreateRequest.getReviewId()).orElseThrow(
                 () -> new ReviewException(ReviewErrorCode.NOT_FOUND_REVIEW,"리뷰 정보를 찾을 수 없습니다.")
         ));
@@ -68,7 +58,6 @@ public class ReviewServiceImpl implements ReviewService{
 
     @Override
     public ReviewSaveResponse updateReview(ReviewUpdateRequest reviewUpdateRequest) {
-        validateIsSameAppointmentRequest(reviewUpdateRequest.getTargetAppointmentId(), reviewUpdateRequest.getReviewerUserId());
 
         // 리뷰 수정 가능 시간 체크
         Optional<Boolean> isReviewUpdateAvailable = reviewRepository.isReviewUpdateAvailableTime(reviewUpdateRequest.getReviewId());
@@ -89,17 +78,7 @@ public class ReviewServiceImpl implements ReviewService{
         ));
     }
 
-    /**
-     * request의 targetAppointmentId 으로 조회한 약속의 appointment_request_id 와 일치하는지 확인
-     * @param targetAppointmentId
-     * @param reviewerUserId
-     */
-    private void validateIsSameAppointmentRequest(Long targetAppointmentId, Long reviewerUserId) {
-        Appointment targetAppointment = appointmentRepository.findByAppointmentId(targetAppointmentId);
-        if(targetAppointment.getAppointmentRequesterUserId() != reviewerUserId){
-            throw new ReviewException(ReviewErrorCode.NOT_VALID_REVIEW_REQUEST,"appointment_request_id 와 리뷰 요청자가 일치하지 않습니다.");
-        }
-    }
+
 
     @Override
     public ReviewInfoResponse getReviewInfo(Long appointmentId) {
@@ -122,7 +101,6 @@ public class ReviewServiceImpl implements ReviewService{
             counts = reviewRepository.countByPageable(profileId);
         } catch (Exception e) {
             log.error("리뷰 리스트 조회 중 오류 발생. {}", e.getMessage());
-            log.error("{}", e.getStackTrace());
             throw new ReviewException(ReviewErrorCode.REVIEW_LIST_ERROR, "리뷰 리스트 조회 중 오류가 발생했습니다.");
         }
         return new PageImpl<>(reviewPagingResponse, pageable, counts);
@@ -131,7 +109,7 @@ public class ReviewServiceImpl implements ReviewService{
 
     @Override
     public List<ReviewPagingResponse> getReviewListForProfileDetail(Long profileId, Integer limit) {
-        return reviewRepository.findAllByProfileIdAndLimit(profileId, limit);
+        return reviewRepository.findAllByProfileIdWithLimit(profileId, limit);
     }
 
 }

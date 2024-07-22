@@ -30,7 +30,8 @@ public class UserApi {
      * 로그인 요청 api
      */
     @PostMapping("/sign/in")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody @Valid LoginRequestDTO loginRequest, @RequestAttribute(value = "localhostFlag", required = false) String localhostFlag){
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody @Valid LoginRequestDTO loginRequest,
+                                                            @RequestAttribute(value = "localhostFlag", required = false) String localhostFlag){
         LoginResponseWithRefreshToken loginResponseData = userService.login(loginRequest, localhostFlag);
         Boolean isRegistered = loginResponseData.getLoginResponse().getIsRegistered();
 
@@ -63,7 +64,6 @@ public class UserApi {
     /**
      * 마이프로필 조회 api
      */
-
     @GetMapping("/mypage")
     public ApiResponse<MyPageResponse> getMyPage(@RequestAttribute(value = "userId") Long userId){
         MyPageResponse myPageResponse = userService.getMyPage(userId);

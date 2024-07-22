@@ -1,6 +1,5 @@
 package com.swyp3.babpool.domain.appointment.application.response;
 
-import com.swyp3.babpool.domain.appointment.domain.Appointment;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;

@@ -18,7 +18,7 @@ public class ProfileDetailResponse {
     private String intro;
     private String contents;
     private String[] keywords;
-    private Map<String,Long> reviewCount;
+    private Map<String, Integer> reviewCount;
     private List<ReviewPagingResponse> reviews;
     private Boolean isApiRequesterSameAsProfileOwner = false;
 
@@ -31,10 +31,10 @@ public class ProfileDetailResponse {
         this.contents= profileDetail.getContents();
         this.keywords = profileDetail.getKeywords().split(",");
 
-        Map<String, Long> reviewCountMap = new HashMap<>();
-        reviewCountMap.put("best",reviewCount.getBestCount());
-        reviewCountMap.put("good",reviewCount.getGreatCount());
-        reviewCountMap.put("bad",reviewCount.getBadCount());
+        Map<String, Integer> reviewCountMap = new HashMap<>();
+        reviewCountMap.put("best", reviewCount.getBestCount());
+        reviewCountMap.put("good", reviewCount.getGreatCount());
+        reviewCountMap.put("bad", reviewCount.getBadCount());
         this.reviewCount=reviewCountMap;
         this.reviews=reviews;
     }

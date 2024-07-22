@@ -12,14 +12,14 @@ public class Review {
 
     private Long reviewId;
     private Long appointmentId;
-    private String reviewRate;
+    private ReviewRateType reviewRate;
     private String reviewComment;
     private Boolean reviewDeleteFlag;
     private LocalDateTime reviewCreateDate;
     private LocalDateTime reviewModifyDate;
 
     @Builder
-    public Review(Long reviewId, Long appointmentId, String reviewRate, String reviewComment, Boolean reviewDeleteFlag, LocalDateTime reviewCreateDate, LocalDateTime reviewModifyDate) {
+    public Review(Long reviewId, Long appointmentId, ReviewRateType reviewRate, String reviewComment, Boolean reviewDeleteFlag, LocalDateTime reviewCreateDate, LocalDateTime reviewModifyDate) {
         this.reviewId = reviewId;
         this.appointmentId = appointmentId;
         this.reviewRate = reviewRate;

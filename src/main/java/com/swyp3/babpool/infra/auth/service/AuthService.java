@@ -31,7 +31,7 @@ public class AuthService {
         return kakaoPlatformMember;
     }
 
-    public void save(Auth auth) {
+    public void createAuth(Auth auth) {
         authRepository.save(auth);
     }
 

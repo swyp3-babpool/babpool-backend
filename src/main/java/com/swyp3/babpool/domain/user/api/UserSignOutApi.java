@@ -26,9 +26,8 @@ public class UserSignOutApi {
 
     @PostMapping("/api/user/sign/out")
     public ResponseEntity<ApiResponse<String>> signOut(@CookieValue(value = "refreshToken", required = false) String refreshTokenFromCookie){
-        log.info("/api/user/sign/out sign out request start");
+        log.info("로그아웃 API 호출되었습니다. refreshToken = {}", refreshTokenFromCookie);
         if(StringUtils.hasText(refreshTokenFromCookie)){
-            log.info("/api/user/sign/out refreshTokenFromCookie : " + refreshTokenFromCookie);
             Long userId = jwtAuthenticator.jwtRefreshTokenToUserIdResolver(refreshTokenFromCookie);
             authService.socialServiceSignOut(userId, authService.getAuthPlatformByUserId(userId));
             jwtService.logout(refreshTokenFromCookie);

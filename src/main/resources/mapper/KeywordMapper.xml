@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.swyp3.babpool.domain.keyword.dao.KeywordRepository">
+
+    <!-- ==============================  SELECT  ============================== -->
+
+    <select id="findKeywordsByUserId" resultType="com.swyp3.babpool.domain.profile.application.response.ProfileKeywordsResponse">
+        SELECT JSON_OBJECTAGG(subject_name, keyword_name_list) AS keywords
+        FROM (
+                 SELECT tk.keyword_subject AS subject_name,
+                        JSON_ARRAYAGG(tk.keyword_name) AS keyword_name_list
+                 FROM t_keyword tk
+                          INNER JOIN t_m_user_keyword tmuk ON tk.keyword_id = tmuk.keyword_id
+                 WHERE tmuk.user_id = #{userId}
+                 GROUP BY tk.keyword_subject
+             )tb_json_arrayagg
+    </select>
+
+    <select id="findAllByUserId" resultType="com.swyp3.babpool.domain.keyword.dao.response.KeywordAndUserResponseDto">
+        SELECT tmuk.keyword_id AS keywordId,
+               tmuk.user_id AS userId,
+               tmuk.mapping_id AS mappingId,
+               tk.keyword_name AS keywordName,
+               tk.keyword_subject AS keywordSubject
+        FROM t_m_user_keyword tmuk
+                 INNER JOIN t_keyword tk ON tk.keyword_id = tmuk.keyword_id
+        WHERE tmuk.user_id = #{userId}
+    </select>
+
+    <!-- ==============================  INSERT  ============================== -->
+
+    <insert id="saveUserAndKeywordMappingForEach">
+        INSERT INTO t_m_user_keyword (mapping_id, user_id, keyword_id)
+        VALUES
+        <foreach item="ele" index="index" collection="mappingList" separator=",">
+            (#{ele.mappingId}, #{ele.userId}, #{ele.keywordId})
+        </foreach>
+    </insert>
+
+    <!-- ==============================  DELETE  ============================== -->
+
+    <delete id="deleteAllKeywordMappingByUserId">
+        DELETE FROM t_m_user_keyword
+        WHERE user_id = #{userId}
+    </delete>
+
+</mapper>

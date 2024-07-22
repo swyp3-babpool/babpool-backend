@@ -44,8 +44,9 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
             if (StringUtils.hasText(accessToken)) {
                 authenticatedClaims = jwtAuthenticator.authenticate(accessToken);
             }
-            if (!authenticatedClaims.isEmpty()){
-                Long userId = jwtAuthenticator.jwtTokenUserIdResolver(authenticatedClaims.getSubject());
+            if (authenticatedClaims != null && !authenticatedClaims.isEmpty()){
+                Long userId = Long.valueOf(authenticatedClaims.getSubject());
+//                Long userId = jwtAuthenticator.jwtTokenUserIdResolver(authenticatedClaims.getSubject());
                 request.setAttribute("userId", userId);
             }
         } catch (NullPointerException | IllegalStateException e) {

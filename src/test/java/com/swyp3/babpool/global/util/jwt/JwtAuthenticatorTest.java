@@ -2,8 +2,6 @@ package com.swyp3.babpool.global.util.jwt;
 
 import com.swyp3.babpool.global.jwt.JwtAuthenticator;
 import com.swyp3.babpool.global.jwt.JwtTokenizer;
-import com.swyp3.babpool.global.uuid.dao.UserUuidRepository;
-import com.swyp3.babpool.global.uuid.exception.UuidException;
 import com.swyp3.babpool.global.uuid.util.UuidResolver;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -29,40 +27,38 @@ class JwtAuthenticatorTest {
 
     private JwtAuthenticator jwtAuthenticator;
     private JwtTokenizer jwtTokenizer;
-    private UuidResolver uuidResolver;
-    @Autowired
-    UserUuidRepository userUuidRepository;
 
     @BeforeEach
     void setUp() {
         jwtTokenizer = new JwtTokenizer("12345678901234567890123456789012", "12345678901234567890123456789012");
-        uuidResolver = new UuidResolver();
-        jwtAuthenticator = new JwtAuthenticator(jwtTokenizer, uuidResolver, userUuidRepository);
+        jwtAuthenticator = new JwtAuthenticator(jwtTokenizer);
     }
 
     @DisplayName("토큰을 파싱해 클레임을 반환한다. 올바른 토큰인 경우")
     @Test
     void authenticate_proper_access_token() {
         // given
-        String userUUID = "46707d92-02f4-4817-8116-a4c3b23e6266";
+        Long userId = 100000000000000001L;
+//        String userUUID = "46707d92-02f4-4817-8116-a4c3b23e6266";
         List<String> roles = List.of("ROLE_USER");
-        String accessToken = jwtTokenizer.createAccessToken(userUUID, roles);
+        String accessToken = jwtTokenizer.createAccessToken(userId, roles);
         log.info("accessToken: {}", accessToken);
         // when
         Claims claims = jwtAuthenticator.authenticate(accessToken);
         log.info("claims.getSubject(): {}", claims.getSubject());
         // then
         assertThat(claims).isNotEmpty();
-        assertThat(claims.getSubject()).isEqualTo(userUUID);
+        assertThat(claims.getSubject()).isEqualTo(String.valueOf(userId));
     }
 
     @DisplayName("토큰을 파싱해 클레임을 반환한다. 올바르지 않은 토큰인 경우")
     @Test
     void authenticate_improper_access_token() {
         // given
-        String userUUID = "46707d92-02f4-4817-8116-a4c3b23e6266";
+        Long userId = 100000000000000001L;
+//        String userUUID = "46707d92-02f4-4817-8116-a4c3b23e6266";
         List<String> roles = List.of("ROLE_USER");
-        String accessToken = jwtTokenizer.createAccessToken(userUUID, roles);
+        String accessToken = jwtTokenizer.createAccessToken(userId, roles);
         // when
         // then
         assertThrows(SignatureException.class, () -> {
@@ -106,15 +102,15 @@ class JwtAuthenticatorTest {
         });
     }
 
-    @DisplayName("userUuid 으로 UserUuidRepository 에서 userId를 조회한다. 존재하지 않는 경우 예외가 발생한다.")
-    @Test
-    void findUserIdByUserUuid_not_exist() {
-        // given
-        String userUUID = "46707d92-02f4-4817-8116-a4c3b23e6266";
-        // when
-        // then
-        assertThrows(UuidException.class, () -> {
-            jwtAuthenticator.jwtTokenUserIdResolver(userUUID);
-        });
-    }
+//    @DisplayName("userUuid 으로 UserUuidRepository 에서 userId를 조회한다. 존재하지 않는 경우 예외가 발생한다.")
+//    @Test
+//    void findUserIdByUserUuid_not_exist() {
+//        // given
+//        String userUUID = "46707d92-02f4-4817-8116-a4c3b23e6266";
+//        // when
+//        // then
+//        assertThrows(UuidException.class, () -> {
+//            jwtAuthenticator.jwtTokenUserIdResolver(userUUID);
+//        });
+//    }
 }

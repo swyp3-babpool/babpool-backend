@@ -1,5 +1,6 @@
 package com.swyp3.babpool.domain.review.api;
 
+import com.swyp3.babpool.domain.facade.AppointmentReviewFacade;
 import com.swyp3.babpool.domain.review.application.response.ReviewInfoResponse;
 import com.swyp3.babpool.domain.review.application.response.ReviewPagingResponse;
 import com.swyp3.babpool.domain.review.application.response.ReviewSaveResponse;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class ReviewApi {
 
     private final ReviewService reviewService;
+    private final AppointmentReviewFacade appointmentReviewFacade;
 
     /**
      * 특정 프로필이 받은 모든 리뷰 조회
@@ -52,7 +54,8 @@ public class ReviewApi {
     @PostMapping("/api/review/create")
     public ApiResponse<ReviewSaveResponse> createReview(@RequestAttribute(value = "userId") Long userId,
                                                           @RequestBody ReviewCreateRequest request) {
-        return ApiResponse.ok(reviewService.createReview(request.setReviewerUserId(userId)));
+        return ApiResponse.ok(appointmentReviewFacade.createReview(request.setReviewerUserId(userId)));
+//        return ApiResponse.ok(reviewService.createReview(request.setReviewerUserId(userId)));
     }
 
     /**
@@ -71,7 +74,8 @@ public class ReviewApi {
     @PostMapping("/api/review/update")
     public ApiResponse<ReviewSaveResponse> updateReview(@RequestAttribute(value = "userId") Long userId,
                                                           @RequestBody ReviewUpdateRequest request) {
-        return ApiResponse.ok(reviewService.updateReview(request.setReviewerUserId(userId)));
+        return ApiResponse.ok(appointmentReviewFacade.updateReview(request.setReviewerUserId(userId)));
+//        return ApiResponse.ok(reviewService.updateReview(request.setReviewerUserId(userId)));
     }
 
 }
