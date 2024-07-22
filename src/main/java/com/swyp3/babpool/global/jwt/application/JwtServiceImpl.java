@@ -1,5 +1,6 @@
 package com.swyp3.babpool.global.jwt.application;
 
+import com.swyp3.babpool.domain.user.domain.UserRole;
 import com.swyp3.babpool.global.jwt.JwtTokenizer;
 import com.swyp3.babpool.global.jwt.application.response.JwtPairDto;
 import com.swyp3.babpool.global.jwt.exception.BabpoolJwtException;
@@ -28,6 +29,9 @@ public class JwtServiceImpl implements JwtService{
 
     @Override
     public JwtPairDto createJwtPair(Long userId, List roles) {
+        if(roles != null && roles.contains(UserRole.ADMIN)){
+            return createJwtPairAdmin(userId, roles);
+        }
         JwtPairDto jwtPairDto = JwtPairDto.builder()
                 .accessToken(jwtTokenizer.createAccessToken(userId, roles))
                 .refreshToken(jwtTokenizer.createRefreshToken(userId, roles))

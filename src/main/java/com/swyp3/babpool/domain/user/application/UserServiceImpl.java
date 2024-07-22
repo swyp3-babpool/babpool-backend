@@ -161,7 +161,7 @@ public class UserServiceImpl implements UserService{
     }
 
     private LoginResponseWithRefreshToken getLoginResponse(User user) {
-        JwtPairDto jwtPair = jwtService.createJwtPair(user.getUserId(), new ArrayList<UserRole>(Arrays.asList(UserRole.USER)));
+        JwtPairDto jwtPair = jwtService.createJwtPair(user.getUserId(), new ArrayList<UserRole>(Arrays.asList(user.getUserRole())));
 
         String accessToken = jwtPair.getAccessToken();
         String refreshToken = jwtPair.getRefreshToken();
