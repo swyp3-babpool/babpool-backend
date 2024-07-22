@@ -46,7 +46,7 @@ public class SimpleMessagingPublisher {
         try {
             simpMessagingTemplate.convertAndSend("/topic/appointment/" + appointmentSenderId.toString(),
                     AppointmentAcceptMessage.builder()
-                            .receiverProfileId(appointmentReceiverUserId)
+                            .appointmentReceiverUserId(appointmentReceiverUserId)
                             .messageType(AppointmentSocketMessageType.APPOINTMENT_ACCEPTED)
                             .build());
         } catch (Exception e) {
