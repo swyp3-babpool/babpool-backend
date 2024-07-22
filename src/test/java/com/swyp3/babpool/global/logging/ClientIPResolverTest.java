@@ -1,11 +1,13 @@
 package com.swyp3.babpool.global.logging;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Slf4j
 class ClientIPResolverTest {
 
     @DisplayName("xff 헤더에 IP가 1개 있을 때, 해당 IP를 반환한다.")
@@ -55,7 +57,7 @@ class ClientIPResolverTest {
 
     }
 
-    @DisplayName("xff 헤더와 x-real-ip 가 모두 없을 때, unknown 문자열을 반환한다.")
+    @DisplayName("xff 헤더와 x-real-ip 가 모두 없을 때, 로컬에서 요청했다면 getRemoteAddr에 의해 127.0.0.1 문자열을 반환한다.")
     @Test
     void returnUnknownLiteral() {
         // given
@@ -64,10 +66,11 @@ class ClientIPResolverTest {
         request.addHeader("X-Real-IP", "");
 
         // when
+        log.info(request.getRemoteAddr());
         String clientIP = ClientIPResolver.getClientIP(request);
 
         // then
-        assertThat(clientIP).isEqualTo("unknown");
+        assertThat(clientIP).isEqualTo("127.0.0.1");
     }
 
 }

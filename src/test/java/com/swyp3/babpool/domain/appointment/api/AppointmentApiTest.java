@@ -51,7 +51,6 @@ class AppointmentApiTest {
         String dto = objectMapper.writeValueAsString(
                 AppointmentCreateRequest.builder()
                         .targetProfileId(200000000000000001L)
-                        .possibleDateTimeId(300000000000000001L)
                         .possibleDateTime(LocalDateTime.of(2024, 7, 12, 12, 0))
                         .appointmentContent("").build()
         );

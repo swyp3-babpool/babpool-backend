@@ -2,8 +2,6 @@ package com.swyp3.babpool.domain.possibledatetime.dao;
 
 import com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateTime;
 import com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateTimeStatusType;
-import com.swyp3.babpool.domain.possibledatetime.exception.PossibleDateTimeException;
-import com.swyp3.babpool.domain.possibledatetime.exception.errorcode.PossibleDateTimeErrorCode;
 import com.swyp3.babpool.global.tsid.TsidKeyGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
@@ -57,6 +55,21 @@ class PossibleDateTimeRepositoryTest {
         // then
         List<PossibleDateTime> possibleDateTimeList = possibleDateTimeRepository.findAllByUserId(userId);
         assertThat(possibleDateTimeList).hasSize(7);
+    }
+
+    @DisplayName("deletePossibleDateTimeWhereStatusIsNotReserved 매퍼는 possibleDateTimeDelList가 비어있는 경우, 아무런 작업을 수행하지 않는다.")
+    @Test
+    void deletePossibleDateTimeWhereStatusIsNotReservedWithEmptyList(){
+        // given
+        Long userId = 100000000000000002L;
+        List<LocalDateTime> possibleDateTimeDelList = List.of();
+
+        // when
+        possibleDateTimeRepository.deletePossibleDateTimeWhereStatusIsNotReserved(userId, possibleDateTimeDelList);
+
+        // then
+        List<PossibleDateTime> possibleDateTimeList = possibleDateTimeRepository.findAllByUserId(userId);
+        assertThat(possibleDateTimeList).hasSize(9);
     }
 
     @DisplayName("savePossibleDateTime 매퍼는 1개 이상의 PossibleDateTime 를 저장한다.")
@@ -223,7 +236,7 @@ class PossibleDateTimeRepositoryTest {
         Long targetUserId = 100000000000000002L;
 
         // when
-        PossibleDateTime possibleDateTime = possibleDateTimeRepository.findByUserIdAndDateTime(targetUserId, possibleDateTimeId).orElse(null);
+        PossibleDateTime possibleDateTime = possibleDateTimeRepository.findByUserIdAndDateTimeId(targetUserId, possibleDateTimeId).orElse(null);
 
         // then
         assertThat(possibleDateTime).isNotNull();

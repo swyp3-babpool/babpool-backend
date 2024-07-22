@@ -77,7 +77,7 @@
         FOR UPDATE;
     </select>
 
-    <select id="findByUserIdAndDateTime" resultMap="possibleDateTimeResultMap">
+    <select id="findByUserIdAndDateTimeId" resultMap="possibleDateTimeResultMap">
         SELECT *
         FROM t_possible_datetime
         WHERE possible_datetime_id = #{possibleDateTimeId}
@@ -95,6 +95,14 @@
         SELECT possible_datetime_id, possible_datetime, possible_datetime_status, user_id
         FROM t_possible_datetime
         WHERE possible_datetime_id = #{possibleDateTimeId}
+    </select>
+
+    <select id="findByUserIdAndDateTimeWhereStatus" resultType="com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateTime">
+        SELECT possible_datetime_id, possible_datetime, possible_datetime_status, user_id
+        FROM t_possible_datetime
+        WHERE user_id = #{receiverUserId}
+            AND possible_datetime_status = #{possibleDateTimeStatus}
+            AND possible_datetime = #{possibleDateTime}
     </select>
 
     <!-- ==============================  INSERT  ============================== -->
@@ -154,17 +162,22 @@
     </delete>
 
     <delete id="deletePossibleDateTimeWhereStatusIsNotReserved">
-        DELETE FROM t_possible_datetime
-        WHERE possible_datetime_id IN (
-            SELECT possible_datetime_id
-            FROM t_possible_datetime
-            WHERE user_id = #{userId}
-                AND possible_datetime_status != 'RESERVED'
-                AND possible_datetime IN
+        <choose>
+            <when test="possibleDateTimeDelList != null and possibleDateTimeDelList.size() != 0">
+                DELETE FROM t_possible_datetime
+                WHERE possible_datetime_id IN (
+                    SELECT possible_datetime_id
+                    FROM t_possible_datetime
+                    WHERE user_id = #{userId}
+                    AND possible_datetime_status != 'RESERVED'
+                    AND possible_datetime IN
                     <foreach collection="possibleDateTimeDelList" item="possibleDateTime" open="(" close=")" separator=",">
                         #{possibleDateTime}
                     </foreach>
-            )
+                )
+            </when>
+        </choose>
+
     </delete>
 
 </mapper>

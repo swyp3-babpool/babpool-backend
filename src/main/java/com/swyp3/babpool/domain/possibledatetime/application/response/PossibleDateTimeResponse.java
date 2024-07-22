@@ -3,12 +3,14 @@ package com.swyp3.babpool.domain.possibledatetime.application.response;
 import com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateTime;
 import com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateTimeStatusType;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @ToString
+@Getter
 public class PossibleDateTimeResponse {
 
     private Long possibleDateTimeId;

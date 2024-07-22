@@ -11,6 +11,8 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 
 import java.util.UUID;
@@ -30,6 +32,7 @@ class MdcLoggingFilterTest {
     public void setUp() {
         mdcLoggingFilter = new MdcLoggingFilter();
         request = Mockito.mock(MockHttpServletRequest.class);
+        ReflectionTestUtils.setField(mdcLoggingFilter, "X_BABPOOL_LOCAL_FRONT_VALUE", "9999");
     }
 
     @DisplayName("UUID 생성 테스트_getMostSignificantBits()")
@@ -95,11 +98,10 @@ class MdcLoggingFilterTest {
     @Test
     void setOriginAttributeAtRequest() {
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addHeader("origin", "http://localhost:5173");
+        request.addHeader("x-babpool-local-front", "9999");
 
         ContentCachingRequestWrapper requestWrapper = new ContentCachingRequestWrapper(request);
         mdcLoggingFilter.setOriginAttributeAtRequest(requestWrapper);
-
         assertThat(requestWrapper.getAttribute("localhostFlag")).isEqualTo("true");
     }
 }

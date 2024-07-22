@@ -93,12 +93,14 @@ class PossibleDateTimeServiceImplTest {
     protected void aaa(AppointmentCreateRequest appointmentCreateRequest) {
         PossibleDateTime possibleDateTimeEntity = possibleDateTimeService.throwExceptionIfAppointmentAlreadyAcceptedAtSameTime(
                 appointmentCreateRequest.getReceiverUserId(), appointmentCreateRequest.getPossibleDateTimeId(), appointmentCreateRequest.getPossibleDateTime());
+
         boolean isStatusUpdated = possibleDateTimeService.changeStatusAsReserved(possibleDateTimeEntity.getPossibleDateTimeId());
         log.info("isStatusUpdated : " + isStatusUpdated);
         if (!isStatusUpdated){
             throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_CREATE_FAILED, "밥약 가능한 일정 상태 변경에 실패하였습니다.");
         }
-        int insertedRows = appointmentRepository.saveAppointment(appointmentCreateRequest.toEntity(tsidKeyGenerator.generateTsid()));
+        appointmentCreateRequest.setAppointmentId(tsidKeyGenerator.generateTsid());
+        int insertedRows = appointmentRepository.saveAppointment(appointmentCreateRequest.toEntity());
         if (insertedRows == 1){
             log.info("삽입 성공");
         }
