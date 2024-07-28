@@ -99,6 +99,17 @@ public class PossibleDateTimeServiceImpl implements PossibleDateTimeService{
         ).getPossibleDateTimeId();
     }
 
+    @Override
+    public List<PossibleDateTimeResponse> getPossibleDateTimeListByProfileId(Long profileId) {
+        List<PossibleDateTime> allByProfileId = possibleDateTimeRepository.findAllByProfileIdWhereFromThisMonth(profileId);
+        if (allByProfileId.isEmpty()) {
+            throw new PossibleDateTimeException(PossibleDateTimeErrorCode.POSSIBLE_DATETIME_NOT_FOUND, "조회된 PossibleDateTime 이 존재하지 않습니다.");
+        }
+        return allByProfileId.stream()
+                .map(PossibleDateTimeResponse::from)
+                .toList();
+    }
+
     private void validateRequestPossibleDateTime(Map<String, List<Integer>> possibleDateMap) {
         if(possibleDateMap.isEmpty()){
             throw new ProfileException(ProfileErrorCode.PROFILE_POSSIBLE_DATE_ERROR,"가능한 날짜와 시간을 최소 1개 이상 선택해주세요.");

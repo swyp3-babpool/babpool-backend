@@ -51,4 +51,6 @@ public interface PossibleDateTimeRepository {
     boolean checkExistPossibleTime(Long profileId, String possibleDate, Integer possibleTimeStart);
 
     Optional<PossibleDateTime> findByUserIdAndDateTimeWhereStatus(Long receiverUserId, LocalDateTime possibleDateTime, PossibleDateTimeStatusType possibleDateTimeStatus);
+
+    List<PossibleDateTime> findAllByProfileIdWhereFromThisMonth(Long profileId);
 }

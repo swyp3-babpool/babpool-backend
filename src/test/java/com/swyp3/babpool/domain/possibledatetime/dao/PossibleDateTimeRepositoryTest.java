@@ -8,6 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
@@ -126,6 +127,37 @@ class PossibleDateTimeRepositoryTest {
         String selectQueryForH2 = "SELECT possible_datetime_id, possible_datetime, possible_datetime_status, user_id" +
                 " FROM t_possible_datetime WHERE user_id = " + userId +
                 " AND possible_datetime >= FORMATDATETIME(CURRENT_DATE, 'yyyy-MM-01')";
+
+        // when
+        List<PossibleDateTime> possibleDateTimeList = jdbcTemplate.query(selectQueryForH2, (rs, rowNum) -> PossibleDateTime.builder()
+                .possibleDateTimeId(rs.getLong("possible_datetime_id"))
+                .possibleDateTime(rs.getTimestamp("possible_datetime").toLocalDateTime())
+                .possibleDateTimeStatus(PossibleDateTimeStatusType.valueOf(rs.getString("possible_datetime_status")))
+                .userId(rs.getLong("user_id"))
+                .build()
+        );
+
+        // then
+        assertThat(possibleDateTimeList).isNotNull();
+        assertThat(possibleDateTimeList.stream().map(PossibleDateTime::getPossibleDateTime))
+                .allMatch(dateTime -> dateTime.isAfter(LocalDateTime.now().minusMonths(1)));
+    }
+
+    @DisplayName("findAllByProfileIdWhereFromThisMonth 매퍼는 특정 프로필 식별값으로 이달부터의 일정을 모두 조회한다.")
+    @Test
+    void findAllByProfileIdWhereFromThisMonth(){
+        // given
+        Long userId = 100000000000000002L;
+        Long profileId = 200000000000000002L;
+        possibleDateTimeRepository.savePossibleDateTimeList(List.of(PossibleDateTime.builder()
+                .possibleDateTimeId(tsidKeyGenerator.generateTsid())
+                .possibleDateTime(LocalDateTime.now().minusMonths(1))
+                .userId(userId)
+                .build()
+        ));
+        String selectQueryForH2 = "SELECT possible_datetime_id, possible_datetime, possible_datetime_status, user_id" +
+                " FROM t_possible_datetime WHERE user_id IN (SELECT user_id FROM t_profile WHERE profile_id = " +
+                profileId + ") AND possible_datetime >= FORMATDATETIME(CURRENT_DATE, 'yyyy-MM-01')" ;
 
         // when
         List<PossibleDateTime> possibleDateTimeList = jdbcTemplate.query(selectQueryForH2, (rs, rowNum) -> PossibleDateTime.builder()

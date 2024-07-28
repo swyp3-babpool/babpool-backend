@@ -21,15 +21,26 @@ public class PossibleDateTimeApi {
 
     private final PossibleDateTimeService possibleDateTimeService;
 
+//    /**
+//     * 밥약 가능한 일정 조회 API
+//     * @param userId : 조회할 사용자의 userId
+//     * @return : 조회한 사용자의 이달부터의 모든 일정 리스트를 반환한다.
+//     */
+//    @Parameter(name = "userId", description = "조회할 사용자의 userId", required = true, example = "598129329137778868")
+//    @GetMapping("/api/possible/datetime/{userId}")
+//    public ApiResponse<List<PossibleDateTimeResponse>> getPossibleDateTimeList(@PathVariable @Positive(message = "Must be positive") Long userId){
+//        return ApiResponse.ok(possibleDateTimeService.getPossibleDateTimeList(userId));
+//    }
+
     /**
      * 밥약 가능한 일정 조회 API
-     * @param userId : 조회할 사용자의 userId
+     * @param profileId : 조회할 사용자의 profileId
      * @return : 조회한 사용자의 이달부터의 모든 일정 리스트를 반환한다.
      */
-    @Parameter(name = "userId", description = "조회할 사용자의 userId", required = true, example = "598129329137778868")
-    @GetMapping("/api/possible/datetime/{userId}")
-    public ApiResponse<List<PossibleDateTimeResponse>> getPossibleDateTimeList(@PathVariable @Positive(message = "Must be positive") Long userId){
-        return ApiResponse.ok(possibleDateTimeService.getPossibleDateTimeList(userId));
+    @Parameter(name = "profileId", description = "조회할 사용자의 profileId", required = true, example = "598335473802281880")
+    @GetMapping("/api/possible/datetime/{profileId}")
+    public ApiResponse<List<PossibleDateTimeResponse>> getPossibleDateTimeListByProfileId(@PathVariable @Positive(message = "Must be positive") Long profileId){
+        return ApiResponse.ok(possibleDateTimeService.getPossibleDateTimeListByProfileId(profileId));
     }
 
     /**
