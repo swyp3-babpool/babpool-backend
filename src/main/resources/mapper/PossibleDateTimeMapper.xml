@@ -66,6 +66,17 @@
         WHERE user_id = #{userId}
     </select>
 
+    <select id="findAllByProfileIdWhereFromThisMonth" resultType="com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateTime">
+        SELECT possible_datetime_id, possible_datetime, possible_datetime_status, user_id
+        FROM t_possible_datetime
+        WHERE user_id IN (
+            SELECT user_id
+            FROM t_profile
+            WHERE profile_id = #{profileId}
+        )
+          AND possible_datetime >= DATE_FORMAT(NOW(), '%Y-%m-01')
+    </select>
+
     <select id="findByUserIdAndDateTimeForUpdate" resultType="com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateTime">
         SELECT possible_datetime_id as possibleDateTimeId,
                possible_datetime as possibleDateTime,

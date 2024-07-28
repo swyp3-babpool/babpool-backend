@@ -45,7 +45,7 @@ public class PossibleDateTimeApiTest {
     void getAvailableTimeValidationFail() throws Exception {
         String accessTokenFromRequestHeader = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0QHRlc3QuY29tIiwicm9sZXMiOiJ0ZXN0IiwidXNlcmlkIjoxfQ.eMKhy-XdJmhuS2QeH1fjycXLS4lucpSa0D56JFMr0fI";
 
-        mockMvc.perform(get("/api/possible/datetime/{userId}", "abc")
+        mockMvc.perform(get("/api/possible/datetime/{profileId}", "abc")
                         .header("Authorization", "Bearer " + accessTokenFromRequestHeader)
                         .characterEncoding("UTF-8")
                         .accept(MediaType.APPLICATION_JSON))

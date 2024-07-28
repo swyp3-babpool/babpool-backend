@@ -44,7 +44,7 @@ public class PossibleDateTimeApiMockMvcTest {
     public void whenGetAppointmentPossibleDateTimeWithInvalidProfileId_thenConstraintViolationException() throws Exception {
         String accessTokenFromRequestHeader = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0QHRlc3QuY29tIiwicm9sZXMiOiJ0ZXN0IiwidXNlcmlkIjoxfQ.eMKhy-XdJmhuS2QeH1fjycXLS4lucpSa0D56JFMr0fI";
 
-        mockMvc.perform(get("/api/possible/datetime/{userId}", -1)
+        mockMvc.perform(get("/api/possible/datetime/{profileId}", -1)
                         .header("Authorization", "Bearer " + accessTokenFromRequestHeader)
                         .characterEncoding("UTF-8")
                         .accept(MediaType.APPLICATION_JSON))
@@ -52,7 +52,7 @@ public class PossibleDateTimeApiMockMvcTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value(400))
                 .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
-                .andExpect(jsonPath("$.message").value("Validation error: getPossibleDateTimeList.userId: Must be positive"));
+                .andExpect(jsonPath("$.message").value("Validation error: getPossibleDateTimeListByProfileId.profileId: Must be positive"));
 
     }
 
