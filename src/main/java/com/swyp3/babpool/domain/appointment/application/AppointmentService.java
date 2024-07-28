@@ -5,11 +5,13 @@ import com.swyp3.babpool.domain.appointment.api.request.AppointmentCreateRequest
 import com.swyp3.babpool.domain.appointment.api.request.AppointmentRejectRequest;
 import com.swyp3.babpool.domain.appointment.application.response.*;
 import com.swyp3.babpool.domain.appointment.application.response.appointmentdetail.AppointmentDetailResponse;
+import com.swyp3.babpool.domain.appointment.domain.AppointmentStatus;
 
 import java.util.List;
 
 public interface AppointmentService {
-    AppointmentCreateResponse makeAppointment(AppointmentCreateRequest appointmentCreateRequest);
+
+    AppointmentCreateResponse makeAppointmentResolveConcurrency(AppointmentCreateRequest appointmentCreateRequest);
 
     List<AppointmentSendResponse> getSendAppointmentList(Long userId);
 
@@ -19,7 +21,7 @@ public interface AppointmentService {
 
     List<AppointmentHistoryRefuseResponse> getRefusedAppointmentList(Long userId);
 
-    List<AppointmentPossibleDateTimeResponse> getAppointmentPossibleDateTime(Long profileId);
+//    List<AppointmentPossibleDateTimeResponse> getAppointmentPossibleDateTime(Long profileId);
 
     AppointmentRejectResponse rejectAppointment(AppointmentRejectRequest appointmentRejectRequest, Long userId);
 
@@ -30,4 +32,8 @@ public interface AppointmentService {
     AppointmentCancelResponse cancelAppointmentRequested(Long userId, Long appointmentId);
 
     AppointmentRefuseDetailResponse getRefuseAppointmentDetail(Long userId, Long appointmentId);
+
+    int updateAppointmentStatusTo(AppointmentStatus appointmentStatus, Long appointmentId);
+
+    Long getAppointmentSenderId(Long targetAppointmentId);
 }

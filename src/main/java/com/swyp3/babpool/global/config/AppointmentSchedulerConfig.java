@@ -23,7 +23,7 @@ public class AppointmentSchedulerConfig {
     public void scheduleAppointmentUpdateExpiredStatus() {
         try {
             log.info("scheduleAppointmentUpdateExpiredStatus start alert. Current LocalDateTime {}", LocalDateTime.now());
-            int updatedRows = appointmentRepository.updateExpiredStatus();
+            int updatedRows = appointmentRepository.updateStatusToExpiredWhereStatusIsWaitingAndAppointmentCreateDatePassedOneDay();
             log.info("scheduleAppointmentUpdateExpiredStatus end alert. Updated Rows {}", updatedRows);
         }catch (MyBatisSystemException myBatisSystemException) {
             log.error("scheduleAppointmentUpdateExpiredStatus error alert. {}", myBatisSystemException.getMessage());

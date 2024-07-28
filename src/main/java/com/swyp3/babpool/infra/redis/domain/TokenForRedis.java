@@ -16,15 +16,14 @@ public class TokenForRedis {
 
     @Id
     String refreshToken;
-
-    String userUUID;
+    Long userId;
 
     @TimeToLive(unit = TimeUnit.DAYS)
     Integer refreshExpire;
 
     @Builder
-    public TokenForRedis(String userUUID, String refreshToken, Integer refreshExpire) {
-        this.userUUID = userUUID;
+    public TokenForRedis(Long userId, String refreshToken, Integer refreshExpire) {
+        this.userId = userId;
         this.refreshToken = refreshToken;
         this.refreshExpire = refreshExpire;
     }

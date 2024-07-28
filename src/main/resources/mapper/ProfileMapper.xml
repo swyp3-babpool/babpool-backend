@@ -15,6 +15,8 @@
         <result property="userNickname" column="user_nick_name"/>
     </resultMap>
 
+    <!-- ==============================  SELECT  ============================== -->
+
     <select id="findAllByPageable" parameterType="com.swyp3.babpool.global.common.request.PagingRequestList" resultMap="profilePagingDto">
         SELECT profile.profile_id, profile.user_id, profile.profile_image_url, profile.profile_intro, profile.profile_contents,
         profile.profile_modify_date,
@@ -91,46 +93,22 @@
 
 
     <select id="findUserIdByProfileId" resultType="long" parameterType="long">
-        SELECT
-            user_id
+        SELECT user_id
         FROM t_profile
-        WHERE
-            profile_id = #{profileId}
+        WHERE profile_id = #{profileId}
     </select>
 
-    <insert id="saveProfile" parameterType="com.swyp3.babpool.domain.profile.domain.Profile">
-        INSERT INTO t_profile (user_id, profile_image_url,profile_active_flag )
-        VALUES (#{userId}, #{profileImageUrl},#{profileActiveFlag} )
-    </insert>
 
     <select id="findById" resultType="com.swyp3.babpool.domain.profile.domain.Profile">
-        select *
+        select profile_id, user_id, profile_image_url, profile_intro, profile_contents, profile_contact_phone, profile_contact_chat, profile_active_flag
         from t_profile
         where profile_id = #{profileId}
     </select>
 
     <select id="findByUserId" resultType="com.swyp3.babpool.domain.profile.domain.Profile">
-        select *
+        select profile_id, user_id, profile_image_url, profile_intro, profile_contents, profile_contact_phone, profile_contact_chat, profile_active_flag
         from t_profile
         where user_id = #{userId}
-    </select>
-
-    <select id="findKeywords" resultType="com.swyp3.babpool.domain.profile.application.response.ProfileKeywordsResponse">
-        SELECT JSON_OBJECTAGG(subject_name,keyword_name_list) AS keywords
-        FROM (
-                 SELECT
-                     s.subject_name,
-                     JSON_ARRAYAGG(k.keyword_name) AS keyword_name_list
-                 FROM
-                     t_profile p
-                         INNER JOIN t_user_account u on u.user_id = p.user_id
-                         INNER JOIN t_m_user_keyword muk ON u.user_id = muk.user_id
-                         INNER JOIN t_keyword k ON muk.keyword_id = k.keyword_id
-                         INNER JOIN t_subject s ON k.subject_id = s.subject_id
-                 WHERE p.profile_id = #{profileId}
-                 GROUP BY
-                     s.subject_name
-             )tb_json_arrayagg
     </select>
 
     <select id="findProfileDefault" resultType="com.swyp3.babpool.domain.profile.domain.ProfileDefault">
@@ -159,36 +137,44 @@
             p.profile_intro AS intro,
             p.profile_contents AS contents,
             GROUP_CONCAT(k.keyword_name) AS keywords
-        FROM
-            t_profile p
-                INNER JOIN
-            t_user_account ua ON p.user_id = ua.user_id
-                LEFT JOIN
-            t_m_user_keyword muk ON ua.user_id = muk.user_id
-                LEFT JOIN
-            t_keyword k ON muk.keyword_id = k.keyword_id
-        WHERE
-            p.profile_id = #{profileId}
-        GROUP BY
-            p.profile_id
+        FROM t_profile p
+                INNER JOIN t_user_account ua ON p.user_id = ua.user_id
+                LEFT  JOIN t_m_user_keyword muk ON ua.user_id = muk.user_id
+                LEFT  JOIN t_keyword k ON muk.keyword_id = k.keyword_id
+        WHERE p.profile_id = #{profileId}
+        GROUP BY p.profile_id
     </select>
 
+    <select id="findProfileIsRegistered">
+        SELECT profile_active_flag
+        FROM t_profile
+        WHERE profile_id=#{profileId}
+    </select>
 
-    <update id="updateProfileImageUrl" parameterType="com.swyp3.babpool.domain.profile.domain.Profile">
+    <!-- ==============================  INSERT  ============================== -->
+
+    <insert id="saveProfile" parameterType="com.swyp3.babpool.domain.profile.domain.Profile">
+        INSERT INTO t_profile (profile_id, user_id, profile_image_url, profile_active_flag )
+        VALUES (#{profileId}, #{userId}, #{profileImageUrl},#{profileActiveFlag})
+    </insert>
+
+    <!-- ==============================  UPDATE  ============================== -->
+
+    <update id="updateProfileImageUrl">
         UPDATE t_profile SET profile_image_url = #{profileImageUrl} where user_id = #{userId}
     </update>
 
     <update id="updateUserAccount">
         UPDATE t_user_account
         SET
-            user_nick_name = #{request.userNickName},
-            user_grade = #{request.userGrade},
+            user_nick_name = #{dto.userNickName},
+            user_grade = #{dto.userGrade},
             user_modify_date = CURRENT_TIMESTAMP()
         WHERE
             user_id = #{userId}
     </update>
 
-    <update id="updateProfile">
+    <update id="updateProfileByProfileIdAndUpdateRequestDto">
         UPDATE t_profile
         SET
             profile_intro = #{request.profileIntro},
@@ -200,42 +186,6 @@
         WHERE
             profile_id = #{profileId};
     </update>
-
-    <delete id="deleteUserKeywords" parameterType="long">
-        DELETE FROM t_m_user_keyword WHERE user_id = #{userId}
-    </delete>
-
-    <insert id="saveUserKeywords">
-        INSERT INTO t_m_user_keyword (user_id, keyword_id)
-        VALUES
-        <foreach item="keywordId" index="index" collection="keywords" separator=",">
-            (#{userId}, #{keywordId})
-        </foreach>
-    </insert>
-
-    <delete id="deletePossibleDates" parameterType="long">
-        DELETE FROM t_possible_date WHERE profile_id = #{profileId};
-    </delete>
-
-    <insert id="savePossibleDates"  parameterType="com.swyp3.babpool.domain.profile.domain.PossibleDate" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO t_possible_date (possible_date, profile_id)
-        VALUES (#{possibleDate}, #{profileId})
-    </insert>
-
-    <delete id="deletePossibleTimes" parameterType="long">
-        DELETE FROM t_possible_time WHERE possible_date_id IN (SELECT possible_date_id FROM t_possible_date WHERE profile_id = #{profileId});
-    </delete>
-
-    <insert id="savePossibleTimes">
-        INSERT INTO t_possible_time (possible_time_start,possible_date_id,possible_time_range)
-        VALUES ( #{possibleTimeStart},#{possibleDateId},1 )
-    </insert>
-
-    <select id="findProfileIsRegistered">
-        SELECT profile_active_flag
-        FROM t_profile
-        WHERE profile_id=#{profileId}
-    </select>
 
     <update id="updateProfileActiveFlag">
         UPDATE t_profile

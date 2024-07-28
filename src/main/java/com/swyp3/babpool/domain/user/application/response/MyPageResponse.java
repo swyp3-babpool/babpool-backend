@@ -17,7 +17,7 @@ public class MyPageResponse {
     private String grade;
     private String intro;
     private String[] keywords;
-    private Map<String,Long> reviewCount;
+    private Map<String,Integer> reviewCount;
     private List<AppointmentHistoryDoneResponse> histories;
 
     public MyPageResponse(MyPageUserDto myPageUserDto, ReviewCountByTypeResponse reviewCount, List<AppointmentHistoryDoneResponse> histories) {
@@ -28,7 +28,7 @@ public class MyPageResponse {
         this.intro= myPageUserDto.getIntro();
         this.keywords= myPageUserDto.getKeywords();
 
-        Map<String, Long> reviewCountMap = new HashMap<>();
+        Map<String, Integer> reviewCountMap = new HashMap<>();
         reviewCountMap.put("best",reviewCount.getBestCount());
         reviewCountMap.put("good",reviewCount.getGreatCount());
         reviewCountMap.put("bad",reviewCount.getBadCount());

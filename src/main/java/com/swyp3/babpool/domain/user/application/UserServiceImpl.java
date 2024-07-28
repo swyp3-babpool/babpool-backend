@@ -2,6 +2,7 @@ package com.swyp3.babpool.domain.user.application;
 
 import com.swyp3.babpool.domain.appointment.application.response.AppointmentHistoryDoneResponse;
 import com.swyp3.babpool.domain.appointment.dao.AppointmentRepository;
+import com.swyp3.babpool.domain.keyword.application.KeywordService;
 import com.swyp3.babpool.domain.profile.application.ProfileService;
 import com.swyp3.babpool.domain.profile.domain.Profile;
 import com.swyp3.babpool.domain.review.application.ReviewService;
@@ -18,7 +19,7 @@ import com.swyp3.babpool.domain.user.exception.errorcode.SignDownExceptionErrorC
 import com.swyp3.babpool.domain.user.exception.errorcode.SignUpExceptionErrorCode;
 import com.swyp3.babpool.global.jwt.application.JwtService;
 import com.swyp3.babpool.global.jwt.application.response.JwtPairDto;
-import com.swyp3.babpool.global.uuid.application.UuidService;
+import com.swyp3.babpool.global.tsid.TsidKeyGenerator;
 import com.swyp3.babpool.infra.auth.AuthPlatform;
 import com.swyp3.babpool.infra.auth.domain.Auth;
 import com.swyp3.babpool.domain.user.api.requset.LoginRequestDTO;
@@ -29,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 
@@ -37,12 +39,16 @@ import java.util.*;
 @Transactional
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
+
+    private final TsidKeyGenerator tsidKeyGenerator;
+
     private final AuthService authService;
-    private final UserRepository userRepository;
-    private final UuidService uuidService;
     private final JwtService jwtService;
     private final ProfileService profileService;
     private final ReviewService reviewService;
+    private final KeywordService keywordService;
+
+    private final UserRepository userRepository;
     private final AppointmentRepository appointmentRepository;
     private final ExitInfoRepository exitInfoRepository;
 
@@ -54,7 +60,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public LoginResponseWithRefreshToken signUp(SignUpRequestDTO signUpRequest) {
-        if(getUserStatus(signUpRequest.getUserUuid()).equals(UserStatus.ACTIVE))
+        if(getUserStatus(signUpRequest.getUserId()).equals(UserStatus.ACTIVE))
             throw new SignUpException(SignUpExceptionErrorCode.IS_ALREADY_REGISTERED,
                     "이미 데이터베이스에 등록된 사용자이므로 새로운 회원가입을 진행할 수 없습니다.");
 
@@ -75,7 +81,7 @@ public class UserServiceImpl implements UserService{
         if(updatedRows!=1){
             throw new SignDownException(SignDownExceptionErrorCode.FAILED_TO_UPDATE_USER_STATE, "회원탈퇴에 실패하였습니다");
         }
-        exitInfoRepository.saveExitInfo(userId, exitReason);
+        exitInfoRepository.saveExitInfo(tsidKeyGenerator.generateTsid(), userId, exitReason);
         jwtService.logout(refreshTokenFromCookie);
     }
 
@@ -105,21 +111,25 @@ public class UserServiceImpl implements UserService{
         return new UserGradeResponse(userGrade);
     }
 
-    private UserStatus getUserStatus(String userUuid) {
-        Long userId = uuidService.getUserIdByUuid(userUuid);
-        User findUser = userRepository.findById(userId);
+    @Override
+    public void updateUserNickNameAndGrade(Long userId, String userNickName, String userGrade) {
+        User targetUser = userRepository.findById(userId);
+        userRepository.updateUserNickNameAndGrade(userId,
+                !targetUser.getUserNickName().equals(userNickName) && StringUtils.hasText(userNickName) ? userNickName : targetUser.getUserNickName(),
+                !targetUser.getUserGrade().equals(userGrade) && StringUtils.hasText(userGrade) ? userGrade : targetUser.getUserGrade());
 
-        return findUser.getUserStatus();
+    }
+
+    private UserStatus getUserStatus(Long userId) {
+        return userRepository.findById(userId).getUserStatus();
     }
 
     @Transactional
     public User insertUserExtraInfo(SignUpRequestDTO signUpRequest) {
-        Long userId = uuidService.getUserIdByUuid(signUpRequest.getUserUuid());
+        Long userId = signUpRequest.getUserId();
         userRepository.updateSignUpInfo(userId, signUpRequest.getUserGrade());
 
-        for (Long keywordId : signUpRequest.getKeywords()) {
-            userRepository.saveKeyword(userId, keywordId);
-        }
+        keywordService.saveUserAndKeywordMapping(userId, signUpRequest.getKeywords());
 
         return userRepository.findById(userId);
     }
@@ -130,10 +140,11 @@ public class UserServiceImpl implements UserService{
         //회원테이블에 id Token 정보가 저장되어있는 경우
         if(findUserId!=null) {
             User findUser = userRepository.findById(findUserId);
+            // 회원가입이 완료되었지만, 추가정보 입력이 필요한 경우
             if(findUser.getUserStatus().equals(UserStatus.PREACTIVE))
-                return getLoginResponseNeedSignUp(findUser);// (회원가입이 완료된 경우) 사용자 추가정보 입력 필요
+                return getLoginResponseNeedSignUp(findUser);
+            // 회원탈퇴된 사용자인 경우, 사용자 신규 생성
             if(findUser.getUserStatus().equals(UserStatus.EXIT)){
-                //회원탈퇴했던 사용자도 사용자 생성부터 시작
                 User createdUser = createUser(authPlatform, authMemberResponse);
                 return getLoginResponseNeedSignUp(createdUser);
             }
@@ -145,43 +156,51 @@ public class UserServiceImpl implements UserService{
     }
 
     private LoginResponseWithRefreshToken getLoginResponseNeedSignUp(User user) {
-        String userUuid = String.valueOf(uuidService.getUuidByUserId(user.getUserId()));
-        LoginResponse loginResponse = new LoginResponse(userUuid, null,null,false);
+        LoginResponse loginResponse = new LoginResponse(user.getUserId(), null,null,false);
         return new LoginResponseWithRefreshToken(loginResponse,null);
     }
 
     private LoginResponseWithRefreshToken getLoginResponse(User user) {
-        String userUuid = String.valueOf(uuidService.getUuidByUserId(user.getUserId()));
-        JwtPairDto jwtPair = jwtService.createJwtPair(userUuid, new ArrayList<UserRole>(Arrays.asList(UserRole.USER)));
+        JwtPairDto jwtPair = jwtService.createJwtPair(user.getUserId(), new ArrayList<UserRole>(Arrays.asList(user.getUserRole())));
 
         String accessToken = jwtPair.getAccessToken();
         String refreshToken = jwtPair.getRefreshToken();
 
-        LoginResponse loginResponse = new LoginResponse(userUuid, user.getUserGrade(), accessToken,true);
+        LoginResponse loginResponse = new LoginResponse(user.getUserId(), user.getUserGrade(), accessToken,true);
 
         return new LoginResponseWithRefreshToken(loginResponse,refreshToken);
     }
 
     @Transactional
     public User createUser(AuthPlatform authPlatform, AuthMemberResponse authMemberResponse) {
-        User user = User.builder()
-                .email(authMemberResponse.getEmail())
-                .nickName(authMemberResponse.getNickname())
-                .build();
-        userRepository.save(user);
-        Long savedId = user.getUserId();
+        // 신규 사용자 정보 저장
+        Long targetUserId = tsidKeyGenerator.generateTsid();
+        User targetUser = User.allArgsBuilder()
+                            .userId(targetUserId)
+                            .userEmail(authMemberResponse.getEmail())
+                            .userNickName(authMemberResponse.getNickname())
+                            .allArgsBuild();
+        Integer insertedRows = userRepository.save(targetUser);
+        if (insertedRows != 1) {
+            throw new SignUpException(SignUpExceptionErrorCode.SIGNUP_CREATE_FAILED, "신규 사용자 DB 삽입 실패.");
+        }
 
-        Auth auth = Auth.createAuth(savedId, authPlatform, authMemberResponse.getPlatformId());
-        authService.save(auth);
+        // 신규 사용자의 Auth 정보 저장
+        authService.createAuth(Auth.builder()
+                        .userId(targetUserId)
+                        .oauthPlatformName(authPlatform)
+                        .oauthPlatformId(authMemberResponse.getPlatformId())
+                        .build());
 
-        Profile profile = Profile.builder()
-                .userId(savedId)
-                .profileImageUrl(authMemberResponse.getProfile_image())
-                .profileActiveFlag(false)
-                .build();
-        profileService.saveProfile(profile);
+        // 신규 사용자의 프로필 정보 저장
+        profileService.createInitProfile(Profile.builder()
+                                        .profileId(tsidKeyGenerator.generateTsid())
+                                        .userId(targetUserId)
+                                        .profileImageUrl(authMemberResponse.getProfile_image())
+                                        .profileActiveFlag(false)
+                                        .build());
 
-        uuidService.createUuid(savedId);
-        return user;
+        return targetUser;
     }
+
 }

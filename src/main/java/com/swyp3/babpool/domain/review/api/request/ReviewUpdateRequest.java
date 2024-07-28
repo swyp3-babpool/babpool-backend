@@ -1,5 +1,7 @@
 package com.swyp3.babpool.domain.review.api.request;
 
+import com.swyp3.babpool.domain.review.domain.ReviewRateType;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -9,16 +11,17 @@ public class ReviewUpdateRequest {
 
     private Long reviewId;
     private Long reviewerUserId;
-    private Long targetAppointmentId;
-    private String rateType;
-    private String reviewContent;
+    private Long appointmentId;
+    private ReviewRateType reviewRate;
+    private String reviewComment;
 
-    public ReviewUpdateRequest(Long reviewId, Long reviewerUserId, Long targetAppointmentId, String rateType, String reviewContent) {
+    @Builder
+    public ReviewUpdateRequest(Long reviewId, Long reviewerUserId, Long appointmentId, ReviewRateType reviewRate, String reviewComment) {
         this.reviewId = reviewId;
         this.reviewerUserId = reviewerUserId;
-        this.targetAppointmentId = targetAppointmentId;
-        this.rateType = rateType;
-        this.reviewContent = reviewContent;
+        this.appointmentId = appointmentId;
+        this.reviewRate = reviewRate;
+        this.reviewComment = reviewComment;
     }
 
     public ReviewUpdateRequest setReviewerUserId(Long reviewerUserId) {

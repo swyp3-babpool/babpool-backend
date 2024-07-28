@@ -1,6 +1,7 @@
 package com.swyp3.babpool.domain.review.application.response;
 
 import com.swyp3.babpool.domain.review.domain.Review;
+import com.swyp3.babpool.domain.review.domain.ReviewRateType;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -11,11 +12,11 @@ public class ReviewSaveResponse {
 
     private Long reviewId;
     private Long appointmentId;
-    private String reviewRate;
+    private ReviewRateType reviewRate;
     private String reviewComment;
 
     @Builder
-    public ReviewSaveResponse(Long reviewId, Long appointmentId, String reviewRate, String reviewComment) {
+    public ReviewSaveResponse(Long reviewId, Long appointmentId, ReviewRateType reviewRate, String reviewComment) {
         this.reviewId = reviewId;
         this.appointmentId = appointmentId;
         this.reviewRate = reviewRate;

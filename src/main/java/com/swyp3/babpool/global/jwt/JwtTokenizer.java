@@ -22,7 +22,7 @@ public class JwtTokenizer {
     private final byte[] refreshSecret;
 
     public final static Long ACCESS_TOKEN_EXPIRE_COUNT = 15 * 60 * 1000L; // 15 minutes
-    public final static Long ACCESS_TOKEN_EXPIRE_COUNT_ADMIN = 1 * 24 * 60 * 60 * 1000L; // 1 days
+    public final static Long ACCESS_TOKEN_EXPIRE_COUNT_ADMIN = 7 * 24 * 60 * 60 * 1000L; // 7 day
     public final static Long REFRESH_TOKEN_EXPIRE_COUNT = 7 * 24 * 60 * 60 * 1000L; // 7 days
 
     public JwtTokenizer(@Value("${property.jwt.secretKey}") String accessSecret, @Value("${property.jwt.refreshKey}") String refreshSecret) {
@@ -31,22 +31,22 @@ public class JwtTokenizer {
     }
 
 
-    public String createAccessToken(String uuid, List<String> roles) {
-        return createToken(uuid, roles, ACCESS_TOKEN_EXPIRE_COUNT, accessSecret);
+    public String createAccessToken(Long userId, List<String> roles) {
+        return createToken(userId, roles, ACCESS_TOKEN_EXPIRE_COUNT, accessSecret);
     }
 
-    public String createAccessTokenAdmin(String uuid, List<String> roles) {
-        return createToken(uuid, roles, ACCESS_TOKEN_EXPIRE_COUNT_ADMIN, accessSecret);
-    }
-
-
-    public String createRefreshToken(String uuid, List<String> roles) {
-        return createToken(uuid, roles, REFRESH_TOKEN_EXPIRE_COUNT, refreshSecret);
+    public String createAccessTokenAdmin(Long userId, List<String> roles) {
+        return createToken(userId, roles, ACCESS_TOKEN_EXPIRE_COUNT_ADMIN, accessSecret);
     }
 
 
-    private String createToken(String uuid, List<String> roles, Long expire, byte[] secretKey) {
-        Claims claims = Jwts.claims().setSubject(uuid);
+    public String createRefreshToken(Long userId, List<String> roles) {
+        return createToken(userId, roles, REFRESH_TOKEN_EXPIRE_COUNT, refreshSecret);
+    }
+
+
+    private String createToken(Long userId, List<String> roles, Long expire, byte[] secretKey) {
+        Claims claims = Jwts.claims().setSubject(String.valueOf(userId));
         claims.put("roles", roles);
 
         return Jwts.builder()

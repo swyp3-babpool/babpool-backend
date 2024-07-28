@@ -1,10 +1,9 @@
 package com.swyp3.babpool.domain.appointment.application.response.appointmentdetail;
 
-import com.swyp3.babpool.domain.appointment.application.response.AppointmentRequesterPossibleDateTimeResponse;
 import com.swyp3.babpool.domain.user.application.response.MyPageUserDto;
 import lombok.Getter;
 
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @Getter
@@ -13,8 +12,8 @@ public class AppointmentSendWaitingDetailResponse extends AppointmentDetailRespo
     private String contactChat;
     private String contactPhone;
 
-    public AppointmentSendWaitingDetailResponse(MyPageUserDto userData, Map<String, Long> lastingTime, List<AppointmentRequesterPossibleDateTimeResponse> requesterPossibleTime, String question) {
-        super(userData,requesterPossibleTime,question);
+    public AppointmentSendWaitingDetailResponse(MyPageUserDto userData, Map<String, Long> lastingTime, LocalDateTime appointmentDateTimeValue, String question) {
+        super(userData,appointmentDateTimeValue,question);
         this.lastingTime=lastingTime;
         this.contactChat=userData.getContactChat();
         this.contactPhone=userData.getContactPhone();

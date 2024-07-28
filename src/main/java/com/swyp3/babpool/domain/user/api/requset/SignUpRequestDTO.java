@@ -9,8 +9,9 @@ import java.util.Set;
 
 @Getter
 public class SignUpRequestDTO {
-    @NotNull(message = "userUuid 값은 필수입니다.")
-    private String userUuid;
+
+    @NotNull(message = "userId 값은 필수입니다.")
+    private Long userId;
     @NotNull(message = "userGrade 값은 필수입니다.")
     private String userGrade;
     @NotNull(message = "keyword 값은 필수입니다.")

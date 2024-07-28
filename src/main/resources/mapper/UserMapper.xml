@@ -3,10 +3,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.swyp3.babpool.domain.user.dao.UserRepository">
 
-    <insert id="save" useGeneratedKeys="true" keyProperty="userId">
-        insert into t_user_account(user_email,user_status,user_role,user_grade,user_nick_name,user_create_date,user_modify_date)
-        values ( #{userEmail},#{userStatus},#{userRole},#{userGrade},#{userNickName},#{userCreateDate},#{userModifyDate} )
-    </insert>
+    <!-- ==============================  SELECT  ============================== -->
 
     <select id="findById" resultType="com.swyp3.babpool.domain.user.domain.User">
         select user_id,user_email,user_status,user_role,user_grade,user_nick_name,user_create_date,user_modify_date
@@ -15,24 +12,16 @@
     </select>
 
     <select id="findUserIdByPlatformAndPlatformId" resultType="Long">
-        select u.user_id
-        from t_user_account u
-        join t_oauth o on u.user_id = o.user_id
-        where o.oauth_platform_name = #{platformName} and o.oauth_platform_id = #{platformId}
+        SELECT user_id
+        FROM t_oauth
+        WHERE oauth_platform_name = #{platformName} AND oauth_platform_id = #{platformId};
     </select>
 
-    <update id="updateSignUpInfo">
-        update t_user_account
-        set user_grade = #{userGrade},
-            user_modify_date = CURRENT_TIMESTAMP(),
-            user_status = "ACTIVE"
-        where user_id = #{userId}
-    </update>
-
-    <insert id="saveKeyword">
-        insert into t_m_user_keyword(user_id,keyword_id)
-        values ( #{userId},#{keywordId})
-    </insert>
+    <select id="findActiveUserByUserEmail" resultType="com.swyp3.babpool.domain.user.domain.User">
+        select user_id,user_email,user_status,user_role,user_grade,user_nick_name,user_create_date,user_modify_date
+        from t_user_account
+        where user_email = #{userEmail} and user_status = 'ACTIVE';
+    </select>
 
     <select id="findMyProfile" resultType="com.swyp3.babpool.domain.user.application.response.MyPageUserDto">
         SELECT
@@ -61,9 +50,33 @@
         WHERE user_id=#{userId}
     </select>
 
+    <!-- ==============================  INSERT  ============================== -->
+
+    <insert id="save">
+        insert into t_user_account(user_id, user_email,user_status,user_role,user_grade,user_nick_name)
+        values (#{userId}, #{userEmail},#{userStatus},#{userRole},#{userGrade},#{userNickName})
+    </insert>
+
+    <!-- ==============================  UPDATE  ============================== -->
+
+    <update id="updateSignUpInfo">
+        update t_user_account
+        set user_grade = #{userGrade},
+            user_modify_date = CURRENT_TIMESTAMP(),
+            user_status = 'ACTIVE'
+        where user_id = #{userId}
+    </update>
+
     <update id="updateUserStateByUserId">
         update t_user_account
         set user_status = #{userStatus}
+        where user_id = #{userId}
+    </update>
+
+    <update id="updateUserNickNameAndGrade">
+        update t_user_account
+        set user_nick_name = #{userNickName},
+            user_grade = #{userGrade}
         where user_id = #{userId}
     </update>
 

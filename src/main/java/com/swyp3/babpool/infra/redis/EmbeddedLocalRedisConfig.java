@@ -26,7 +26,7 @@ public class EmbeddedLocalRedisConfig {
     @PostConstruct
     public void redisServer() throws IOException {
         int port = isRedisRunning() ? findAvailablePort() : redisPort;
-        redisServer = RedisServer.builder()
+        redisServer = RedisServer.newRedisServer()
                 .port(port)
                 .setting("maxmemory 128M")
                 .build();
@@ -34,7 +34,7 @@ public class EmbeddedLocalRedisConfig {
     }
 
     @PreDestroy
-    public void stopRedis() {
+    public void stopRedis() throws IOException{
         if (redisServer != null) {
             redisServer.stop();
         }

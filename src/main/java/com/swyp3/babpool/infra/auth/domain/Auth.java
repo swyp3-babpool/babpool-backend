@@ -5,6 +5,7 @@ import com.swyp3.babpool.domain.user.domain.UserRole;
 import com.swyp3.babpool.domain.user.domain.UserStatus;
 import com.swyp3.babpool.infra.auth.AuthPlatform;
 import com.swyp3.babpool.infra.auth.response.AuthMemberResponse;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -18,13 +19,11 @@ public class Auth {
     private AuthPlatform oauthPlatformName;
     private String oauthPlatformId;
 
-    public static Auth createAuth(Long userId, AuthPlatform platformName, String platformId) {
-        Auth auth = new Auth();
-
-        auth.userId = userId;
-        auth.oauthPlatformId = platformId;
-        auth.oauthPlatformName = platformName;
-
-        return auth;
+    @Builder
+    public Auth(Long oauthId, Long userId, AuthPlatform oauthPlatformName, String oauthPlatformId) {
+        this.oauthId = oauthId;
+        this.userId = userId;
+        this.oauthPlatformName = oauthPlatformName;
+        this.oauthPlatformId = oauthPlatformId;
     }
 }

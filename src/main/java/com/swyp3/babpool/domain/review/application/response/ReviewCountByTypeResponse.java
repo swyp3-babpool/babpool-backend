@@ -8,12 +8,12 @@ import lombok.ToString;
 @Getter
 public class ReviewCountByTypeResponse {
 
-    private final Long bestCount;
-    private final Long greatCount;
-    private final Long badCount;
+    private final Integer bestCount;
+    private final Integer greatCount;
+    private final Integer badCount;
 
     @Builder
-    public ReviewCountByTypeResponse(Long bestCount, Long greatCount, Long badCount) {
+    public ReviewCountByTypeResponse(Integer bestCount, Integer greatCount, Integer badCount) {
         this.bestCount = bestCount;
         this.greatCount = greatCount;
         this.badCount = badCount;
