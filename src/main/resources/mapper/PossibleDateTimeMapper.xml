@@ -177,14 +177,17 @@
             <when test="possibleDateTimeDelList != null and possibleDateTimeDelList.size() != 0">
                 DELETE FROM t_possible_datetime
                 WHERE possible_datetime_id IN (
-                    SELECT possible_datetime_id
-                    FROM t_possible_datetime
-                    WHERE user_id = #{userId}
-                    AND possible_datetime_status != 'RESERVED'
-                    AND possible_datetime IN
-                    <foreach collection="possibleDateTimeDelList" item="possibleDateTime" open="(" close=")" separator=",">
-                        #{possibleDateTime}
-                    </foreach>
+                    SELECT temp.possible_datetime_id
+                    FROM (
+                        SELECT possible_datetime_id
+                        FROM t_possible_datetime
+                        WHERE user_id = #{userId}
+                        AND possible_datetime_status != 'RESERVED'
+                        AND possible_datetime IN
+                        <foreach collection="possibleDateTimeDelList" item="possibleDateTime" open="(" close=")" separator=",">
+                            #{possibleDateTime}
+                        </foreach>
+                    ) AS temp
                 )
             </when>
         </choose>
