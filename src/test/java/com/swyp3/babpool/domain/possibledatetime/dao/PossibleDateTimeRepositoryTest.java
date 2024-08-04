@@ -73,6 +73,44 @@ class PossibleDateTimeRepositoryTest {
         assertThat(possibleDateTimeList).hasSize(9);
     }
 
+    @DisplayName("deletePossibleDateTimeWhereStatusIsNotReserved 매퍼는 possibleDateTimeDelList에 존재하지 않는 일정이 존재하면 무시하고 정상동작한다.")
+    @Test
+    void deletePossibleDateTimeWhereStatusIsNotReservedWithNotExistDateTime(){
+        // given
+        Long userId = 100000000000000009L;
+        List<LocalDateTime> possibleDateTimeAddList = List.of(
+                LocalDateTime.of(2024, 7, 6, 11, 0),
+                LocalDateTime.of(2024, 7, 6, 12, 0),
+                LocalDateTime.of(2024, 7, 6, 8, 0)
+        );
+        possibleDateTimeRepository.savePossibleDateTimeList(possibleDateTimeAddList.stream()
+                .map(dateTime -> PossibleDateTime.builder()
+                        .possibleDateTimeId(tsidKeyGenerator.generateTsid())
+                        .userId(userId)
+                        .possibleDateTime(dateTime)
+                        .possibleDateTimeStatus(PossibleDateTimeStatusType.AVAILABLE)
+                        .build())
+                .toList()
+        );
+        List<LocalDateTime> possibleDateTimeDelList = List.of(
+                LocalDateTime.of(2024, 7, 6, 11, 0),
+                LocalDateTime.of(2024, 7, 6, 9, 0),
+                LocalDateTime.of(2024, 7, 6, 10, 0)
+        );
+
+        // when
+        possibleDateTimeRepository.deletePossibleDateTimeWhereStatusIsNotReserved(userId, possibleDateTimeDelList);
+
+        // then
+        List<PossibleDateTime> possibleDateTimeList = possibleDateTimeRepository.findAllByUserId(userId);
+        log.info("possibleDateTimeList : {}", possibleDateTimeList);
+        assertThat(possibleDateTimeList).hasSize(2);
+        assertThat(possibleDateTimeList).extracting(PossibleDateTime::getPossibleDateTime)
+                .containsAll(List.of(LocalDateTime.of(2024, 7, 6, 12, 0),
+                        LocalDateTime.of(2024, 7, 6, 8, 0))
+                );
+    }
+
     @DisplayName("savePossibleDateTime 매퍼는 1개 이상의 PossibleDateTime 를 저장한다.")
     @Test
     void savePossibleDateTime(){
@@ -96,6 +134,47 @@ class PossibleDateTimeRepositoryTest {
         List<PossibleDateTime> allByUserId = possibleDateTimeRepository.findAllByUserId(userId);
         log.info("allByUserId : {}", allByUserId);
         assertThat(allByUserId).hasSize(2);
+    }
+
+    @DisplayName("savePossibleDateTimeListWhereNotExist 매퍼는 중복되는 일정이 존재하지 않는 경우에만 일정을 저장한다.")
+    @Test
+    void savePossibleDateTimeListWhereNotExist(){
+        // given
+        Long userId = 100000000000000009L;
+        List<LocalDateTime> possibleDateTimeAddList1 = List.of(
+                LocalDateTime.of(2024, 7, 6, 11, 0),
+                LocalDateTime.of(2024, 7, 6, 12, 0)
+        );
+        possibleDateTimeRepository.savePossibleDateTimeList(possibleDateTimeAddList1.stream()
+                .map(dateTime -> PossibleDateTime.builder()
+                        .possibleDateTimeId(tsidKeyGenerator.generateTsid())
+                        .userId(userId)
+                        .possibleDateTime(dateTime)
+                        .possibleDateTimeStatus(PossibleDateTimeStatusType.AVAILABLE)
+                        .build())
+                .toList());
+
+        List<LocalDateTime> possibleDateTimeAddList2 = List.of(
+                LocalDateTime.of(2024, 7, 6, 11, 0),
+                LocalDateTime.of(2024, 7, 6, 12, 0),
+                LocalDateTime.of(2024, 7, 6, 13, 0)
+        );
+
+        // when
+        possibleDateTimeRepository.savePossibleDateTimeListWhereNotExist(possibleDateTimeAddList2.stream()
+                .map(dateTime -> PossibleDateTime.builder()
+                        .possibleDateTimeId(tsidKeyGenerator.generateTsid())
+                        .userId(userId)
+                        .possibleDateTime(dateTime)
+                        .possibleDateTimeStatus(PossibleDateTimeStatusType.AVAILABLE)
+                        .build())
+                .toList()
+        );
+
+        // then
+        List<PossibleDateTime> possibleDateTimeList = possibleDateTimeRepository.findAllByUserId(userId);
+        log.info("possibleDateTimeList : {}", possibleDateTimeList);
+        assertThat(possibleDateTimeList).hasSize(3);
     }
 
     @DisplayName("findAllByUserId 매퍼는 status와 무관하게 특정 사용자의 모든 가능한 일정을 조회한다.")

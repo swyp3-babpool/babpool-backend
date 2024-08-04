@@ -30,7 +30,7 @@ public class ProfileApi {
     @PostMapping("/update")
     public ApiResponse<ProfileUpdateResponse> updateProfileInfo(@RequestAttribute(value = "userId") Long userId,
                                                                 @RequestPart(value = "profileImageFile", required = false) MultipartFile multipartFile,
-                                                                @RequestBody ProfileUpdateRequest profileUpdateRequest) {
+                                                                @RequestPart(value="profileInfo") ProfileUpdateRequest profileUpdateRequest) {
 
         return ApiResponse.ok(ProfileUpdateResponse.builder()
                 .profileId(userProfileFacade.updateProfileInfo(userId, profileUpdateRequest))
