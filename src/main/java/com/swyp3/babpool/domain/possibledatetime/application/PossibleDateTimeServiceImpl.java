@@ -52,14 +52,13 @@ public class PossibleDateTimeServiceImpl implements PossibleDateTimeService{
 
     @Override
     public List<PossibleDateTimeResponse> updatePossibleDateTime(Long userId, PossibleDateTimeUpdateRequest possibleDateTimeUpdateRequest) {
-        
-        // 일정 제거 : possibleDateTimeStatus 가 RESERVED 인 경우는 제외하고 삭제
+        // 일정 제거
         if(!possibleDateTimeUpdateRequest.getPossibleDateTimeDelList().isEmpty()) {
             possibleDateTimeRepository.deletePossibleDateTimeWhereStatusIsNotReserved(userId, possibleDateTimeUpdateRequest.getPossibleDateTimeDelList());
         }
-        // 추가
+        // 일정 추가
         if(!possibleDateTimeUpdateRequest.getPossibleDateTimeAddList().isEmpty()) {
-            possibleDateTimeRepository.savePossibleDateTimeList(possibleDateTimeUpdateRequest.getPossibleDateTimeAddList().stream()
+            possibleDateTimeRepository.savePossibleDateTimeListWhereNotExist(possibleDateTimeUpdateRequest.getPossibleDateTimeAddList().stream()
                     .map(datetime -> PossibleDateTime.builder().possibleDateTimeId(tsidKeyGenerator.generateTsid())
                             .userId(userId)
                             .possibleDateTime(datetime)
