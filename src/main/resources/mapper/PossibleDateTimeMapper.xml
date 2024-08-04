@@ -131,6 +131,26 @@
         </foreach>
     </insert>
 
+    <insert id="savePossibleDateTimeListWhereNotExist">
+        INSERT INTO t_possible_datetime (possible_datetime_id, possible_datetime, possible_datetime_status, user_id)
+        SELECT possibleDateTimeId, possibleDateTime, possibleDateTimeStatus, userId
+        FROM (
+        <foreach collection="possibleDateTimeList" item="possibleDateTime" separator=" UNION ALL ">
+            SELECT CAST(#{possibleDateTime.possibleDateTimeId} AS BIGINT) AS possibleDateTimeId,
+            CAST(#{possibleDateTime.possibleDateTime} AS TIMESTAMP) AS possibleDateTime,
+            CAST(#{possibleDateTime.possibleDateTimeStatus} AS VARCHAR) AS possibleDateTimeStatus,
+            CAST(#{possibleDateTime.userId} AS BIGINT) AS userId
+        </foreach>
+        ) AS new_values
+        WHERE NOT EXISTS (
+        SELECT 1
+        FROM t_possible_datetime
+        WHERE user_id = new_values.userId
+        AND possible_datetime = new_values.possibleDateTime
+        );
+    </insert>
+
+
     <insert id="insertPossibleDate" parameterType="com.swyp3.babpool.domain.possibledatetime.domain.PossibleDateInsertDto"
             useGeneratedKeys="true" keyProperty="possibleDateId">
         INSERT INTO t_possible_datetime(possible_date,profile_id)
