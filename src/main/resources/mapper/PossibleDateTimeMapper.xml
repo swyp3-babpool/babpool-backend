@@ -136,10 +136,10 @@
         SELECT possibleDateTimeId, possibleDateTime, possibleDateTimeStatus, userId
         FROM (
         <foreach collection="possibleDateTimeList" item="possibleDateTime" separator=" UNION ALL ">
-            SELECT CAST(#{possibleDateTime.possibleDateTimeId} AS BIGINT) AS possibleDateTimeId,
-            CAST(#{possibleDateTime.possibleDateTime} AS TIMESTAMP) AS possibleDateTime,
-            CAST(#{possibleDateTime.possibleDateTimeStatus} AS VARCHAR) AS possibleDateTimeStatus,
-            CAST(#{possibleDateTime.userId} AS BIGINT) AS userId
+            SELECT CAST(#{possibleDateTime.possibleDateTimeId} AS SIGNED) AS possibleDateTimeId,
+            CAST(#{possibleDateTime.possibleDateTime} AS DATETIME) AS possibleDateTime,
+            CAST(#{possibleDateTime.possibleDateTimeStatus} AS CHAR(10)) AS possibleDateTimeStatus,
+            CAST(#{possibleDateTime.userId} AS SIGNED) AS userId
         </foreach>
         ) AS new_values
         WHERE NOT EXISTS (
