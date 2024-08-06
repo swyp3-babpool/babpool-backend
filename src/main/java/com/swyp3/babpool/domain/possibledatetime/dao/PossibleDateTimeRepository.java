@@ -42,6 +42,7 @@ public interface PossibleDateTimeRepository {
 
     // 테스트 코드 작성 완료
     void savePossibleDateTimeListWhereNotExist(List<PossibleDateTime> possibleDateTimeList);
+    void savePossibleDateTimeListWhereNotExistForH2(List<PossibleDateTime> possibleDateTimeList);
 
     @Deprecated
     List<PossibleDateAndTime> findAllPossibleDateAndTimeByProfileIdAndNowDateWithoutAcceptOrDone(Long profileId);

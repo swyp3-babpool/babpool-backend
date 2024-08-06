@@ -136,6 +136,7 @@ class PossibleDateTimeRepositoryTest {
         assertThat(allByUserId).hasSize(2);
     }
 
+    // H2 DB 에서는 CAST 함수의 Type 으로 Unsigned Integer를 지원하지 않는다. MySQL에서는 지원하지 않는 BIGINT를 사용해야한다.
     @DisplayName("savePossibleDateTimeListWhereNotExist 매퍼는 중복되는 일정이 존재하지 않는 경우에만 일정을 저장한다.")
     @Test
     void savePossibleDateTimeListWhereNotExist(){
@@ -161,7 +162,7 @@ class PossibleDateTimeRepositoryTest {
         );
 
         // when
-        possibleDateTimeRepository.savePossibleDateTimeListWhereNotExist(possibleDateTimeAddList2.stream()
+        possibleDateTimeRepository.savePossibleDateTimeListWhereNotExistForH2(possibleDateTimeAddList2.stream()
                 .map(dateTime -> PossibleDateTime.builder()
                         .possibleDateTimeId(tsidKeyGenerator.generateTsid())
                         .userId(userId)
