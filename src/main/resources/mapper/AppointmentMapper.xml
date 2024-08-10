@@ -188,7 +188,7 @@
 
     <select id="findAcceptAppointment" resultType="com.swyp3.babpool.domain.appointment.application.response.AppointmentAcceptResponse">
         SELECT tappointment.appointment_id AS appointmentId,
-            tappointment.appointment_content AS appointmentContent
+            tappointment.appointment_content AS appointmentContent,
             tuser.user_nick_name AS requesterNickName,
             tuser.user_grade AS requesterGrade,
             tprofile.profile_image_url AS requesterProfileImageUrl,
