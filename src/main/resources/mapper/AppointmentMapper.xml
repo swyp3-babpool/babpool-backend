@@ -188,14 +188,14 @@
 
     <select id="findAcceptAppointment" resultType="com.swyp3.babpool.domain.appointment.application.response.AppointmentAcceptResponse">
         SELECT tappointment.appointment_id AS appointmentId,
-            tappointment.appointment_content AS appointmentContent,
-            tuser.user_nick_name AS requesterNickName,
-            tuser.user_grade AS requesterGrade,
-            tprofile.profile_image_url AS requesterProfileImageUrl,
-            tprofile.profile_intro AS requesterIntro,
-            tprofile.profile_contact_phone AS requesterContactPhone,
+               tuser.user_nick_name AS requesterNickName,
+               tprofile.profile_image_url AS requesterProfileImageUrl,
+               tuser.user_grade AS requesterGrade,
+               tprofile.profile_intro AS requesterIntro,
+               tdatetime.possible_datetime AS possibleDateTime,
+               tprofile.profile_contact_phone AS requesterContactPhone,
             tprofile.profile_contact_chat AS requesterContactChat,
-            tdatetime.possible_datetime AS possibleDateTime
+               tappointment.appointment_content AS appointmentContent
         FROM t_appointment tappointment
             INNER JOIN t_possible_datetime tdatetime ON tdatetime.possible_datetime_id = tappointment.possible_datetime_id
             INNER JOIN t_user_account tuser ON tappointment.appointment_sender_id = tuser.user_id
