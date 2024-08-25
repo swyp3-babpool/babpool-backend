@@ -26,18 +26,6 @@ public class AppointmentApi {
     private final AppointmentService appointmentService;
     private final ProfilePossibleDateTimeFacade profilePossibleDateTimeFacade;
 
-//    /**
-//     * 밥약 요청 API
-//     * @deprecated [2024.07.12] 동시성 처리를 위한 버전으로 대체
-//     */
-//    @Deprecated
-//    @PostMapping("/api/deprecated/appointment")
-//    public ApiResponse<AppointmentCreateResponse> makeAppointment(@RequestAttribute(value = "userId", required = false) Long userId,
-//                                                                  @RequestBody @Valid AppointmentCreateRequestDeprecated appointmentCreateRequestDeprecated) {
-//        appointmentCreateRequestDeprecated.setRequesterUserId(userId);
-//        return ApiResponse.ok(appointmentService.makeAppointment(appointmentCreateRequestDeprecated));
-//    }
-
     /**
      * 밥약 요청 API : 동시성 처리를 위한 버전
      */
