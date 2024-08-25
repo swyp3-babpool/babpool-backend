@@ -8,6 +8,4 @@ import lombok.Getter;
 public class AppointmentAcceptRequest {
     @NotNull(message = "appointmentId는 필수 값입니다.")
     private Long appointmentId;
-    @NotNull(message = "possibleTimeId는 필수 값입니다.")
-    private Long possibleTimeId;
 }
