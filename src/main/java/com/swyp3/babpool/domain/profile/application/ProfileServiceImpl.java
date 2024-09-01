@@ -139,6 +139,20 @@ public class ProfileServiceImpl implements ProfileService{
     }
 
     @Override
+    public void updateProfileImageFromSocialProfileImage(Long userId, String profileImage) {
+        // 사용자가 직접 업로드한 이미지를 프로필 이미지로 사용하고 있다면, 업데이트 하지 않는다.
+        String profileImageUrl = profileRepository.findByUserId(userId).getProfileImageUrl();
+        if(StringUtils.hasText(profileImageUrl) && profileImageUrl.startsWith(awsS3Provider.getAmazonS3ClientUrlPrefix())){
+            return;
+        }else {
+            int updatedRow = profileRepository.updateProfileImageUrl(userId, profileImage);
+            if(updatedRow!=1) {
+                throw new ProfileException(ProfileErrorCode.PROFILE_IMAGE_UPDATE_ERROR, "프로필 이미지 업데이트에 실패하였습니다.");
+            }
+        }
+    }
+
+    @Override
     public void createInitProfile(Profile profile) {
         profileRepository.saveProfile(profile);
     }

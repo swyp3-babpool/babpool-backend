@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService{
     @Override
     public LoginResponseWithRefreshToken login(LoginRequestDTO loginRequest, String localhostFlag) {
         AuthMemberResponse kakaoPlatformMember = authService.getUserDataByCode(loginRequest.getCode(), localhostFlag);
-        return generateLoginResponse(AuthPlatform.KAKAO,kakaoPlatformMember);
+        return generateLoginResponse(AuthPlatform.KAKAO, kakaoPlatformMember);
     }
 
     @Override
@@ -137,22 +137,42 @@ public class UserServiceImpl implements UserService{
     private LoginResponseWithRefreshToken generateLoginResponse(AuthPlatform authPlatform, AuthMemberResponse authMemberResponse) {
         Long findUserId = userRepository.findUserIdByPlatformAndPlatformId(authPlatform, authMemberResponse.getPlatformId());
 
-        //회원테이블에 id Token 정보가 저장되어있는 경우
-        if(findUserId!=null) {
+        // 회원테이블에 id Token 정보가 저장되어있지 않은 경우
+        if(findUserId == null){
+            return getLoginResponseNeedSignUp(createUser(authPlatform, authMemberResponse));
+        }else {
             User findUser = userRepository.findById(findUserId);
-            // 회원가입이 완료되었지만, 추가정보 입력이 필요한 경우
-            if(findUser.getUserStatus().equals(UserStatus.PREACTIVE))
-                return getLoginResponseNeedSignUp(findUser);
-            // 회원탈퇴된 사용자인 경우, 사용자 신규 생성
-            if(findUser.getUserStatus().equals(UserStatus.EXIT)){
-                User createdUser = createUser(authPlatform, authMemberResponse);
-                return getLoginResponseNeedSignUp(createdUser);
+            switch (findUser.getUserStatus()){
+                case PREACTIVE -> { // 회원가입이 완료되었지만, 추가정보 입력이 필요한 경우
+                    return getLoginResponseNeedSignUp(findUser);
+                }
+                case EXIT -> { // 회원탈퇴된 사용자인 경우, 사용자 신규 생성
+                    User createdUser = createUser(authPlatform, authMemberResponse);
+                    return getLoginResponseNeedSignUp(createdUser);
+                }
+                default -> {
+                    profileService.updateProfileImageFromSocialProfileImage(findUser.getUserId(), authMemberResponse.getProfile_image());
+                    return getLoginResponse(findUser);
+                }
             }
-            return getLoginResponse(findUser);
         }
-        //회원테이블에 아무 정보도 없는 경우
-        User createdUser = createUser(authPlatform, authMemberResponse);
-        return getLoginResponseNeedSignUp(createdUser);
+
+//        //회원테이블에 id Token 정보가 저장되어있는 경우
+//        if(findUserId!=null) {
+//            User findUser = userRepository.findById(findUserId);
+//            // 회원가입이 완료되었지만, 추가정보 입력이 필요한 경우
+//            if(findUser.getUserStatus().equals(UserStatus.PREACTIVE))
+//                return getLoginResponseNeedSignUp(findUser);
+//            // 회원탈퇴된 사용자인 경우, 사용자 신규 생성
+//            if(findUser.getUserStatus().equals(UserStatus.EXIT)){
+//                User createdUser = createUser(authPlatform, authMemberResponse);
+//                return getLoginResponseNeedSignUp(createdUser);
+//            }
+//            return getLoginResponse(findUser);
+//        }
+//        //회원테이블에 아무 정보도 없는 경우
+//        User createdUser = createUser(authPlatform, authMemberResponse);
+//        return getLoginResponseNeedSignUp(createdUser);
     }
 
     private LoginResponseWithRefreshToken getLoginResponseNeedSignUp(User user) {
