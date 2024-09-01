@@ -189,11 +189,17 @@
 
     <!-- ==============================  UPDATE  ============================== -->
 
-    <update id="updatePossibleDateTimeStatus">
+    <update id="updatePossibleDateTimeStatusFromAvailable">
         UPDATE t_possible_datetime
         SET possible_datetime_status = #{status}
         WHERE possible_datetime_id = #{possibleDateTimeId}
         AND possible_datetime_status = 'AVAILABLE';
+    </update>
+
+    <update id="updatePossibleDateTimeStatus">
+        UPDATE t_possible_datetime
+        SET possible_datetime_status = #{status}
+        WHERE possible_datetime_id = #{possibleDateTimeId};
     </update>
 
     <!-- ==============================  DELETE  ============================== -->
