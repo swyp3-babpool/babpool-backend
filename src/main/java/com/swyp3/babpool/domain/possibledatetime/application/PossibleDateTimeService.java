@@ -22,4 +22,6 @@ public interface PossibleDateTimeService {
     Long findPossibleDateTimeIdByReceiverAndDateTimeAndStatus(Long receiverUserId, LocalDateTime possibleDateTime, PossibleDateTimeStatusType possibleDateTimeStatus);
 
     List<PossibleDateTimeResponse> getPossibleDateTimeListByProfileId(Long profileId);
+
+    void changeStatusAsAvailable(Long possibleDateTimeId);
 }

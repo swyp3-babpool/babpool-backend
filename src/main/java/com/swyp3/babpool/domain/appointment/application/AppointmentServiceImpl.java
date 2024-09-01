@@ -246,6 +246,7 @@ public class AppointmentServiceImpl implements AppointmentService{
         throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_DETAIL_ERROR,"대기중 혹은 수락된 밥약이 아닙니다.");
     }
 
+    @Transactional
     @Override
     public AppointmentCancelResponse cancelAppointmentRequested(Long userId, Long appointmentId) {
         Appointment appointment = appointmentRepository.findByAppointmentId(appointmentId)
@@ -258,6 +259,7 @@ public class AppointmentServiceImpl implements AppointmentService{
         if(updatedRows != 1){
             throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_CANCEL_FAILED, "밥약 요청 삭제에 실패하였습니다.");
         }
+        possibleDateTimeService.changeStatusAsAvailable(appointment.getPossibleDateTimeId());
         return AppointmentCancelResponse.builder()
                 .appointmentId(appointmentId)
                 .appointmentCancelResult("밥약 요청이 정상 취소되었습니다.")
