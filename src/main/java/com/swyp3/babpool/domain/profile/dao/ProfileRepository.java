@@ -17,7 +17,7 @@ public interface ProfileRepository {
     void saveProfile(Profile profile);
 
     // 테스트 코드 작성 완료
-    void updateProfileImageUrl(Long userId, String profileImageUrl);
+    int updateProfileImageUrl(Long userId, String profileImageUrl);
 
     /**
      * 프로필 리스트 조회

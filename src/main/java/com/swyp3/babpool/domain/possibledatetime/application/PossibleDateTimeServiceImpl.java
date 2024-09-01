@@ -109,6 +109,14 @@ public class PossibleDateTimeServiceImpl implements PossibleDateTimeService{
                 .toList();
     }
 
+    @Override
+    public void changeStatusAsAvailable(Long possibleDateTimeId) {
+        int updatedRows = possibleDateTimeRepository.updatePossibleDateTimeStatus(possibleDateTimeId, PossibleDateTimeStatusType.AVAILABLE);
+        if (updatedRows != 1){
+            throw new PossibleDateTimeException(PossibleDateTimeErrorCode.POSSIBLE_DATETIME_STATUS_UPDATE_FAILED, "밥약 가능한 일정 상태 변경에 실패하였습니다.");
+        }
+    }
+
     private void validateRequestPossibleDateTime(Map<String, List<Integer>> possibleDateMap) {
         if(possibleDateMap.isEmpty()){
             throw new ProfileException(ProfileErrorCode.PROFILE_POSSIBLE_DATE_ERROR,"가능한 날짜와 시간을 최소 1개 이상 선택해주세요.");
