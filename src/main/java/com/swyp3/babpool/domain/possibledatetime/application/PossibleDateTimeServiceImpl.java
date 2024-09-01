@@ -43,7 +43,7 @@ public class PossibleDateTimeServiceImpl implements PossibleDateTimeService{
 
     @Override
     public boolean changeStatusAsReserved(Long possibleDateTimeId) {
-        int updatedRows = possibleDateTimeRepository.updatePossibleDateTimeStatus(possibleDateTimeId, PossibleDateTimeStatusType.RESERVED);
+        int updatedRows = possibleDateTimeRepository.updatePossibleDateTimeStatusFromAvailable(possibleDateTimeId, PossibleDateTimeStatusType.RESERVED);
         if (updatedRows != 1){
             throw new PossibleDateTimeException(PossibleDateTimeErrorCode.POSSIBLE_DATETIME_STATUS_UPDATE_FAILED, "밥약 가능한 일정 상태 변경에 실패하였습니다.");
         }
