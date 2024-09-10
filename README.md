@@ -1,8 +1,6 @@
 
 # 👨‍👩‍👦‍👦 Babpool Backend Server 👨‍👩‍👦‍👦
 
-README 작성 중
-
 [![license](https://img.shields.io/badge/License-AGPL-red)](https://github.com)
 [![code](https://img.shields.io/badge/Framework-Spring-green)](https://github.com)
 [![member](https://img.shields.io/badge/Project-Member-brown)](https://github.com)
@@ -12,18 +10,43 @@ README 작성 중
 
 ![babpool_intro_image](https://github.com/swyp3-babpool/babpool-backend/assets/128882585/1129c307-937e-4e81-9613-9b66aeedd1b3)
 
+## 🗂️ Index
+
+1. Description
+2. Features
+
 ## 📖 Description
 
----
+- 밥풀 프로젝트는 밥 약속 신청을 통해 관심사와 목표를 공유하는 사람들과 일대일로 대화 할 수 있는 기회를 만들고자 했습니다. 
+- 긴밀한 대학생 커뮤니티, 서로 도움을 줄 수 있는 인맥 풀을 만들기 위한 플랫폼 입니다.
+- [SWYP](https://swyp.imweb.me/) 3기 프로젝트로 참여하여 1위를 수상 했습 니다.
+  
+  <details>
+      <summary>상장 보기</summary>
+      <img src="https://github.com/user-attachments/assets/bff8342c-9122-4145-90b7-b55cb08c81c0" alt="1위_수상_상장" />     
+  </details>
 
-교내에서 학과나 동아리에 구애받지 않고 
-자신의 관심사와 목표에 맞는 사람들에게 밥약(식사 약속)을 신청하여 
-1:1로 대화할 수 있는 기회를 제공
+## 🔧 BE Skill Stack
 
-## 🔧 Skill Stack
-
----
 ![image](https://github.com/swyp3-babpool/babpool-backend/assets/128882585/9a5dd0ce-58ad-4701-b6b5-d17df27e8e64)
+
+| 구분 | 기술 명 | 선정 이유 |
+| :---: | :---: | --- |
+| 영속성 프레임워크 | MyBatis | ORM을 사용하더라도 복잡한 조회쿼리는 네이티브 쿼리의 사용은 필요합니다. 이를 염두해 쿼리 작성에 대한 역량을 향상하기 위해 SQL Mapper 프레임워크인 MyBatis를 선택했습니다. |
+| API 문서화 | Swagger | RestDocs, Swagger와 RestDocs의 결합, 엑셀문서, 포스트맨 등 여러 API 문서화 도구를 모두 경험해보았습니다. 이를 바탕으로 짧은 기간안에 요구사항을 충족하기 위해 간편하고 생산성이 높은 Swagger를 선택했습니다. |
+| 클라우드 | AWS | 프리티어 요금제를 사용하여 비용 부담 없이 다양한 클라우드 서비스를 프로젝트에 적용할 수 있으며 Azure, OCI, GCP 와 비교했을 때 래퍼런스와 커뮤니티 사이즈가 상대적으로 더 크다는 점에서 채택. |
+| 스토리지 | AWS S3 | EC2에 저장 시, 인스턴스의 용량이 부족해지고, 파일 관리의 어려움이 있음. 파일 저장에 용이. |
+|  | Docker | 컨테이너의 특징에 의해 환경에 구애받지 않고 애플리케이션을 쉽고 안정적으로 관리할 수 있다는 점에서 사용. |
+|  | Nginx |  |
+| 실시간알림 | Stomp | 사용자가 어느페이지에 존재해도 약속 요청 이벤트가 발생했을 때 실시간 알림 기능을 구현하기 위해, 메시지 기반의 웹소켓 비동기 프로토콜을 간편하게 제공하는 STOMP를 사용. |
+
+## 🔥 BE Challenge & Solution
+
+주요 해결점
+
+## 🔨 Server Architecture
+
+![Architecture](https://github.com/user-attachments/assets/8b97e60c-15fe-4f6b-8d9b-c107d699c24e)
 
 ## Getting Started
 
@@ -201,9 +224,7 @@ root:.
     └─templates
 ```
 
-## 🔨 Server Architecture
 
-![image](https://github.com/swyp3-babpool/babpool-backend/assets/128882585/570d5610-64ae-4f77-a1fb-be2832b68da5)
 
 ## 📊 Monitoring Architecture
 

@@ -28,6 +28,8 @@ public interface PossibleDateTimeRepository {
     // 테스트 코드 작성 완료
     int updatePossibleDateTimeStatus(Long possibleDateTimeId, PossibleDateTimeStatusType status);
 
+    int updatePossibleDateTimeStatusFromAvailable(Long possibleDateTimeId, PossibleDateTimeStatusType status);
+
     // 테스트 코드 작성 완료
     List<PossibleDateTime> findAllByUserId(Long userId);
 
