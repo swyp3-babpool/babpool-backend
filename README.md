@@ -10,6 +10,11 @@
 
 ![babpool_intro_image](https://github.com/swyp3-babpool/babpool-backend/assets/128882585/1129c307-937e-4e81-9613-9b66aeedd1b3)
 
+## 🗂️ Index
+
+1. Description
+2. Features
+
 ## 📖 Description
 
 - 밥풀 프로젝트는 밥 약속 신청을 통해 관심사와 목표를 공유하는 사람들과 일대일로 대화 할 수 있는 기회를 만들고자 했습니다. 
@@ -21,18 +26,7 @@
       <img src="https://github.com/user-attachments/assets/bff8342c-9122-4145-90b7-b55cb08c81c0" alt="1위_수상_상장" />     
   </details>
 
-## 💡 Features
-
-- ✅ 약속 요청
-- ✅ 약속 일정 관리
-- ✅ 실시간 약속 알림 전송
-- ✅ 후기 작성
-- ✅ 카카오 소셜 로그인
-
-📦 발표자료는 다음 링크에서 확인하실 수 있습니다.
-- [구글 드라이브 링크](https://drive.google.com/file/d/1qhkhPopRAvUU5KZlOXGFtpe0FVnBGVRZ/view?usp=sharing)
-
-## 🔧 Skill Stack
+## 🔧 BE Skill Stack
 
 ![image](https://github.com/swyp3-babpool/babpool-backend/assets/128882585/9a5dd0ce-58ad-4701-b6b5-d17df27e8e64)
 
@@ -46,13 +40,13 @@
 |  | Nginx |  |
 | 실시간알림 | Stomp | 사용자가 어느페이지에 존재해도 약속 요청 이벤트가 발생했을 때 실시간 알림 기능을 구현하기 위해, 메시지 기반의 웹소켓 비동기 프로토콜을 간편하게 제공하는 STOMP를 사용. |
 
-## 🔥 Challenge & Solution
+## 🔥 BE Challenge & Solution
 
 주요 해결점
 
 ## 🔨 Server Architecture
 
-![image](https://github.com/swyp3-babpool/babpool-backend/assets/128882585/570d5610-64ae-4f77-a1fb-be2832b68da5)
+![Architecture](https://github.com/user-attachments/assets/8b97e60c-15fe-4f6b-8d9b-c107d699c24e)
 
 ## Getting Started
 
