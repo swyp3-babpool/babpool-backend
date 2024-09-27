@@ -20,4 +20,8 @@ public interface PossibleDateTimeService {
     LocalDateTime getPossibleDateTimeByDateTimeId(Long possibleDateTimeId);
 
     Long findPossibleDateTimeIdByReceiverAndDateTimeAndStatus(Long receiverUserId, LocalDateTime possibleDateTime, PossibleDateTimeStatusType possibleDateTimeStatus);
+
+    List<PossibleDateTimeResponse> getPossibleDateTimeListByProfileId(Long profileId);
+
+    void changeStatusAsAvailable(Long possibleDateTimeId);
 }

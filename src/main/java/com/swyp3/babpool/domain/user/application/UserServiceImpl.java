@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService{
     @Override
     public LoginResponseWithRefreshToken login(LoginRequestDTO loginRequest, String localhostFlag) {
         AuthMemberResponse kakaoPlatformMember = authService.getUserDataByCode(loginRequest.getCode(), localhostFlag);
-        return generateLoginResponse(AuthPlatform.KAKAO,kakaoPlatformMember);
+        return generateLoginResponse(AuthPlatform.KAKAO, kakaoPlatformMember);
     }
 
     @Override
@@ -68,7 +68,6 @@ public class UserServiceImpl implements UserService{
         return getLoginResponse(user);
     }
 
-    @Transactional
     @Override
     public void signDown(Long userId, String exitReason, String refreshTokenFromCookie) {
         AuthPlatform authPlatformName = authService.getAuthPlatformByUserId(userId);
@@ -124,7 +123,6 @@ public class UserServiceImpl implements UserService{
         return userRepository.findById(userId).getUserStatus();
     }
 
-    @Transactional
     public User insertUserExtraInfo(SignUpRequestDTO signUpRequest) {
         Long userId = signUpRequest.getUserId();
         userRepository.updateSignUpInfo(userId, signUpRequest.getUserGrade());
@@ -137,22 +135,24 @@ public class UserServiceImpl implements UserService{
     private LoginResponseWithRefreshToken generateLoginResponse(AuthPlatform authPlatform, AuthMemberResponse authMemberResponse) {
         Long findUserId = userRepository.findUserIdByPlatformAndPlatformId(authPlatform, authMemberResponse.getPlatformId());
 
-        //회원테이블에 id Token 정보가 저장되어있는 경우
-        if(findUserId!=null) {
+        if(findUserId == null){ // 회원테이블에 id Token 정보가 저장되어있지 않은 경우
+            return getLoginResponseNeedSignUp(createUser(authPlatform, authMemberResponse)); // PreActive 상태로 유저 생성
+        }else {
             User findUser = userRepository.findById(findUserId);
-            // 회원가입이 완료되었지만, 추가정보 입력이 필요한 경우
-            if(findUser.getUserStatus().equals(UserStatus.PREACTIVE))
-                return getLoginResponseNeedSignUp(findUser);
-            // 회원탈퇴된 사용자인 경우, 사용자 신규 생성
-            if(findUser.getUserStatus().equals(UserStatus.EXIT)){
-                User createdUser = createUser(authPlatform, authMemberResponse);
-                return getLoginResponseNeedSignUp(createdUser);
+            switch (findUser.getUserStatus()){
+                case PREACTIVE -> { // 회원가입이 완료되었지만, 추가정보 입력이 필요한 경우
+                    return getLoginResponseNeedSignUp(findUser);
+                }
+                case EXIT -> { // 회원탈퇴된 사용자인 경우, 사용자 신규 생성
+                    User createdUser = createUser(authPlatform, authMemberResponse);
+                    return getLoginResponseNeedSignUp(createdUser);
+                }
+                default -> {
+                    profileService.updateProfileImageFromSocialProfileImage(findUser.getUserId(), authMemberResponse.getProfile_image());
+                    return getLoginResponse(findUser);
+                }
             }
-            return getLoginResponse(findUser);
         }
-        //회원테이블에 아무 정보도 없는 경우
-        User createdUser = createUser(authPlatform, authMemberResponse);
-        return getLoginResponseNeedSignUp(createdUser);
     }
 
     private LoginResponseWithRefreshToken getLoginResponseNeedSignUp(User user) {
@@ -171,7 +171,6 @@ public class UserServiceImpl implements UserService{
         return new LoginResponseWithRefreshToken(loginResponse,refreshToken);
     }
 
-    @Transactional
     public User createUser(AuthPlatform authPlatform, AuthMemberResponse authMemberResponse) {
         // 신규 사용자 정보 저장
         Long targetUserId = tsidKeyGenerator.generateTsid();
@@ -179,6 +178,7 @@ public class UserServiceImpl implements UserService{
                             .userId(targetUserId)
                             .userEmail(authMemberResponse.getEmail())
                             .userNickName(authMemberResponse.getNickname())
+                            .userStatus(UserStatus.PREACTIVE)
                             .allArgsBuild();
         Integer insertedRows = userRepository.save(targetUser);
         if (insertedRows != 1) {

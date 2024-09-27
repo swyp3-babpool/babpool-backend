@@ -8,6 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
@@ -72,6 +73,44 @@ class PossibleDateTimeRepositoryTest {
         assertThat(possibleDateTimeList).hasSize(9);
     }
 
+    @DisplayName("deletePossibleDateTimeWhereStatusIsNotReserved 매퍼는 possibleDateTimeDelList에 존재하지 않는 일정이 존재하면 무시하고 정상동작한다.")
+    @Test
+    void deletePossibleDateTimeWhereStatusIsNotReservedWithNotExistDateTime(){
+        // given
+        Long userId = 100000000000000009L;
+        List<LocalDateTime> possibleDateTimeAddList = List.of(
+                LocalDateTime.of(2024, 7, 6, 11, 0),
+                LocalDateTime.of(2024, 7, 6, 12, 0),
+                LocalDateTime.of(2024, 7, 6, 8, 0)
+        );
+        possibleDateTimeRepository.savePossibleDateTimeList(possibleDateTimeAddList.stream()
+                .map(dateTime -> PossibleDateTime.builder()
+                        .possibleDateTimeId(tsidKeyGenerator.generateTsid())
+                        .userId(userId)
+                        .possibleDateTime(dateTime)
+                        .possibleDateTimeStatus(PossibleDateTimeStatusType.AVAILABLE)
+                        .build())
+                .toList()
+        );
+        List<LocalDateTime> possibleDateTimeDelList = List.of(
+                LocalDateTime.of(2024, 7, 6, 11, 0),
+                LocalDateTime.of(2024, 7, 6, 9, 0),
+                LocalDateTime.of(2024, 7, 6, 10, 0)
+        );
+
+        // when
+        possibleDateTimeRepository.deletePossibleDateTimeWhereStatusIsNotReserved(userId, possibleDateTimeDelList);
+
+        // then
+        List<PossibleDateTime> possibleDateTimeList = possibleDateTimeRepository.findAllByUserId(userId);
+        log.info("possibleDateTimeList : {}", possibleDateTimeList);
+        assertThat(possibleDateTimeList).hasSize(2);
+        assertThat(possibleDateTimeList).extracting(PossibleDateTime::getPossibleDateTime)
+                .containsAll(List.of(LocalDateTime.of(2024, 7, 6, 12, 0),
+                        LocalDateTime.of(2024, 7, 6, 8, 0))
+                );
+    }
+
     @DisplayName("savePossibleDateTime 매퍼는 1개 이상의 PossibleDateTime 를 저장한다.")
     @Test
     void savePossibleDateTime(){
@@ -95,6 +134,48 @@ class PossibleDateTimeRepositoryTest {
         List<PossibleDateTime> allByUserId = possibleDateTimeRepository.findAllByUserId(userId);
         log.info("allByUserId : {}", allByUserId);
         assertThat(allByUserId).hasSize(2);
+    }
+
+    // H2 DB 에서는 CAST 함수의 Type 으로 Unsigned Integer를 지원하지 않는다. MySQL에서는 지원하지 않는 BIGINT를 사용해야한다.
+    @DisplayName("savePossibleDateTimeListWhereNotExist 매퍼는 중복되는 일정이 존재하지 않는 경우에만 일정을 저장한다.")
+    @Test
+    void savePossibleDateTimeListWhereNotExist(){
+        // given
+        Long userId = 100000000000000009L;
+        List<LocalDateTime> possibleDateTimeAddList1 = List.of(
+                LocalDateTime.of(2024, 7, 6, 11, 0),
+                LocalDateTime.of(2024, 7, 6, 12, 0)
+        );
+        possibleDateTimeRepository.savePossibleDateTimeList(possibleDateTimeAddList1.stream()
+                .map(dateTime -> PossibleDateTime.builder()
+                        .possibleDateTimeId(tsidKeyGenerator.generateTsid())
+                        .userId(userId)
+                        .possibleDateTime(dateTime)
+                        .possibleDateTimeStatus(PossibleDateTimeStatusType.AVAILABLE)
+                        .build())
+                .toList());
+
+        List<LocalDateTime> possibleDateTimeAddList2 = List.of(
+                LocalDateTime.of(2024, 7, 6, 11, 0),
+                LocalDateTime.of(2024, 7, 6, 12, 0),
+                LocalDateTime.of(2024, 7, 6, 13, 0)
+        );
+
+        // when
+        possibleDateTimeRepository.savePossibleDateTimeListWhereNotExistForH2(possibleDateTimeAddList2.stream()
+                .map(dateTime -> PossibleDateTime.builder()
+                        .possibleDateTimeId(tsidKeyGenerator.generateTsid())
+                        .userId(userId)
+                        .possibleDateTime(dateTime)
+                        .possibleDateTimeStatus(PossibleDateTimeStatusType.AVAILABLE)
+                        .build())
+                .toList()
+        );
+
+        // then
+        List<PossibleDateTime> possibleDateTimeList = possibleDateTimeRepository.findAllByUserId(userId);
+        log.info("possibleDateTimeList : {}", possibleDateTimeList);
+        assertThat(possibleDateTimeList).hasSize(3);
     }
 
     @DisplayName("findAllByUserId 매퍼는 status와 무관하게 특정 사용자의 모든 가능한 일정을 조회한다.")
@@ -126,6 +207,37 @@ class PossibleDateTimeRepositoryTest {
         String selectQueryForH2 = "SELECT possible_datetime_id, possible_datetime, possible_datetime_status, user_id" +
                 " FROM t_possible_datetime WHERE user_id = " + userId +
                 " AND possible_datetime >= FORMATDATETIME(CURRENT_DATE, 'yyyy-MM-01')";
+
+        // when
+        List<PossibleDateTime> possibleDateTimeList = jdbcTemplate.query(selectQueryForH2, (rs, rowNum) -> PossibleDateTime.builder()
+                .possibleDateTimeId(rs.getLong("possible_datetime_id"))
+                .possibleDateTime(rs.getTimestamp("possible_datetime").toLocalDateTime())
+                .possibleDateTimeStatus(PossibleDateTimeStatusType.valueOf(rs.getString("possible_datetime_status")))
+                .userId(rs.getLong("user_id"))
+                .build()
+        );
+
+        // then
+        assertThat(possibleDateTimeList).isNotNull();
+        assertThat(possibleDateTimeList.stream().map(PossibleDateTime::getPossibleDateTime))
+                .allMatch(dateTime -> dateTime.isAfter(LocalDateTime.now().minusMonths(1)));
+    }
+
+    @DisplayName("findAllByProfileIdWhereFromThisMonth 매퍼는 특정 프로필 식별값으로 이달부터의 일정을 모두 조회한다.")
+    @Test
+    void findAllByProfileIdWhereFromThisMonth(){
+        // given
+        Long userId = 100000000000000002L;
+        Long profileId = 200000000000000002L;
+        possibleDateTimeRepository.savePossibleDateTimeList(List.of(PossibleDateTime.builder()
+                .possibleDateTimeId(tsidKeyGenerator.generateTsid())
+                .possibleDateTime(LocalDateTime.now().minusMonths(1))
+                .userId(userId)
+                .build()
+        ));
+        String selectQueryForH2 = "SELECT possible_datetime_id, possible_datetime, possible_datetime_status, user_id" +
+                " FROM t_possible_datetime WHERE user_id IN (SELECT user_id FROM t_profile WHERE profile_id = " +
+                profileId + ") AND possible_datetime >= FORMATDATETIME(CURRENT_DATE, 'yyyy-MM-01')" ;
 
         // when
         List<PossibleDateTime> possibleDateTimeList = jdbcTemplate.query(selectQueryForH2, (rs, rowNum) -> PossibleDateTime.builder()

@@ -65,7 +65,7 @@
             profile.profile_image_url AS appointmentSenderProfileImageUrl,
             appoint.appointment_status AS appointmentStatus,
             appoint.appointment_create_date AS appointmentCreateDate,
-            IF(appoint.appointment_status = 'ACCEPT' OR appoint.appointment_status = 'DONE',
+            IF(appoint.appointment_status = 'ACCEPTED' OR appoint.appointment_status = 'DONE',
                DATE_FORMAT(pdatetime.possible_datetime, '%Y-%m-%d %H:00:00'),
                NULL
             ) AS appointmentFixDateTime
@@ -78,21 +78,6 @@
         AND appoint.appointment_status IN ('WAITING', 'ACCEPTED')
         ORDER BY appoint.appointment_create_date DESC;
     </select>
-
-<!--    <select id="countAcceptedAppointmentByReceiverIdAndPossibleTimeId" resultType="int" parameterType="map">-->
-<!--        SELECT-->
-<!--            COUNT(*) AS count-->
-<!--        FROM t_appointment-->
-<!--        <where>-->
-<!--            appointment_receiver_id = #{targetReceiverUserId}-->
-<!--          AND appointment_status = 'ACCEPT'-->
-<!--            <if test="possibleTimeIdList != null and !possibleTimeIdList.isEmpty()">-->
-<!--                <foreach collection="possibleTimeIdList" item="possibleTimeId" open="AND possible_time_id IN (" close=")" separator=",">-->
-<!--                    #{possibleTimeId}-->
-<!--                </foreach>-->
-<!--            </if>-->
-<!--        </where>-->
-<!--    </select>-->
 
     <select id="findByAppointmentId" resultType="com.swyp3.babpool.domain.appointment.domain.Appointment" parameterType="long">
         SELECT
@@ -188,14 +173,14 @@
 
     <select id="findAcceptAppointment" resultType="com.swyp3.babpool.domain.appointment.application.response.AppointmentAcceptResponse">
         SELECT tappointment.appointment_id AS appointmentId,
-            tappointment.appointment_content AS appointmentContent
-            tuser.user_nick_name AS requesterNickName,
-            tuser.user_grade AS requesterGrade,
-            tprofile.profile_image_url AS requesterProfileImageUrl,
-            tprofile.profile_intro AS requesterIntro,
-            tprofile.profile_contact_phone AS requesterContactPhone,
+               tuser.user_nick_name AS requesterNickName,
+               tprofile.profile_image_url AS requesterProfileImageUrl,
+               tuser.user_grade AS requesterGrade,
+               tprofile.profile_intro AS requesterIntro,
+               tdatetime.possible_datetime AS possibleDateTime,
+               tprofile.profile_contact_phone AS requesterContactPhone,
             tprofile.profile_contact_chat AS requesterContactChat,
-            tdatetime.possible_datetime AS possibleDateTime
+               tappointment.appointment_content AS appointmentContent
         FROM t_appointment tappointment
             INNER JOIN t_possible_datetime tdatetime ON tdatetime.possible_datetime_id = tappointment.possible_datetime_id
             INNER JOIN t_user_account tuser ON tappointment.appointment_sender_id = tuser.user_id
@@ -234,7 +219,7 @@
             '시간만료' AS message
         FROM t_appointment tappointment
                  INNER JOIN t_user_account tuser ON tuser.user_id = tappointment.appointment_receiver_id
-                 INNER JOIN t_profile tprofile ON ua.user_id = tprofile.user_id
+                 INNER JOIN t_profile tprofile ON tuser.user_id = tprofile.user_id
                  LEFT JOIN t_m_user_keyword muk ON tuser.user_id = muk.user_id
                  LEFT JOIN t_keyword tkeyword ON muk.keyword_id = tkeyword.keyword_id
         WHERE tappointment.appointment_id = #{appointmentId}

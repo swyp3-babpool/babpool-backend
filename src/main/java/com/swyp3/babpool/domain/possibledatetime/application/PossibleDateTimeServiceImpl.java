@@ -43,7 +43,7 @@ public class PossibleDateTimeServiceImpl implements PossibleDateTimeService{
 
     @Override
     public boolean changeStatusAsReserved(Long possibleDateTimeId) {
-        int updatedRows = possibleDateTimeRepository.updatePossibleDateTimeStatus(possibleDateTimeId, PossibleDateTimeStatusType.RESERVED);
+        int updatedRows = possibleDateTimeRepository.updatePossibleDateTimeStatusFromAvailable(possibleDateTimeId, PossibleDateTimeStatusType.RESERVED);
         if (updatedRows != 1){
             throw new PossibleDateTimeException(PossibleDateTimeErrorCode.POSSIBLE_DATETIME_STATUS_UPDATE_FAILED, "밥약 가능한 일정 상태 변경에 실패하였습니다.");
         }
@@ -52,14 +52,13 @@ public class PossibleDateTimeServiceImpl implements PossibleDateTimeService{
 
     @Override
     public List<PossibleDateTimeResponse> updatePossibleDateTime(Long userId, PossibleDateTimeUpdateRequest possibleDateTimeUpdateRequest) {
-        
-        // 일정 제거 : possibleDateTimeStatus 가 RESERVED 인 경우는 제외하고 삭제
+        // 일정 제거
         if(!possibleDateTimeUpdateRequest.getPossibleDateTimeDelList().isEmpty()) {
             possibleDateTimeRepository.deletePossibleDateTimeWhereStatusIsNotReserved(userId, possibleDateTimeUpdateRequest.getPossibleDateTimeDelList());
         }
-        // 추가
+        // 일정 추가
         if(!possibleDateTimeUpdateRequest.getPossibleDateTimeAddList().isEmpty()) {
-            possibleDateTimeRepository.savePossibleDateTimeList(possibleDateTimeUpdateRequest.getPossibleDateTimeAddList().stream()
+            possibleDateTimeRepository.savePossibleDateTimeListWhereNotExist(possibleDateTimeUpdateRequest.getPossibleDateTimeAddList().stream()
                     .map(datetime -> PossibleDateTime.builder().possibleDateTimeId(tsidKeyGenerator.generateTsid())
                             .userId(userId)
                             .possibleDateTime(datetime)
@@ -97,6 +96,25 @@ public class PossibleDateTimeServiceImpl implements PossibleDateTimeService{
         return possibleDateTimeRepository.findByUserIdAndDateTimeWhereStatus(receiverUserId, possibleDateTime, possibleDateTimeStatus).orElseThrow(
                 () -> new PossibleDateTimeException(PossibleDateTimeErrorCode.POSSIBLE_DATETIME_NOT_FOUND, "조회된 PossibleDateTime 이 존재하지 않습니다.")
         ).getPossibleDateTimeId();
+    }
+
+    @Override
+    public List<PossibleDateTimeResponse> getPossibleDateTimeListByProfileId(Long profileId) {
+        List<PossibleDateTime> allByProfileId = possibleDateTimeRepository.findAllByProfileIdWhereFromThisMonth(profileId);
+        if (allByProfileId.isEmpty()) {
+            throw new PossibleDateTimeException(PossibleDateTimeErrorCode.POSSIBLE_DATETIME_NOT_FOUND, "조회된 PossibleDateTime 이 존재하지 않습니다.");
+        }
+        return allByProfileId.stream()
+                .map(PossibleDateTimeResponse::from)
+                .toList();
+    }
+
+    @Override
+    public void changeStatusAsAvailable(Long possibleDateTimeId) {
+        int updatedRows = possibleDateTimeRepository.updatePossibleDateTimeStatus(possibleDateTimeId, PossibleDateTimeStatusType.AVAILABLE);
+        if (updatedRows != 1){
+            throw new PossibleDateTimeException(PossibleDateTimeErrorCode.POSSIBLE_DATETIME_STATUS_UPDATE_FAILED, "밥약 가능한 일정 상태 변경에 실패하였습니다.");
+        }
     }
 
     private void validateRequestPossibleDateTime(Map<String, List<Integer>> possibleDateMap) {

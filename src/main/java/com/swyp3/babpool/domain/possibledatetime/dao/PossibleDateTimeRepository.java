@@ -28,6 +28,8 @@ public interface PossibleDateTimeRepository {
     // 테스트 코드 작성 완료
     int updatePossibleDateTimeStatus(Long possibleDateTimeId, PossibleDateTimeStatusType status);
 
+    int updatePossibleDateTimeStatusFromAvailable(Long possibleDateTimeId, PossibleDateTimeStatusType status);
+
     // 테스트 코드 작성 완료
     List<PossibleDateTime> findAllByUserId(Long userId);
 
@@ -40,6 +42,9 @@ public interface PossibleDateTimeRepository {
     // 테스트 코드 작성 완료
     void savePossibleDateTimeList(List<PossibleDateTime> possibleDateTimeList);
 
+    // 테스트 코드 작성 완료
+    void savePossibleDateTimeListWhereNotExist(List<PossibleDateTime> possibleDateTimeList);
+    void savePossibleDateTimeListWhereNotExistForH2(List<PossibleDateTime> possibleDateTimeList);
 
     @Deprecated
     List<PossibleDateAndTime> findAllPossibleDateAndTimeByProfileIdAndNowDateWithoutAcceptOrDone(Long profileId);
@@ -51,4 +56,6 @@ public interface PossibleDateTimeRepository {
     boolean checkExistPossibleTime(Long profileId, String possibleDate, Integer possibleTimeStart);
 
     Optional<PossibleDateTime> findByUserIdAndDateTimeWhereStatus(Long receiverUserId, LocalDateTime possibleDateTime, PossibleDateTimeStatusType possibleDateTimeStatus);
+
+    List<PossibleDateTime> findAllByProfileIdWhereFromThisMonth(Long profileId);
 }

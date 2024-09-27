@@ -32,4 +32,6 @@ public interface ProfileService {
     void updateProfileActiveFlag(Long userId, Boolean activeFlag);
 
     Profile getProfileByProfileId(Long profileId);
+
+    void updateProfileImageFromSocialProfileImage(Long userId, String profileImage);
 }

@@ -26,7 +26,7 @@ public enum AppointmentErrorCode implements CustomErrorCode {
     APPOINTMENT_STATUS_IS_NOT_REFUSED(HttpStatus.BAD_REQUEST,"거절된 밥약이 아닙니다."),
     APPOINTMENT_CREATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "밥약 요청 생성에 실패하였습니다."),
     APPOINTMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "밥약 요청이 존재하지 않습니다."),
-    ;
+    APPOINTMENT_POSSIBLE_DATETIME_INVALID(HttpStatus.BAD_REQUEST, "밥약 가능한 일정이 유효하지 않습니다."),;
     private final HttpStatus httpStatus;
     private final String message;
 }

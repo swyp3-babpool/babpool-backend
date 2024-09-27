@@ -41,8 +41,6 @@ public class AppointmentServiceImpl implements AppointmentService{
 
     private final PossibleDateTimeService possibleDateTimeService;
     private final RejectService rejectService;
-    private final UserService userService;
-    private final ProfileService profileService;
 
     private final AppointmentRepository appointmentRepository;
     private final UserRepository userRepository;
@@ -57,6 +55,9 @@ public class AppointmentServiceImpl implements AppointmentService{
     @Transactional
     @Override
     public AppointmentCreateResponse makeAppointmentResolveConcurrency(AppointmentCreateRequest appointmentCreateRequest) {
+
+        // 요청한 시간이 기획 요구사항과 일치하는지 확인.
+        validateDateTimeRange(appointmentCreateRequest.getPossibleDateTime());
 
         // 요청 송신자와 수신자 동일한 요청일 경우 예외를 발생한다.
         throwExceptionIfSenderAndReceiverAreSame(appointmentCreateRequest);
@@ -88,6 +89,23 @@ public class AppointmentServiceImpl implements AppointmentService{
         simpleMessagingPublisher.sendAppointmentRequestMessageToAppointmentReceiver(savedAppointment.getAppointmentId(), savedAppointment.getAppointmentSenderId(), savedAppointment.getAppointmentReceiverId());
 
         return AppointmentCreateResponse.of(savedAppointment, appointmentCreateRequest.getTargetProfileId());
+    }
+
+    private void validateDateTimeRange(LocalDateTime possibleDateTime) {
+        LocalDateTime curDateTime = LocalDateTime.now();
+        if(possibleDateTime.isBefore(curDateTime)){
+            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_POSSIBLE_DATETIME_INVALID,
+                    "밥약 가능한 시간이 현재 시간 이전입니다.");
+        }
+
+        if(possibleDateTime.getHour() < 8 || possibleDateTime.getHour() > 22){
+            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_POSSIBLE_DATETIME_INVALID,
+                    "밥약 가능한 시간이 08시부터 22시 사이가 아닙니다.");
+        }
+        if(possibleDateTime.getMinute() != 0 || possibleDateTime.getSecond() != 0){
+            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_POSSIBLE_DATETIME_INVALID,
+                    "밥약 가능한 시간이 '00분 00초' 가 아닙니다.");
+        }
     }
 
     private static void throwExceptionIfSenderAndReceiverAreSame(AppointmentCreateRequest appointmentCreateRequest) {
@@ -228,6 +246,7 @@ public class AppointmentServiceImpl implements AppointmentService{
         throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_DETAIL_ERROR,"대기중 혹은 수락된 밥약이 아닙니다.");
     }
 
+    @Transactional
     @Override
     public AppointmentCancelResponse cancelAppointmentRequested(Long userId, Long appointmentId) {
         Appointment appointment = appointmentRepository.findByAppointmentId(appointmentId)
@@ -240,6 +259,7 @@ public class AppointmentServiceImpl implements AppointmentService{
         if(updatedRows != 1){
             throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_CANCEL_FAILED, "밥약 요청 삭제에 실패하였습니다.");
         }
+        possibleDateTimeService.changeStatusAsAvailable(appointment.getPossibleDateTimeId());
         return AppointmentCancelResponse.builder()
                 .appointmentId(appointmentId)
                 .appointmentCancelResult("밥약 요청이 정상 취소되었습니다.")
