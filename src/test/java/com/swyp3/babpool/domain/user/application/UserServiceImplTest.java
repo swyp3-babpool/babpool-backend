@@ -10,6 +10,7 @@ import com.swyp3.babpool.global.tsid.TsidKeyGenerator;
 import com.swyp3.babpool.infra.auth.AuthPlatform;
 import com.swyp3.babpool.infra.auth.response.AuthMemberResponse;
 import com.swyp3.babpool.infra.auth.service.AuthService;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,6 +24,7 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@Slf4j
 class UserServiceImplTest {
 
     @InjectMocks
@@ -72,6 +74,8 @@ class UserServiceImplTest {
                         user.getUserNickName().equals("TestUser") &&
                         user.getUserStatus() == UserStatus.PREACTIVE
         ));
+
+        log.info(createdUser.toString());
     }
 
     @DisplayName("사용자 생성 중 DB 저장에 실패하면 SignUpException이 발생한다.")

@@ -53,8 +53,8 @@
     <!-- ==============================  INSERT  ============================== -->
 
     <insert id="save">
-        insert into t_user_account(user_id, user_email,user_status,user_role,user_grade,user_nick_name)
-        values (#{userId}, #{userEmail},#{userStatus},#{userRole},#{userGrade},#{userNickName})
+        insert into t_user_account(user_id, user_email, user_status, user_role, user_grade, user_nick_name)
+        values (#{userId}, #{userEmail}, #{userStatus}, #{userRole}, #{userGrade}, #{userNickName})
     </insert>
 
     <!-- ==============================  UPDATE  ============================== -->

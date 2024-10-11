@@ -13,23 +13,24 @@
 
 ## 🗂️ Index
 
-1. 웹 서비스 개요
-2. BE 기술 스택
-3. ER 다이어그램
-4. 서버 아키텍처
-5. BE 챌린지 & 해결
-6. 프로젝트 구조
-7. CI/CD 파이프라인
-8. 기타 산출물
+1. [**웹 서비스 개요**](#1)
+2. [**BE 기술 스택**](#2)
+3. [**ER 다이어그램**](#3)
+4. [**서버 아키텍처**](#4)
+5. [**BE 챌린지 & 해결**](#5)
+6. [**프로젝트 구조**](#6)
+7. [**CI/CD 파이프라인**](#7)
+8. [**기타 산출물**](#8)
    - 시작 가이드
    - 기능요구사항명세서
    - wbs
    - 회의록
    - 메인 기능 Sequence Diagram
-9. BE 기여도
-10. 소감
+9. [**BE 기여도**](#9)
+10. [**소감**](#10)
 
 
+<div id="1"></div>
 
 ## 📖 Outline
 
@@ -112,8 +113,6 @@
 
 
 ## 🚀 CI/CD 파이프라인
-
----
 
 - Github Actions, Docker Compose 를 사용하여 CI/CD 자동화 파이프라인을 구성했습니다.
 - `github-actions-server.yaml` 파일의 변경사항과 함께 main 브랜치에 푸시되면, Github Actions가 동작합니다.
@@ -322,9 +321,9 @@
   - 밥 약속 수락/거절 처리
   - 사용자 정보 수정 처리
 
-## 기타 산출물
+## 📝 기타 산출물
 
-### 1) 시작 가이드
+### [1) 시작 가이드](https://github.com/swyp3-babpool/babpool-backend/wiki)
 
 해당 시작 가이드는, 로컬 환경에서 테스트 코드를 실행하기 위한 환경을 구축하는 방법을 안내합니다.
 
@@ -333,13 +332,13 @@
         📦 상세 내용 더보기
     </summary>
 
-### 사전 준비
+**사전 준비**
 
 - Java JDK 17을 설치합니다.
 - JAVA_HOME 환경 변수를 설정합니다.
 - IDE 인텔리제이 툴을 권장합니다.
 
-### 프로젝트 클론 및 빌드
+**프로젝트 클론 및 빌드**
 
 1. 저장소 클론
 ```bash
@@ -347,7 +346,7 @@ git clone https://github.com/proHyundo/your-repository.git
 ```
 2. IntelliJ 에서 프로젝트를 열고 Gradle 의존성을 자동으로 불러옵니다.
 
-## Running the tests
+Running the tests
 
 To run the tests, use the following command:
 
@@ -357,7 +356,9 @@ To run the tests, use the following command:
 
 </details>
 
-### 2) 기능요구사항명세서
+
+
+### 2) 기능 요구 사항 명세서
 
 ![mvp_기능요구사항명세서](https://github.com/user-attachments/assets/e0ed548f-46c9-48f5-97a8-61bdeb7cf3a2)
 

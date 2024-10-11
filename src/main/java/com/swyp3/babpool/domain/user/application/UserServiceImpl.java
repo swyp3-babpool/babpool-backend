@@ -179,6 +179,8 @@ public class UserServiceImpl implements UserService{
                             .userEmail(authMemberResponse.getEmail())
                             .userNickName(authMemberResponse.getNickname())
                             .userStatus(UserStatus.PREACTIVE)
+                            .userRole(UserRole.USER)
+                            .userGrade("none")
                             .allArgsBuild();
         Integer insertedRows = userRepository.save(targetUser);
         if (insertedRows != 1) {
