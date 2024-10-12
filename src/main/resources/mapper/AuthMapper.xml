@@ -9,7 +9,7 @@
 
     <insert id="save" useGeneratedKeys="true" keyProperty="oauthId">
         insert into t_oauth(oauth_id, user_id,oauth_platform_name,oauth_platform_id)
-        values (#{oauth_id}, #{userId},#{oauthPlatformName},#{oauthPlatformId} )
+        values (#{oauthId}, #{userId},#{oauthPlatformName},#{oauthPlatformId} )
     </insert>
 
     <update id="updateOauthPlatformId" parameterType="long">
