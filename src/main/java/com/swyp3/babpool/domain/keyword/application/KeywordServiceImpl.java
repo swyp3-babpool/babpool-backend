@@ -7,6 +7,8 @@ import com.swyp3.babpool.domain.keyword.exception.KeywordException;
 import com.swyp3.babpool.domain.profile.application.response.ProfileKeywordsResponse;
 import com.swyp3.babpool.global.tsid.TsidKeyGenerator;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,12 +18,15 @@ import java.util.List;
 @Service
 public class KeywordServiceImpl implements KeywordService{
 
+    private static final Logger log = LoggerFactory.getLogger(KeywordServiceImpl.class);
     private final KeywordRepository keywordRepository;
     private final TsidKeyGenerator tsidKeyGenerator;
 
     @Transactional
     @Override
     public void saveUserAndKeywordMapping(Long userId, List<Long> keywordList) {
+        log.info("KeywordServiceImpl: saveUserAndKeywordMapping: userId: {}, keywordList: {}", userId, keywordList);
+        log.info("KeywordServiceImpl: saveUserAndKeywordMapping: keywordList.get(0): {}", keywordList.get(0));
         List<MappingUserKeyword> mappingList = keywordList.stream()
                         .map(keywordId -> new MappingUserKeyword(tsidKeyGenerator.generateTsid(), userId, keywordId))
                         .toList();
