@@ -189,6 +189,7 @@ public class UserServiceImpl implements UserService{
 
         // 신규 사용자의 Auth 정보 저장
         authService.createAuth(Auth.builder()
+                        .oauthId(tsidKeyGenerator.generateTsid())
                         .userId(targetUserId)
                         .oauthPlatformName(authPlatform)
                         .oauthPlatformId(authMemberResponse.getPlatformId())
