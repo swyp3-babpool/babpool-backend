@@ -103,13 +103,27 @@
 - 해결 :
 
 3) 일일 요청 수 20,000 건 이상 요청되며, AWS 과금이 발생했습니다.
-- 해결 :
+- 해결 : 다양한 솔루션을 비교분석하여 현재 아키텍처와 비용을 고려한 Nginx custom 설정과 Cloudflare bot fight mode를 도입하여 해결했습니다.
+- 트러블 슈팅 링크 : [해당 링크](https://velog.io/@dev_hyun/일일-요청-수-2000건-봇-간단하게-방어하기) 
 
 4) AutoIncrement PK 사용으로, 자원에 대한 정보를 추정하기 너무 쉬웠습니다.
+- 해결 : TSID를 도입하여, 자원에 대한 정보를 추정하기 어렵게 만들었습니다. 더불어, JavaScript의 정수 범위 오버플로우 이슈를 JsonObjectMapper를 통해 해결했습니다.
+- 트러블 슈팅 링크 : [해당 링크](https://velog.io/@dev_hyun/id-채번-전략-trade-off)
+
+5) 모니터링 서버 GCP VM에 SSH 접속 오류가 발생했습니다.
+- 해결 : 모니터링 서버의 도커 로그 파일이 너무 커서, VM의 디스크 용량이 부족해 발생한 문제였습니다. 임시 VM에 디스크를 Mount하여 로그 파일을 삭제하고, VM의 디스크 용량을 확장하여 해결했습니다.
+- 트러블 슈팅 링크 : [해당 링크](https://velog.io/@dev_hyun/GCP-VM-SSH-접속오류-해결과정)
+
+6) Embedded Redis가 애플 M칩 기반의 맥북에서 동작하지 않는 문제가 발생했습니다.
 - 해결 :
 
-5) Embedded Redis가 애플 M칩 기반의 맥북에서 동작하지 않는 문제.
-- 해결 :
+7) H2 데이터베이스에서 MySQL 쿼리를 테스트 할 때, `Unknown data type` 오류가 발생했습니다.
+- 해결 : 명시적인 데이터 타입을 지정하여 해결했습니다.
+- 트러블 슈팅 링크 : [해당 링크](https://velog.io/@dev_hyun/H2-데이터베이스-unknown-data-type-트러블슈팅)
+
+8) 클라이언트의 IP가 올바르게 로깅되지 않았습니다.
+- 해결 : Nginx의 설정 파일에 `X-Forwarded-For`, `X-Real-IP` 헤더를 추가하여 해결했습니다.
+- 트러블 슈팅 링크 : [해당 링크](https://velog.io/@dev_hyun/클라이언트의-올바른-IP를-로그로-출력하기)
 
 
 ## 🚀 CI/CD 파이프라인
