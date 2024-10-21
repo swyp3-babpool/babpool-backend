@@ -69,7 +69,7 @@ class PossibleDateTimeServiceImplTest {
         for (int i = 0; i < threadCount; i++) {
             executorService.submit(() -> {
                 try {
-                    aaa(appointmentCreateRequest);
+                    couldBeConcurrentRequest(appointmentCreateRequest);
                 } finally {
                     countDownLatch.countDown();
                 }
@@ -90,7 +90,7 @@ class PossibleDateTimeServiceImplTest {
     }
 
     @Transactional
-    protected void aaa(AppointmentCreateRequest appointmentCreateRequest) {
+    protected void couldBeConcurrentRequest(AppointmentCreateRequest appointmentCreateRequest) {
         PossibleDateTime possibleDateTimeEntity = possibleDateTimeService.throwExceptionIfAppointmentAlreadyAcceptedAtSameTime(
                 appointmentCreateRequest.getReceiverUserId(), appointmentCreateRequest.getPossibleDateTimeId(), appointmentCreateRequest.getPossibleDateTime());
 
