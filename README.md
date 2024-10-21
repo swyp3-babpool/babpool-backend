@@ -44,7 +44,10 @@
       <summary>상장 보기</summary>
       <img src="https://github.com/user-attachments/assets/bff8342c-9122-4145-90b7-b55cb08c81c0" alt="1위_수상_상장" />     
   </details>
+
+<!--  
 - [BE 개발자의 3기 참여 후기]()
+-->
 
 **개발 기간**
 
