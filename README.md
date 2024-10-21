@@ -27,7 +27,7 @@
    - 회의록
    - 메인 기능 Sequence Diagram
 9. [**BE 기여도**](#9)
-10. [**소감**](#10)
+10. [**소감 및 팀원 내부 평가**](#10)
 
 
 <div id="1"></div>
@@ -56,6 +56,8 @@
 - 기획자 1명, 디자이너 1명, BE 2명, FE 2명
 - 개선 및 유지보수 : 기획자 1명, BE 1명, FE 2명(외부 충원 1명)
 
+<div id="2"></div>
+
 ## 🔧 BE Skill Stack
 
 ![image](https://github.com/swyp3-babpool/babpool-backend/assets/128882585/9a5dd0ce-58ad-4701-b6b5-d17df27e8e64)
@@ -70,7 +72,7 @@
 |   가상환경    | Docker  | 컨테이너의 특징에 의해 환경에 구애받지 않고 애플리케이션을 쉽고 안정적으로 관리할 수 있다는 점에서 사용했습니다.                                                                       |
 |   실시간알림   |  Stomp  | 사용자가 어느페이지에 존재해도 약속 요청 이벤트가 발생했을 때 실시간 알림 기능을 구현하기 위해, 메시지 기반의 웹소켓 비동기 프로토콜을 간편하게 제공하는 STOMP를 사용했습니다.                                 |
 
-
+<div id="3"></div>
 
 ## 📊 ERD
 
@@ -82,6 +84,7 @@
 | ![ERD_origin](https://github.com/user-attachments/assets/eb852adf-6a59-4a09-b046-a97f40e4bcf9) | ![ERD_after](https://github.com/user-attachments/assets/c0246525-831c-43e4-a57b-95732853d1dc) |
 |                                          테이블 개수 : 15개                                          |                                         테이블 개수 : 10개                                          |                                          |
 
+<div id="4"></div>
 
 ## 🔨 Server Architecture
 
@@ -93,14 +96,17 @@
 - 프론트 서버는 S3에 정적 파일을 호스팅하고, CloudFront 를 통해 CDN 을 적용했습니다. 이로 인해 사용자에게 빠른 응답 제공과 S3 서비스에 대한 요청 비용을 절감할 수 있었습니다.
 - 모니터링 서버를 구축하여, 서버의 상태(매트릭)와 로그를 실시간으로 확인하고, 장애 발생 시 빠르게 대응할 수 있도록 구성했습니다. 더불어 SSH 접속 도구를 통해 
 
+<div id="5"></div>
 
 ## 🔥 BE Challenge & Solution
 
-1) 밥 약속 동시 요청 발생 시, Race Condition 이 발생했습니다.
-- 해결 : 빈번하게 발생하는 상황은 아니지만, 반드시 정합성이 지켜져야 한다는 점에서, MySQL `SELECT ~ FOR UPDATE` 구문을 사용해 베타적 락을 적용하여 해결했습니다.
+1) 데이터가 많아지는 경우, 페이징 쿼리 성능 저하되었습니다.
+- 해결 : 실행계획은 분석하여 커버링 인덱스, 복합 인덱스 등 인덱스를 비교분석 하여 선택했습니다. 더불어, LIMIT OFFSET을 단점을 보완하기 위해 개수 기반 조건문을 추가했습니다. 
+- 트러블 슈팅 링크 : [해당 링크](https://velog.io/@dev_hyun/페이징-쿼리-성능을-개선해보자)
 
-2) 데이터가 많아지는 경우, 페이징 쿼리 성능 저하되었습니다.
-- 해결 :
+2) 밥 약속 동시 요청 발생 시, Race Condition 이 발생했습니다.
+- 해결 : 빈번하게 발생하는 상황은 아니지만, 반드시 정합성이 지켜져야 한다는 점에서, MySQL `SELECT ~ FOR UPDATE` 구문을 사용해 베타적 락을 적용하여 해결했습니다.
+- 트러블 슈팅 링크 : [해당 링크](https://velog.io/@dev_hyun/동시에-들어온-여러요청-처리하기)
 
 3) 일일 요청 수 20,000 건 이상 요청되며, AWS 과금이 발생했습니다.
 - 해결 : 다양한 솔루션을 비교분석하여 현재 아키텍처와 비용을 고려한 Nginx custom 설정과 Cloudflare bot fight mode를 도입하여 해결했습니다.
@@ -114,51 +120,19 @@
 - 해결 : 모니터링 서버의 도커 로그 파일이 너무 커서, VM의 디스크 용량이 부족해 발생한 문제였습니다. 임시 VM에 디스크를 Mount하여 로그 파일을 삭제하고, VM의 디스크 용량을 확장하여 해결했습니다.
 - 트러블 슈팅 링크 : [해당 링크](https://velog.io/@dev_hyun/GCP-VM-SSH-접속오류-해결과정)
 
-6) Embedded Redis가 애플 M칩 기반의 맥북에서 동작하지 않는 문제가 발생했습니다.
-- 해결 :
+[//]: # (6&#41; Embedded Redis가 애플 M칩 기반의 맥북에서 동작하지 않는 문제가 발생했습니다.)
 
-7) H2 데이터베이스에서 MySQL 쿼리를 테스트 할 때, `Unknown data type` 오류가 발생했습니다.
+[//]: # (- 해결 :)
+
+6) H2 데이터베이스에서 MySQL 쿼리를 테스트 할 때, `Unknown data type` 오류가 발생했습니다.
 - 해결 : 명시적인 데이터 타입을 지정하여 해결했습니다.
 - 트러블 슈팅 링크 : [해당 링크](https://velog.io/@dev_hyun/H2-데이터베이스-unknown-data-type-트러블슈팅)
 
-8) 클라이언트의 IP가 올바르게 로깅되지 않았습니다.
+7) 클라이언트의 IP가 올바르게 로깅되지 않았습니다.
 - 해결 : Nginx의 설정 파일에 `X-Forwarded-For`, `X-Real-IP` 헤더를 추가하여 해결했습니다.
 - 트러블 슈팅 링크 : [해당 링크](https://velog.io/@dev_hyun/클라이언트의-올바른-IP를-로그로-출력하기)
 
-
-## 🚀 CI/CD 파이프라인
-
-- Github Actions, Docker Compose 를 사용하여 CI/CD 자동화 파이프라인을 구성했습니다.
-- `github-actions-server.yaml` 파일의 변경사항과 함께 main 브랜치에 푸시되면, Github Actions가 동작합니다.
-- 설정 스크립트는 [해당 yml 링크](https://github.com/swyp3-babpool/babpool-backend/blob/main/.github/workflows/github-actions-server.yaml)를 참조해주세요. 주요 단계는 아래와 같습니다.
-
-**주요 단계**
-
-1. 빌드
-   - 체크아웃 리포지토리
-   - Java 환경 설정
-   - 테스트 및 동작에 필요한 각종 파일(application.yml, data.sql, schema.sql, log4jdbc.log4j2.properties)을 Github Secretes 환경변수를 사용해 생성 및 업로드
-   - Gradle 설정, `./gradlew clean build -i` 애플리케이션 빌드
-
-2. Docker 이미지 작업
-   - 비밀번호를 사용하여 DockerHub에 로그인합니다.
-   - 애플리케이션에 대한 Docker 이미지를 빌드하고 푸시합니다.
-
-3. 설정 파일 생성 및 복사
-    - 시크릿에서 docker-compose.yaml을 생성하여 VM에 복사합니다.
-    - app.conf(NGINX 구성)가 생성되어 VM에 복사됩니다.
-    - promtail-config.yml이 생성되어 VM에 복사됩니다.
-
-4. VM에 배포
-    - VM에 SSH로 접속합니다.
-    - 기존 컨테이너와 이미지가 있는 경우 제거합니다.
-    - 새 Docker 이미지를 가져옵니다.
-    - Docker Compose를 사용하여 애플리케이션을 시작합니다.
-    - 사용하지 않는 Docker 이미지를 정리합니다.
-
-5. CI/CD 결과 Slack 알림
-   - work-flow 결과를 Slack에 보냅니다.
-
+<div id="6"></div>
   
 ## 📂 Project Structure
 
@@ -303,37 +277,43 @@
 
 </details>
 
-## 👨‍💻 BE 기여도
+<div id="7"></div>
 
-#### 송현도
+## 🚀 CI/CD 파이프라인
 
-- MVP 기간
-  - 프로필 페이징 구현
-  - 밥 약속 도메인 설계 및 구현
-  - JWT 기반 사용자 인증/인가 처리
-  - 소셜 로그아웃, 회원탈퇴 처리
-  - 밥 약속 신청 상태 변경을 위한 스케줄러 도입
-  - 밥 약속 신청 시, 실시간 알림 구현
-  - S3 프로필 이미지 업로드
-  - AWS 기반 애플리케이션 아키텍처 설계 및 구축, 도메인 및 인증서 설정
-  - CI/CD 파이프라인 구축
+- Github Actions, Docker Compose 를 사용하여 CI/CD 자동화 파이프라인을 구성했습니다.
+- `github-actions-server.yaml` 파일의 변경사항과 함께 main 브랜치에 푸시되면, Github Actions가 동작합니다.
+- 설정 스크립트는 [해당 yml 링크](https://github.com/swyp3-babpool/babpool-backend/blob/main/.github/workflows/github-actions-server.yaml)를 참조해주세요. 주요 단계는 아래와 같습니다.
+
+**주요 단계**
+
+1. 빌드
+    - 체크아웃 리포지토리
+    - Java 환경 설정
+    - 테스트 및 동작에 필요한 각종 파일(application.yml, data.sql, schema.sql, log4jdbc.log4j2.properties)을 Github Secretes 환경변수를 사용해 생성 및 업로드
+    - Gradle 설정, `./gradlew clean build -i` 애플리케이션 빌드
+
+2. Docker 이미지 작업
+    - 비밀번호를 사용하여 DockerHub에 로그인합니다.
+    - 애플리케이션에 대한 Docker 이미지를 빌드하고 푸시합니다.
+
+3. 설정 파일 생성 및 복사
+    - 시크릿에서 docker-compose.yaml을 생성하여 VM에 복사합니다.
+    - app.conf(NGINX 구성)가 생성되어 VM에 복사됩니다.
+    - promtail-config.yml이 생성되어 VM에 복사됩니다.
+
+4. VM에 배포
+    - VM에 SSH로 접속합니다.
+    - 기존 컨테이너와 이미지가 있는 경우 제거합니다.
+    - 새 Docker 이미지를 가져옵니다.
+    - Docker Compose를 사용하여 애플리케이션을 시작합니다.
+    - 사용하지 않는 Docker 이미지를 정리합니다.
+
+5. CI/CD 결과 Slack 알림
+    - work-flow 결과를 Slack에 보냅니다.
 
 
-- 성능 개선 및 유지보수 기간
-  - ERD 반정규화
-  - TSID 도입
-  - MyBatis 테스트 코드 작성
-  - 밥 약속 동시 요청 제어
-  - 페이징 쿼리 성능 개선
-  - 크롤링 봇 대응
-
-#### 강연주
-
-- MVP 기간
-  - 카카오 소셜 로그인 구현
-  - 사용자 추가정보 입력 및 회원가입 처리
-  - 밥 약속 수락/거절 처리
-  - 사용자 정보 수정 처리
+<div id="8"></div>
 
 ## 📝 기타 산출물
 
@@ -393,9 +373,49 @@ To run the tests, use the following command:
 
 ![Babpool_sequence_diagram](https://github.com/user-attachments/assets/17de9338-7b47-4fc2-af8c-36a11d39f877)
 
-## 소감
+<div id="9"></div>
+
+## 👨‍💻 BE 기여도
+
+#### 송현도
+
+- MVP 기간
+    - 프로필 페이징 구현
+    - 밥 약속 도메인 설계 및 구현
+    - JWT 기반 사용자 인증/인가 처리
+    - 소셜 로그아웃, 회원탈퇴 처리
+    - 밥 약속 신청 상태 변경을 위한 스케줄러 도입
+    - 밥 약속 신청 시, 실시간 알림 구현
+    - S3 프로필 이미지 업로드
+    - AWS 기반 애플리케이션 아키텍처 설계 및 구축, 도메인 및 인증서 설정
+    - CI/CD 파이프라인 구축
+
+
+- 성능 개선 및 유지보수 기간
+    - ERD 반정규화
+    - TSID 도입
+    - MyBatis 테스트 코드 작성
+    - 밥 약속 동시 요청 제어
+    - 페이징 쿼리 성능 개선
+    - 크롤링 봇 대응
+
+#### 강연주
+
+- MVP 기간
+    - 카카오 소셜 로그인 구현
+    - 사용자 추가정보 입력 및 회원가입 처리
+    - 밥 약속 수락/거절 처리
+    - 사용자 정보 수정 처리
+
+<div id="10"></div>
+
+## 소감 및 팀원 내부 평가
 
 ![image](https://github.com/swyp3-babpool/babpool-backend/assets/128882585/098a2e15-9a82-4b0e-aac0-45827670a612)
+
+|        | BE 송현도                                                                                    | BE 강연주                                                                                    |
+|--------|-------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| **평가** | ![image](https://github.com/user-attachments/assets/263f0817-825b-409b-85a0-c7c1c71b09d5) | ![image](https://github.com/user-attachments/assets/ee449f48-4c1b-4525-8a74-148013d55e6c) |
 
 ## ETC
 
