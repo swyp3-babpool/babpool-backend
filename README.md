@@ -378,6 +378,11 @@ To run the tests, use the following command:
 
 <div id="9"></div>
 
+### 6) 모니터링
+
+![Babpool_monitoring](https://github.com/user-attachments/assets/720c17c8-d11f-4639-86d2-0e94dba6ad31)
+
+
 ## 👨‍💻 BE 기여도
 
 #### 송현도
